@@ -2,9 +2,10 @@ export interface QuizQuestion {
 	id: string;
 	question: string;
 	content: {
-		type: "image" | "text" | "svg";
+		type: "image" | "text" | "svg" | "component";
 		data: string;
 		alt?: string;
+		component?: string;
 	};
 	answers: {
 		id: string;
@@ -25,9 +26,10 @@ export const quizData: QuizQuestion[] = [
 		question:
 			"ถ้าคุณกำลังรอพัสดุ แล้วได้ SMS แจ้งว่าพัสดุเสียหายและมีเจ้าหน้าที่เสนอเงินชดเชย คุณจะ...?",
 		content: {
-			type: "image",
-			data: "/images/scenario-1/chat-ui.jpg",
-			alt: "Chat UI Mockup showing SMS scam message",
+			type: "component",
+			data: "",
+			component: "ChatScenario",
+			alt: "Chat scenario showing SMS scam conversation",
 		},
 		answers: [
 			{

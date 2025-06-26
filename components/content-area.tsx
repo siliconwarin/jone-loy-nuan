@@ -4,12 +4,14 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Tooltip } from "./tooltip";
+import { ChatScenario } from "./chat-scenario";
 
 interface ContentAreaProps {
 	content: {
-		type: "image" | "text" | "svg";
+		type: "image" | "text" | "svg" | "component";
 		data: string;
 		alt?: string;
+		component?: string;
 	};
 	className?: string;
 	variant?: "default" | "compact" | "fullscreen";
@@ -55,6 +57,11 @@ export const ContentArea = ({
 
 	const renderContent = () => {
 		switch (content.type) {
+			case "component":
+				if (content.component === "ChatScenario") {
+					return <ChatScenario animate={animate} showResult={showResult} />;
+				}
+				return null;
 			case "image":
 				return (
 					<Image
