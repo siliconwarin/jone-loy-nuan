@@ -29,6 +29,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="th">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			<body
 				className={`${inter.variable} ${prompt.variable} font-sans antialiased`}
 			>

@@ -43,12 +43,12 @@ export const ContentArea = ({
 		? {
 				initial: { opacity: 1, y: 0, scale: 1 },
 				animate: showResult
-					? { y: -120, scale: 1, opacity: 0.3 }
+					? { y: -60, scale: 1, opacity: 0.3 }
 					: { y: 0, scale: 1, opacity: 1 },
 				transition: {
-					duration: 1.2,
+					duration: 1.0,
 					ease: "easeInOut" as const,
-					delay: showResult ? 0.4 : 0,
+					delay: showResult ? 0.2 : 0,
 				},
 		  }
 		: {};

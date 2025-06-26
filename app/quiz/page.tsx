@@ -8,7 +8,7 @@ import { getCurrentQuestion } from "@/lib/quiz-data";
 
 // Components
 import { QuestionSection } from "./_component/question-section";
-import { AnswerButtons } from "./_component/answer-buttons";
+import { AnswerPanel } from "./_component/answer-panel";
 import { ResultCard } from "./_component/result-card";
 import { QuizBackground } from "./_component/quiz-background";
 
@@ -45,7 +45,8 @@ export default function QuizPage() {
 	return (
 		<PageContent>
 			<QuizBackground showResult={showResult}>
-				<div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-6">
+				<div className="relative w-full h-full flex flex-col items-center justify-start pt-20 sm:pt-28 p-4">
+					{/* Container สำหรับคำถามและเนื้อหา */}
 					<div className="w-full max-w-md mx-auto flex flex-col items-center space-y-6">
 						{/* Question Section */}
 						<QuestionSection
@@ -54,16 +55,16 @@ export default function QuizPage() {
 						/>
 
 						{/* Content Area */}
-						<div className="w-full flex justify-center">
-							<ContentArea
-								content={currentQuestion.content}
-								showResult={showResult}
-								variant="compact"
-							/>
-						</div>
+						<ContentArea
+							content={currentQuestion.content}
+							showResult={showResult}
+							variant="compact"
+						/>
+					</div>
 
-						{/* Answer Buttons */}
-						<AnswerButtons
+					{/* ใช้ absolute positioning สำหรับปุ่มคำตอบ */}
+					<div className="absolute bottom-[10dvh] left-1/2 -translate-x-1/2 w-full px-4">
+						<AnswerPanel
 							answers={currentQuestion.answers}
 							showResult={showResult}
 							selectedAnswer={selectedAnswer}
@@ -72,7 +73,7 @@ export default function QuizPage() {
 					</div>
 				</div>
 
-				{/* Result Card */}
+				{/* Result Card (เป็น fixed อยู่แล้ว) */}
 				<ResultCard
 					showResult={showResult}
 					isCorrect={isCorrect}
