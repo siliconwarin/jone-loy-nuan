@@ -45,7 +45,7 @@ export const ContentArea = ({
 		? {
 				initial: { opacity: 1, y: 0, scale: 1 },
 				animate: showResult
-					? { y: -60, scale: 1, opacity: 0.3 }
+					? { y: -20, scale: 1, opacity: 0.7 }
 					: { y: 0, scale: 1, opacity: 1 },
 				transition: {
 					duration: 1.0,
@@ -59,7 +59,13 @@ export const ContentArea = ({
 		switch (content.type) {
 			case "component":
 				if (content.component === "ChatScenario") {
-					return <ChatScenario animate={animate} showResult={showResult} />;
+					return (
+						<ChatScenario
+							animate={animate}
+							showResult={showResult}
+							showRedFlags={showResult}
+						/>
+					);
 				}
 				return null;
 			case "image":
