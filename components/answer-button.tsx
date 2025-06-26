@@ -17,7 +17,6 @@ export const AnswerButton = ({
 	children,
 	onClick,
 	disabled = false,
-
 	isCorrect = false,
 	isWrong = false,
 	className = "",
