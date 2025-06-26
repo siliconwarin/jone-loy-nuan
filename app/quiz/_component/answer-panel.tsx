@@ -30,7 +30,12 @@ export const AnswerPanel = ({
 			return "quiz-wrong";
 		}
 
-		// แสดงสีเขียวเมื่อแสดงผลและเป็นคำตอบที่ถูก
+		// แสดงสีเขียวทันทีที่เลือกคำตอบถูก
+		if (selectedAnswer === answer.id && answer.isCorrect) {
+			return "quiz-correct";
+		}
+
+		// แสดงสีเขียวเมื่อแสดงผลและเป็นคำตอบที่ถูก (กรณีไม่ได้เลือกแต่เป็นคำตอบที่ถูก)
 		if (showResult && answer.isCorrect) {
 			return "quiz-correct";
 		}
