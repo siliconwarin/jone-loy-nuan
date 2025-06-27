@@ -2,7 +2,7 @@ import { useQuizStore } from "@/store/quiz-store";
 import { getCurrentQuestion } from "@/lib/quiz-data";
 import { BUTTON_VARIANTS } from "@/lib/constants";
 import type { ButtonVariant } from "@/lib/types";
-import { useCallback } from "react";
+import { useCallback, useLayoutEffect } from "react";
 
 /**
  * 🎯 Business Logic Only - Zustand State Management
@@ -13,13 +13,19 @@ export const useQuiz = () => {
 	const store = useQuizStore();
 
 	/**
-	 * เริ่มต้น quiz ด้วยคำถามแรก
-	 * React 19: React Compiler handles optimization automatically
+	 * เริ่มต้น quiz ครั้งแรก
 	 */
 	const initializeQuiz = useCallback(() => {
-		const question = getCurrentQuestion();
-		store.setCurrentQuestion(question);
+		if (!store.currentQuestion) {
+			const question = getCurrentQuestion();
+			store.setCurrentQuestion(question);
+		}
 	}, [store]);
+
+	// Auto-initialize ใน hook ด้วย useLayoutEffect
+	useLayoutEffect(() => {
+		initializeQuiz();
+	}, [initializeQuiz]);
 
 	/**
 	 * จัดการการเลือกคำตอบ
@@ -122,7 +128,6 @@ export const useQuiz = () => {
 		...store,
 
 		// Actions
-		initializeQuiz,
 		handleAnswerSelect,
 		resetQuiz,
 		goToNextQuestion,

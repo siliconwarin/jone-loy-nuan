@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { PageContent } from "@/components/page-content";
 import { ContentArea } from "@/components/content-area";
 import { useQuiz } from "@/hooks/useQuiz";
@@ -17,24 +16,16 @@ export default function QuizPage() {
 		selectedAnswer,
 		showResult,
 		isCorrect,
-		initializeQuiz,
 		handleAnswerSelect,
 		goToNextQuestion,
 	} = useQuiz();
 
-	// Initialize quiz with first question - React 19: Run once on mount
-	useEffect(() => {
-		initializeQuiz();
-	}, []);
-
+	// Loading state ถ้ายังไม่มี currentQuestion
 	if (!currentQuestion) {
 		return (
 			<PageContent>
-				<div className="h-screen flex items-center justify-center">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"></div>
-						<p className="mt-2 text-gray-600">กำลังโหลด...</p>
-					</div>
+				<div className="w-full h-full flex items-center justify-center">
+					<div className="text-center text-gray-500">กำลังโหลด...</div>
 				</div>
 			</PageContent>
 		);

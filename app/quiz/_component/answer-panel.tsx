@@ -22,8 +22,7 @@ export const AnswerPanel = (props: AnswerPanelProps) => {
 	}
 
 	// Destructure เฉพาะตอนจำเป็น (normal quiz mode)
-	const { answers, selectedAnswer, showResult, isCorrect, onAnswerSelect } =
-		props;
+	const { answers, showResult, onAnswerSelect } = props;
 
 	return (
 		<div className="w-full flex flex-col justify-center items-center">
