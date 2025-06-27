@@ -23,7 +23,6 @@ export default function QuizPage() {
 	} = useQuiz();
 
 	// Initialize quiz with first question - React 19: Run once on mount
-	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		initializeQuiz();
 	}, []);

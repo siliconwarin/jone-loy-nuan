@@ -2,6 +2,7 @@ import { useQuizStore } from "@/store/quiz-store";
 import { getCurrentQuestion } from "@/lib/quiz-data";
 import { BUTTON_VARIANTS } from "@/lib/constants";
 import type { ButtonVariant } from "@/lib/types";
+import { useCallback } from "react";
 
 /**
  * 🎯 Business Logic Only - Zustand State Management
@@ -15,19 +16,22 @@ export const useQuiz = () => {
 	 * เริ่มต้น quiz ด้วยคำถามแรก
 	 * React 19: React Compiler handles optimization automatically
 	 */
-	function initializeQuiz() {
+	const initializeQuiz = useCallback(() => {
 		const question = getCurrentQuestion();
 		store.setCurrentQuestion(question);
-	}
+	}, [store]);
 
 	/**
 	 * จัดการการเลือกคำตอบ
 	 * React 19: React Compiler handles optimization automatically
 	 */
-	function handleAnswerSelect(answerId: string) {
-		if (store.selectedAnswer || store.showResult) return; // Prevent multiple selections
-		store.selectAnswer(answerId);
-	}
+	const handleAnswerSelect = useCallback(
+		(answerId: string) => {
+			if (store.selectedAnswer || store.showResult) return; // Prevent multiple selections
+			store.selectAnswer(answerId);
+		},
+		[store]
+	);
 
 	/**
 	 * ได้รับ variant ของปุ่มตามสถานะ
@@ -74,25 +78,25 @@ export const useQuiz = () => {
 	 * รีเซ็ต quiz state
 	 * React 19: React Compiler handles optimization automatically
 	 */
-	function resetQuiz() {
+	const resetQuiz = useCallback(() => {
 		store.resetQuiz();
-	}
+	}, [store]);
 
-	function goToNextQuestion() {
+	const goToNextQuestion = useCallback(() => {
 		// รอให้ transition เล่นจบก่อน (1.2s) แล้วค่อยโหลดคำถามถัดไป
 		setTimeout(() => {
 			store.nextQuestion();
 		}, 1200);
-	}
+	}, [store]);
 
 	/**
 	 * เริ่มใหม่ทั้งหมด
 	 * React 19: React Compiler handles optimization automatically
 	 */
-	function restartQuiz() {
+	const restartQuiz = useCallback(() => {
 		store.resetQuiz();
 		initializeQuiz();
-	}
+	}, [store, initializeQuiz]);
 
 	/**
 	 * ตรวจสอบว่า quiz เสร็จสิ้นหรือไม่

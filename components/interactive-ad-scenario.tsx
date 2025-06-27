@@ -67,16 +67,16 @@ const InteractiveAdScenarioComponent = ({
 					<button
 						onClick={handleSkip}
 						className="absolute pointer-events-auto
-							bottom-[4%] left-[7%] 
-							w-[39%] h-[10%]
+							bottom-[8%] left-[12%] w-[28%] h-[7%]
+							sm:bottom-[9%] sm:left-[14%] sm:w-[30%] sm:h-[8%]
+							md:bottom-[10%] md:left-[15%] md:w-[32%] md:h-[8%]
+							lg:bottom-[11%] lg:left-[16%] lg:w-[30%] lg:h-[8%]
 							bg-transparent hover:bg-yellow-500/30
-							rounded-md
-							transition-all duration-200
+							rounded-md transition-all duration-200
 							border-2 border-transparent hover:border-yellow-400
 							text-transparent hover:text-yellow-700
 							text-xs sm:text-sm font-medium
-							flex items-center justify-center
-							"
+							flex items-center justify-center "
 						aria-label="ข้าม"
 					></button>
 
@@ -84,16 +84,16 @@ const InteractiveAdScenarioComponent = ({
 					<button
 						onClick={handleRegister}
 						className="absolute pointer-events-auto
-							bottom-[4%] right-[7%] 
-							w-[39%] h-[10%]
+							bottom-[8%] right-[12%] w-[32%] h-[7%]
+							sm:bottom-[9%] sm:right-[14%] sm:w-[34%] sm:h-[8%]
+							md:bottom-[10%] md:right-[15%] md:w-[36%] md:h-[8%]
+							lg:bottom-[11%] lg:right-[16%] lg:w-[34%] lg:h-[8%]
 							bg-transparent hover:bg-yellow-500/30
-							rounded-md
-							transition-all duration-200
+							rounded-md transition-all duration-200
 							border-2 border-transparent hover:border-yellow-400
 							text-transparent hover:text-yellow-700
 							text-xs sm:text-sm font-medium
-							flex items-center justify-center
-							"
+							flex items-center justify-center "
 						aria-label="ลงทะเบียน"
 					></button>
 				</div>
