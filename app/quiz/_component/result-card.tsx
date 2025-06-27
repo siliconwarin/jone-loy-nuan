@@ -41,7 +41,7 @@ export const ResultCard = ({
 					exit={{ opacity: 0 }}
 					className="absolute inset-0 flex items-end justify-center p-4 md:p-8 mb-8"
 				>
-					<div className="relative w-full max-w-sm pt-10">
+					<div className="relative w-full max-w-xs md:max-w-md pt-6">
 						{/* การ์ดสีขาว (เนื้อหาหลัก) */}
 						<motion.div
 							initial={{ y: "100vh", opacity: 0 }}
@@ -60,7 +60,7 @@ export const ResultCard = ({
 								opacity: 0,
 								transition: { duration: 0.4, ease: "easeInOut" },
 							}}
-							className="relative bg-white rounded-3xl shadow-2xl p-6 z-10"
+							className="relative bg-white rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 z-10"
 						>
 							<div className="text-center pt-8">
 								{/* ข้อความหัวข้อ */}

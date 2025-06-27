@@ -58,6 +58,29 @@ export const quizData: QuizQuestion[] = [
 				"โฆษณาสินเชื่อที่ไม่ตรวจสอบเครดิตมักเป็นกลลวง ควรตรวจสอบกับสถาบันการเงินที่เชื่อถือได้ก่อนตัดสินใจ",
 		},
 	},
+	// Question 3 - Interactive Job Ad Scam
+	{
+		id: "job-ad-3",
+		question: "ถ้าคุณกำลังหางาน และเห็นโฆษณาสมัครงานแบบนี้ คุณจะ…?",
+		content: {
+			type: "component",
+			component: "InteractiveAdScenario",
+			data: "",
+			alt: "Interactive job advertisement scam",
+		},
+		interactive: true,
+		answers: [
+			{ id: "skip", text: "ข้าม", isCorrect: true },
+			{ id: "register", text: "ลงทะเบียน", isCorrect: false },
+		],
+		result: {
+			correctTitle: "เก่งมาก!",
+			wrongTitle: "อย่าเชื่อง่ายๆ",
+			header: "โฆษณาสมัครงานปลอม",
+			explanation:
+				"โฆษณาสมัครงานที่เงินเดือนสูงผิดปกติ และขอเงินมัดจำ มักเป็นกลลวง ควรตรวจสอบข้อมูลบริษัทและไม่โอนเงินให้ก่อนเริ่มงาน",
+		},
+	},
 ];
 
 export const getCurrentQuestion = (questionId?: string): QuizQuestion => {

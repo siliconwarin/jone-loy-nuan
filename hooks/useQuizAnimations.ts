@@ -43,8 +43,8 @@ export const useQuizAnimations = (showResult: boolean) => {
 		const isDesktop = width >= 1024;
 
 		// 📱 Mobile: เลื่อนน้อย, 📱 Tablet: กลาง, 🖥️ Desktop: เยอะ
-		const yMove = isMobile ? -15 : isTablet ? -25 : -35;
-		const scaleDown = isMobile ? 0.95 : isTablet ? 0.92 : 0.9;
+		const yMove = isMobile ? -60 : isTablet ? -75 : -75;
+		const scaleDown = isMobile ? 0.92 : isTablet ? 0.92 : 0.9;
 		const answerPanelMove = isMobile ? -10 : isTablet ? -15 : -20;
 		const questionExitY = isMobile ? -20 : isTablet ? -25 : -30;
 		const bubbleY = isMobile ? 15 : 20;

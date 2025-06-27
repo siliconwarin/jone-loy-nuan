@@ -41,34 +41,40 @@ export default function QuizPage() {
 		);
 	}
 
+	const isInteractive = currentQuestion.interactive || false;
+
 	return (
 		<PageContent>
 			<QuizBackground showResult={showResult}>
-				<div className="relative w-full h-full flex flex-col items-center justify-start pt-16 sm:pt-20 md:pt-28 p-3 sm:p-4 md:p-6">
-					{/* Container สำหรับคำถามและเนื้อหา */}
-					<div className="w-full max-w-sm sm:max-w-md md:max-w-lg mx-auto flex flex-col items-center space-y-4 sm:space-y-6">
-						{/* Question Section */}
-						<QuestionSection
-							question={currentQuestion.question}
+				<div className="w-full h-full flex flex-col p-2 sm:p-4 md:p-6">
+					{/* Header: Question Section */}
+					<div className="flex-none pt-4 sm:pt-6 md:pt-8 pb-2 sm:pb-3 md:pb-4">
+						<div className="w-full max-w-[340px] sm:max-w-md md:max-w-lg mx-auto">
+							<QuestionSection
+								question={currentQuestion.question}
+								showResult={showResult}
+							/>
+						</div>
+					</div>
+
+					{/* Content: Chat/Feed Scenario */}
+					<div className="flex-1 flex items-center justify-center py-2 sm:py-4">
+						<ContentArea
+							content={currentQuestion.content}
 							showResult={showResult}
+							variant="compact"
 						/>
 					</div>
 
-					{/* Content Area */}
-					<ContentArea
-						content={currentQuestion.content}
-						showResult={showResult}
-						variant="compact"
-					/>
-
-					{/* ใช้ absolute positioning สำหรับปุ่มคำตอบ */}
-					<div className="absolute bottom-[8dvh] sm:bottom-[10dvh] md:bottom-[12dvh] left-1/2 -translate-x-1/2 w-full px-3 sm:px-4 md:px-6">
+					{/* Footer: Answer Buttons */}
+					<div className="flex-none pb-4 sm:pb-6 md:pb-8">
 						<AnswerPanel
 							answers={currentQuestion.answers}
-							showResult={showResult}
 							selectedAnswer={selectedAnswer}
+							showResult={showResult}
 							isCorrect={isCorrect}
 							onAnswerSelect={handleAnswerSelect}
+							hideAnswers={isInteractive}
 						/>
 					</div>
 				</div>

@@ -15,11 +15,11 @@ export const QuestionSection = ({
 	// 🎨 Animation Logic - React Compiler Optimized
 	const { getQuestionExitAnimation } = useQuizAnimations(showResult);
 	return (
-		<div className="w-full mb-6 sm:mb-8 flex items-center justify-center">
+		<div className="w-full mb-4 sm:mb-6 md:mb-8 flex items-center justify-center">
 			<AnimatePresence>
 				{!showResult && (
 					<motion.h2
-						className="text-base sm:text-lg md:text-xl font-medium text-gray-800 text-center leading-relaxed px-3 sm:px-4 max-w-xs sm:max-w-md md:max-w-lg"
+						className="text-sm sm:text-base md:text-lg font-medium text-gray-800 text-center leading-relaxed px-2 sm:px-3 md:px-4 max-w-[300px] sm:max-w-md md:max-w-lg"
 						{...getQuestionExitAnimation()}
 					>
 						{question}

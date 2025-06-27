@@ -8,8 +8,11 @@ import type { AnswerPanelProps } from "@/lib/types";
 
 export const AnswerPanel = ({
 	answers,
+	selectedAnswer,
 	showResult,
+	isCorrect,
 	onAnswerSelect,
+	hideAnswers = false,
 }: AnswerPanelProps) => {
 	// 🎯 Business Logic - Zustand Store
 	const { getButtonVariant, isButtonDisabled, getButtonDataState } = useQuiz();
@@ -18,17 +21,21 @@ export const AnswerPanel = ({
 	const { getAnswerPanelMotionProps, getAnswerButtonAnimation } =
 		useQuizAnimations(showResult);
 
+	if (hideAnswers) {
+		return <div className="flex-none h-20" />;
+	}
+
 	return (
 		<div className="w-full flex flex-col justify-center items-center">
 			<motion.div
 				{...getAnswerPanelMotionProps()}
-				className="w-full flex flex-col items-center space-y-3 sm:space-y-4 max-w-xs sm:max-w-sm md:max-w-md mx-auto"
+				className="flex flex-col justify-center items-center space-y-2.5 sm:space-y-3 md:space-y-4"
 			>
 				{answers.map((option, index) => (
 					<motion.div
 						key={option.id}
 						{...getAnswerButtonAnimation(index)}
-						className="w-full"
+						className="flex justify-center"
 					>
 						<Button
 							variant={getButtonVariant(option.id, option.isCorrect)}
@@ -36,7 +43,7 @@ export const AnswerPanel = ({
 							onClick={() => onAnswerSelect(option.id)}
 							disabled={isButtonDisabled(option.id) || showResult}
 							data-state={getButtonDataState(option.id)}
-							className="w-full h-auto text-sm sm:text-base py-3 sm:py-4 px-4 sm:px-6"
+							className="w-[280px] sm:w-[320px] md:w-[360px] h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px]"
 						>
 							{option.text}
 						</Button>

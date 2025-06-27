@@ -9,6 +9,8 @@ import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import type { QuizContent, ContentAreaProps } from "@/lib/types";
 import { FeedAdScenarioWithFlags } from "./feed-ad-scenario-with-flags";
 import { useMemo } from "react";
+import JobAdScenario from "./job-ad-scenario";
+import InteractiveAdScenario from "./interactive-ad-scenario";
 
 const ContentFactory = {
 	component: (
@@ -18,6 +20,8 @@ const ContentFactory = {
 		const componentMap = {
 			ChatScenario: () => <ChatScenario {...props} />,
 			FeedAdScenario: () => <FeedAdScenarioWithFlags {...props} />,
+			JobAdScenario: () => <JobAdScenario {...props} />,
+			InteractiveAdScenario: () => <InteractiveAdScenario {...props} />,
 		};
 
 		const Component = componentMap[data.component as keyof typeof componentMap];
@@ -65,11 +69,11 @@ export const ContentArea = ({
 	const variantStyles = useMemo(() => {
 		switch (variant) {
 			case "compact":
-				return "w-full max-w-[380px]";
+				return "w-full max-w-[320px] sm:max-w-[360px] md:max-w-[400px]";
 			case "fullscreen":
 				return "max-w-4xl w-full";
 			default:
-				return "w-full max-w-sm";
+				return "w-full max-w-[300px] sm:max-w-sm md:max-w-md";
 		}
 	}, [variant]);
 

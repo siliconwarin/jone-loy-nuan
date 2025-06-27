@@ -26,6 +26,7 @@ export interface QuizQuestion {
 	content: QuizContent;
 	answers: Answer[];
 	result: QuizResult;
+	interactive?: boolean;
 }
 
 export interface RedFlag {
@@ -53,6 +54,7 @@ export interface AnswerPanelProps {
 	showResult: boolean;
 	isCorrect: boolean | null;
 	onAnswerSelect: (answerId: string) => void;
+	hideAnswers?: boolean;
 }
 
 export interface QuestionSectionProps {
@@ -94,4 +96,11 @@ export interface AnimationConfig {
 export interface PageTransitionProps {
 	children: React.ReactNode;
 	className?: string;
+}
+
+// เพิ่ม type สำหรับ interactive scenario
+export interface InteractiveAdScenarioProps {
+	className?: string;
+	animate?: boolean;
+	showResult?: boolean;
 }
