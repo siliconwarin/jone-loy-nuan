@@ -5,10 +5,10 @@ import Image from "next/image";
 import ChatBubbleImage from "./chat-bubble-image";
 import { cn } from "@/lib/utils";
 import { RedFlagTooltip } from "./red-flag-tooltip";
-import { RED_FLAGS_DATA } from "@/lib/constants";
+import { RED_FLAGS_DATA } from "@/lib/quiz-data";
 import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import type { ChatScenarioProps } from "@/lib/types";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 
 const ChatScenarioComponent = ({
 	className = "",
@@ -19,16 +19,23 @@ const ChatScenarioComponent = ({
 	const { getChatScenarioMotionProps, getChatBubbleAnimation } =
 		useQuizAnimations(showResult);
 
+	// ใช้ useMemo เพื่อป้องกัน re-creation ของ motion props
+	const motionProps = useMemo(() => {
+		if (!animate) return {};
+		return getChatScenarioMotionProps();
+	}, [animate, getChatScenarioMotionProps]);
+
 	// หยุด animation ของ bubble เมื่อ showResult เปลี่ยนหรือปิด animate
-	function getBubbleMotionProps() {
+	const bubbleMotionProps = useMemo(() => {
 		if (!animate || showResult) return {};
 		return getChatBubbleAnimation();
-	}
+	}, [animate, showResult, getChatBubbleAnimation]);
 
 	return (
 		<motion.div
+			layoutId="chat-scenario" // ป้องกัน re-mount
 			className={cn("relative w-full max-w-[380px] mx-auto", className)}
-			{...getChatScenarioMotionProps()}
+			{...motionProps}
 		>
 			{/* Chat UI Background */}
 			<div className="relative">
@@ -43,13 +50,13 @@ const ChatScenarioComponent = ({
 
 				{/* Chat Bubble Overlay */}
 				<motion.div
-					{...getBubbleMotionProps()}
+					{...bubbleMotionProps}
 					className="absolute top-[35%] left-[8%] w-[84%]"
 				>
 					<ChatBubbleImage />
 				</motion.div>
 
-				{/* Red Flag Tooltips */}
+				{/* Red Flag Tooltips - แสดงเมื่อ showResult = true */}
 				{showResult &&
 					RED_FLAGS_DATA.map((flag) => (
 						<RedFlagTooltip

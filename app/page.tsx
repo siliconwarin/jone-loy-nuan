@@ -42,10 +42,7 @@ export default function Home() {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 3.2, duration: 0.4 }}
 				>
-					<Button
-						className="block w-full bg-gradient-to-r from-pink-400 to-rose-500 hover:from-pink-500 hover:to-rose-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl border-0"
-						asChild
-					>
+					<Button asChild>
 						<Link href="/quiz">
 							<motion.span
 								whileHover={{ scale: 1.02 }}

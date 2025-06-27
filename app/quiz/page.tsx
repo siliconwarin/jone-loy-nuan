@@ -19,14 +19,14 @@ export default function QuizPage() {
 		isCorrect,
 		initializeQuiz,
 		handleAnswerSelect,
-		resetQuiz,
 		goToNextQuestion,
 	} = useQuiz();
 
 	// Initialize quiz with first question - React 19: Run once on mount
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
 		initializeQuiz();
-	}, []); // Empty dependency array = run once on mount
+	}, []);
 
 	if (!currentQuestion) {
 		return (
@@ -44,9 +44,9 @@ export default function QuizPage() {
 	return (
 		<PageContent>
 			<QuizBackground showResult={showResult}>
-				<div className="relative w-full h-full flex flex-col items-center justify-start pt-20 sm:pt-28 p-4">
+				<div className="relative w-full h-full flex flex-col items-center justify-start pt-16 sm:pt-20 md:pt-28 p-3 sm:p-4 md:p-6">
 					{/* Container สำหรับคำถามและเนื้อหา */}
-					<div className="w-full max-w-md mx-auto flex flex-col items-center space-y-6">
+					<div className="w-full max-w-sm sm:max-w-md md:max-w-lg mx-auto flex flex-col items-center space-y-4 sm:space-y-6">
 						{/* Question Section */}
 						<QuestionSection
 							question={currentQuestion.question}
@@ -62,7 +62,7 @@ export default function QuizPage() {
 					/>
 
 					{/* ใช้ absolute positioning สำหรับปุ่มคำตอบ */}
-					<div className="absolute bottom-[10dvh] left-1/2 -translate-x-1/2 w-full px-4">
+					<div className="absolute bottom-[8dvh] sm:bottom-[10dvh] md:bottom-[12dvh] left-1/2 -translate-x-1/2 w-full px-3 sm:px-4 md:px-6">
 						<AnswerPanel
 							answers={currentQuestion.answers}
 							showResult={showResult}

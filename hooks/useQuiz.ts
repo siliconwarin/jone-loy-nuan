@@ -79,7 +79,10 @@ export const useQuiz = () => {
 	}
 
 	function goToNextQuestion() {
-		store.nextQuestion();
+		// รอให้ transition เล่นจบก่อน (1.2s) แล้วค่อยโหลดคำถามถัดไป
+		setTimeout(() => {
+			store.nextQuestion();
+		}, 1200);
 	}
 
 	/**

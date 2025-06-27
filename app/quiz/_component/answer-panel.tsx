@@ -22,7 +22,7 @@ export const AnswerPanel = ({
 		<div className="w-full flex flex-col justify-center items-center">
 			<motion.div
 				{...getAnswerPanelMotionProps()}
-				className="w-full flex flex-col items-center space-y-4 max-w-sm mx-auto"
+				className="w-full flex flex-col items-center space-y-3 sm:space-y-4 max-w-xs sm:max-w-sm md:max-w-md mx-auto"
 			>
 				{answers.map((option, index) => (
 					<motion.div
@@ -36,7 +36,7 @@ export const AnswerPanel = ({
 							onClick={() => onAnswerSelect(option.id)}
 							disabled={isButtonDisabled(option.id) || showResult}
 							data-state={getButtonDataState(option.id)}
-							className="w-full h-auto text-base"
+							className="w-full h-auto text-sm sm:text-base py-3 sm:py-4 px-4 sm:px-6"
 						>
 							{option.text}
 						</Button>

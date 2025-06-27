@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Tooltip } from "./tooltip";
 import { ChatScenario } from "./chat-scenario";
-import FeedAdScenario from "./feed-ad-scenario";
 import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import type { QuizContent, ContentAreaProps } from "@/lib/types";
+import { FeedAdScenarioWithFlags } from "./feed-ad-scenario-with-flags";
+import { useMemo } from "react";
 
 const ContentFactory = {
 	component: (
@@ -16,7 +17,7 @@ const ContentFactory = {
 	) => {
 		const componentMap = {
 			ChatScenario: () => <ChatScenario {...props} />,
-			FeedAdScenario: () => <FeedAdScenario {...props} />,
+			FeedAdScenario: () => <FeedAdScenarioWithFlags {...props} />,
 		};
 
 		const Component = componentMap[data.component as keyof typeof componentMap];
@@ -25,7 +26,7 @@ const ContentFactory = {
 
 	image: (data: QuizContent) => (
 		<Image
-			src={data.data}
+			src={data.data || "/placeholder.svg"}
 			alt={data.alt || "Content image"}
 			width={400}
 			height={600}
@@ -60,8 +61,8 @@ export const ContentArea = ({
 	// 🎨 Animation Logic - React Compiler Optimized
 	const { getContentMotionProps } = useQuizAnimations(showResult);
 
-	// React 19: React Compiler จะ optimize functions เหล่านี้อัตโนมัติ
-	function getVariantStyles() {
+	// ใช้ useMemo เพื่อป้องกัน re-calculation
+	const variantStyles = useMemo(() => {
 		switch (variant) {
 			case "compact":
 				return "w-full max-w-[380px]";
@@ -70,22 +71,23 @@ export const ContentArea = ({
 			default:
 				return "w-full max-w-sm";
 		}
-	}
+	}, [variant]);
 
-	function getMotionProps() {
+	const motionProps = useMemo(() => {
 		if (!animate) return {};
 		return getContentMotionProps();
-	}
+	}, [animate, getContentMotionProps]);
 
-	function renderContent() {
+	const renderedContent = useMemo(() => {
 		const renderer = ContentFactory[content.type];
 		return renderer ? renderer(content, { animate, showResult }) : null;
-	}
+	}, [content, animate, showResult]);
 
 	return (
 		<motion.div
-			className={cn("w-full mx-auto", getVariantStyles(), className)}
-			{...getMotionProps()}
+			layoutId="content-area" // ป้องกัน re-mount
+			className={cn("w-full mx-auto", variantStyles, className)}
+			{...motionProps}
 		>
 			{tooltipContent ? (
 				<Tooltip
@@ -93,10 +95,10 @@ export const ContentArea = ({
 					variant={tooltipVariant}
 					position="auto"
 				>
-					{renderContent()}
+					{renderedContent}
 				</Tooltip>
 			) : (
-				renderContent()
+				renderedContent
 			)}
 		</motion.div>
 	);
