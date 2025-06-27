@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
+import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 
 interface QuizBackgroundProps {
 	children: ReactNode;
@@ -14,28 +15,12 @@ export const QuizBackground = ({
 	showResult,
 	theme = "light",
 }: QuizBackgroundProps) => {
-	const getBackgroundGradient = () => {
-		if (theme === "dark") {
-			return showResult
-				? "linear-gradient(to bottom, #0f172a, #020617)"
-				: "linear-gradient(to bottom, #1e293b, #334155)";
-		}
-
-		return showResult
-			? "linear-gradient(to bottom, #1e293b, #0f172a)"
-			: "linear-gradient(to bottom, #dbeafe, #bfdbfe)";
-	};
+	const { getBackgroundAnimation } = useQuizAnimations(showResult);
 
 	return (
 		<motion.div
 			className="h-[100dvh] flex flex-col relative overflow-hidden"
-			animate={{
-				background: getBackgroundGradient(),
-			}}
-			transition={{
-				duration: 1.2,
-				ease: "easeInOut",
-			}}
+			{...getBackgroundAnimation(theme)}
 		>
 			{children}
 		</motion.div>

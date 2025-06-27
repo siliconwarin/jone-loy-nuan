@@ -20,6 +20,7 @@ export default function QuizPage() {
 		initializeQuiz,
 		handleAnswerSelect,
 		resetQuiz,
+		goToNextQuestion,
 	} = useQuiz();
 
 	// Initialize quiz with first question - React 19: Run once on mount
@@ -51,14 +52,14 @@ export default function QuizPage() {
 							question={currentQuestion.question}
 							showResult={showResult}
 						/>
-
-						{/* Content Area */}
-						<ContentArea
-							content={currentQuestion.content}
-							showResult={showResult}
-							variant="compact"
-						/>
 					</div>
+
+					{/* Content Area */}
+					<ContentArea
+						content={currentQuestion.content}
+						showResult={showResult}
+						variant="compact"
+					/>
 
 					{/* ใช้ absolute positioning สำหรับปุ่มคำตอบ */}
 					<div className="absolute bottom-[10dvh] left-1/2 -translate-x-1/2 w-full px-4">
@@ -77,7 +78,7 @@ export default function QuizPage() {
 					showResult={showResult}
 					isCorrect={isCorrect}
 					result={currentQuestion.result}
-					onReset={resetQuiz}
+					onReset={goToNextQuestion}
 				/>
 			</QuizBackground>
 		</PageContent>

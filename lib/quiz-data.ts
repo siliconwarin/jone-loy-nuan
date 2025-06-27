@@ -36,6 +36,28 @@ export const quizData: QuizQuestion[] = [
 				"หากได้รับ SMS อ้างว่าจะคืนเงิน อย่าเร่งตอบกลับ เพราะบริษัทจริงจะไม่แนบลิงก์และไม่ถามข้อมูลส่วนตัว ควรติดต่อสอบถามกับบริษัทโดยตรงเพื่อความปลอดภัย",
 		},
 	},
+	// Question 2 - Social Ad Scam
+	{
+		id: "social-ad-2",
+		question: "ถ้าคุณกำลังร้อนเงิน และเห็นโฆษณาสินเชื่อแบบนี้บนโซเชียล คุณจะ…?",
+		content: {
+			type: "component",
+			component: "FeedAdScenario",
+			data: "",
+			alt: "Social feed loan ad",
+		},
+		answers: [
+			{ id: "a", text: "ไม่สนใจ", isCorrect: true },
+			{ id: "b", text: "กดติดตั้งแอปทันที", isCorrect: false },
+		],
+		result: {
+			correctTitle: "ยอดเยี่ยม!",
+			wrongTitle: "ระวังถูกหลอก",
+			header: "โฆษณาสินเชื่อปลอม",
+			explanation:
+				"โฆษณาสินเชื่อที่ไม่ตรวจสอบเครดิตมักเป็นกลลวง ควรตรวจสอบกับสถาบันการเงินที่เชื่อถือได้ก่อนตัดสินใจ",
+		},
+	},
 	// เพิ่มข้ออื่นๆ ได้ตรงนี้
 ];
 

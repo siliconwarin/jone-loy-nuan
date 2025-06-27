@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Tooltip } from "./tooltip";
 import { ChatScenario } from "./chat-scenario";
+import FeedAdScenario from "./feed-ad-scenario";
 import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import type { QuizContent, ContentAreaProps } from "@/lib/types";
 
@@ -15,6 +16,7 @@ const ContentFactory = {
 	) => {
 		const componentMap = {
 			ChatScenario: () => <ChatScenario {...props} />,
+			FeedAdScenario: () => <FeedAdScenario {...props} />,
 		};
 
 		const Component = componentMap[data.component as keyof typeof componentMap];

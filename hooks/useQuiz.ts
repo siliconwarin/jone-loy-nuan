@@ -78,6 +78,10 @@ export const useQuiz = () => {
 		store.resetQuiz();
 	}
 
+	function goToNextQuestion() {
+		store.nextQuestion();
+	}
+
 	/**
 	 * เริ่มใหม่ทั้งหมด
 	 * React 19: React Compiler handles optimization automatically
@@ -114,6 +118,7 @@ export const useQuiz = () => {
 		initializeQuiz,
 		handleAnswerSelect,
 		resetQuiz,
+		goToNextQuestion,
 		restartQuiz,
 
 		// Computed values

@@ -2,13 +2,15 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import ChatBubbleImage from "./chat-bubble-image";
 import { cn } from "@/lib/utils";
 import { RedFlagTooltip } from "./red-flag-tooltip";
 import { RED_FLAGS_DATA } from "@/lib/constants";
 import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import type { ChatScenarioProps } from "@/lib/types";
+import { memo } from "react";
 
-export const ChatScenario = ({
+const ChatScenarioComponent = ({
 	className = "",
 	animate = true,
 	showResult = false,
@@ -17,16 +19,16 @@ export const ChatScenario = ({
 	const { getChatScenarioMotionProps, getChatBubbleAnimation } =
 		useQuizAnimations(showResult);
 
-	// React 19: React Compiler จะ optimize function นี้อัตโนมัติ
-	function getMotionProps() {
-		if (!animate) return {};
-		return getChatScenarioMotionProps();
+	// หยุด animation ของ bubble เมื่อ showResult เปลี่ยนหรือปิด animate
+	function getBubbleMotionProps() {
+		if (!animate || showResult) return {};
+		return getChatBubbleAnimation();
 	}
 
 	return (
 		<motion.div
 			className={cn("relative w-full max-w-[380px] mx-auto", className)}
-			{...getMotionProps()}
+			{...getChatScenarioMotionProps()}
 		>
 			{/* Chat UI Background */}
 			<div className="relative">
@@ -41,16 +43,10 @@ export const ChatScenario = ({
 
 				{/* Chat Bubble Overlay */}
 				<motion.div
-					{...getChatBubbleAnimation()}
+					{...getBubbleMotionProps()}
 					className="absolute top-[35%] left-[8%] w-[84%]"
 				>
-					<Image
-						src="/images/scenario-1/chat-bubble.jpg"
-						alt="Scam message bubble"
-						width={320}
-						height={120}
-						className="w-full h-auto drop-shadow-sm"
-					/>
+					<ChatBubbleImage />
 				</motion.div>
 
 				{/* Red Flag Tooltips */}
@@ -69,3 +65,5 @@ export const ChatScenario = ({
 		</motion.div>
 	);
 };
+
+export const ChatScenario = memo(ChatScenarioComponent);

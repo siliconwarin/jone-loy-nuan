@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { QuizQuestion } from "@/lib/types";
 import { QUIZ_CONFIG } from "@/lib/constants";
+import { quizData } from "@/lib/quiz-data";
 
 interface QuizState {
 	currentQuestion: QuizQuestion | null;
@@ -25,7 +26,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
 	showResult: false,
 	isCorrect: null,
 	currentQuestionIndex: 0,
-	totalQuestions: 1,
+	totalQuestions: quizData.length,
 
 	setCurrentQuestion: (question) => {
 		set({
@@ -70,8 +71,16 @@ export const useQuizStore = create<QuizState>((set, get) => ({
 
 	nextQuestion: () => {
 		const { currentQuestionIndex, totalQuestions } = get();
-		if (currentQuestionIndex < totalQuestions - 1) {
-			// Load next question logic
+		const nextIndex = currentQuestionIndex + 1;
+		if (nextIndex < totalQuestions) {
+			const nextQ = quizData[nextIndex];
+			set({
+				currentQuestionIndex: nextIndex,
+				currentQuestion: nextQ,
+				selectedAnswer: null,
+				showResult: false,
+				isCorrect: null,
+			});
 		}
 	},
 
