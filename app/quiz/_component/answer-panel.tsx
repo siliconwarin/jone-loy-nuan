@@ -2,19 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-
-interface Answer {
-	id: string;
-	text: string;
-	isCorrect: boolean;
-}
-
-interface AnswerPanelProps {
-	answers: Answer[];
-	showResult: boolean;
-	selectedAnswer: string | null;
-	onAnswerSelect: (answerId: string) => void;
-}
+import { useQuiz } from "@/hooks/useQuiz";
+import type { Answer, AnswerPanelProps } from "@/lib/types";
 
 export const AnswerPanel = ({
 	answers,
@@ -22,39 +11,7 @@ export const AnswerPanel = ({
 	selectedAnswer,
 	onAnswerSelect,
 }: AnswerPanelProps) => {
-	const getVariant = (
-		answer: Answer
-	): "quiz" | "quiz-correct" | "quiz-wrong" => {
-		// แสดงสีแดงทันทีที่เลือกคำตอบผิด
-		if (selectedAnswer === answer.id && !answer.isCorrect) {
-			return "quiz-wrong";
-		}
-
-		// แสดงสีเขียวทันทีที่เลือกคำตอบถูก
-		if (selectedAnswer === answer.id && answer.isCorrect) {
-			return "quiz-correct";
-		}
-
-		// แสดงสีเขียวเมื่อแสดงผลและเป็นคำตอบที่ถูก (กรณีไม่ได้เลือกแต่เป็นคำตอบที่ถูก)
-		if (showResult && answer.isCorrect) {
-			return "quiz-correct";
-		}
-
-		// กรณีอื่นๆ ใช้สีปกติ
-		return "quiz";
-	};
-
-	const getDataState = (answer: Answer): "selected" | "unselected" => {
-		if (selectedAnswer === answer.id) {
-			return "selected";
-		}
-		return "unselected";
-	};
-
-	const isDisabled = (answer: Answer): boolean => {
-		if (!selectedAnswer) return false;
-		return selectedAnswer !== answer.id;
-	};
+	const { getButtonVariant, isButtonDisabled, getButtonDataState } = useQuiz();
 
 	return (
 		<div className="w-full flex flex-col justify-center items-center">
@@ -80,11 +37,11 @@ export const AnswerPanel = ({
 						className="w-full"
 					>
 						<Button
-							variant={getVariant(option)}
+							variant={getButtonVariant(option.id, option.isCorrect)}
 							size="default"
 							onClick={() => onAnswerSelect(option.id)}
-							disabled={isDisabled(option) || showResult} // ปิดการกดเมื่อแสดงผลแล้ว
-							data-state={getDataState(option)}
+							disabled={isButtonDisabled(option.id) || showResult}
+							data-state={getButtonDataState(option.id)}
 							className="w-full h-auto text-base"
 						>
 							{option.text}

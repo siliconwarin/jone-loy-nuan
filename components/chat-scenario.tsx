@@ -4,25 +4,19 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { RedFlagTooltip } from "./red-flag-tooltip";
-
-interface ChatScenarioProps {
-	className?: string;
-	animate?: boolean;
-	showResult?: boolean;
-	showRedFlags?: boolean;
-}
+import { RED_FLAGS_DATA } from "@/lib/constants";
+import type { ChatScenarioProps } from "@/lib/types";
 
 export const ChatScenario = ({
 	className = "",
 	animate = true,
 	showResult = false,
-	showRedFlags = false,
 }: ChatScenarioProps) => {
 	const motionProps = animate
 		? {
 				initial: { opacity: 1, y: 0, scale: 1 },
 				animate: showResult
-					? { y: -60, scale: 1, opacity: showRedFlags ? 1.0 : 0.3 }
+					? { y: -60, scale: 1, opacity: 1.0 }
 					: { y: 0, scale: 1, opacity: 1 },
 				transition: {
 					duration: 1.0,
@@ -31,30 +25,6 @@ export const ChatScenario = ({
 				},
 		  }
 		: {};
-
-	const redFlags = [
-		{
-			id: "sender",
-			message: "ผู้ส่งไม่ระบุชื่อ",
-			position: { top: "8%", left: "55%" },
-			direction: "right" as const,
-			delay: 0.5,
-		},
-		{
-			id: "urgency",
-			message: "ข้อความเร่งด่วน",
-			position: { top: "45%", left: "70%" },
-			direction: "right" as const,
-			delay: 1.0,
-		},
-		{
-			id: "suspicious-link",
-			message: "ลิงก์แปลกปลอม",
-			position: { top: "60%", left: "20%" },
-			direction: "up" as const,
-			delay: 1.5,
-		},
-	];
 
 	return (
 		<motion.div
@@ -99,16 +69,17 @@ export const ChatScenario = ({
 				</motion.div>
 
 				{/* Red Flag Tooltips */}
-				{redFlags.map((flag) => (
-					<RedFlagTooltip
-						key={flag.id}
-						message={flag.message}
-						position={flag.position}
-						direction={flag.direction}
-						delay={flag.delay}
-						show={showRedFlags}
-					/>
-				))}
+				{showResult &&
+					RED_FLAGS_DATA.map((flag) => (
+						<RedFlagTooltip
+							key={flag.id}
+							message={flag.message}
+							position={flag.position}
+							direction={flag.direction}
+							delay={flag.delay}
+							show={showResult}
+						/>
+					))}
 			</div>
 		</motion.div>
 	);

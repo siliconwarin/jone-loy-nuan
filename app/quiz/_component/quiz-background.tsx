@@ -28,7 +28,7 @@ export const QuizBackground = ({
 
 	return (
 		<motion.div
-			className="h-[calc(100dvh-10dvh)] flex flex-col relative overflow-hidden"
+			className="h-[100dvh] flex flex-col relative overflow-hidden"
 			animate={{
 				background: getBackgroundGradient(),
 			}}

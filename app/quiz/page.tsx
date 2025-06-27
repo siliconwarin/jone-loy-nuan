@@ -3,8 +3,7 @@
 import { useEffect } from "react";
 import { PageContent } from "@/components/page-content";
 import { ContentArea } from "@/components/content-area";
-import { useQuizStore } from "@/store/quiz-store";
-import { getCurrentQuestion } from "@/lib/quiz-data";
+import { useQuiz } from "@/hooks/useQuiz";
 
 // Components
 import { QuestionSection } from "./_component/question-section";
@@ -18,16 +17,15 @@ export default function QuizPage() {
 		selectedAnswer,
 		showResult,
 		isCorrect,
-		setCurrentQuestion,
-		selectAnswer,
+		initializeQuiz,
+		handleAnswerSelect,
 		resetQuiz,
-	} = useQuizStore();
+	} = useQuiz();
 
 	// Initialize quiz with first question
 	useEffect(() => {
-		const question = getCurrentQuestion();
-		setCurrentQuestion(question);
-	}, [setCurrentQuestion]);
+		initializeQuiz();
+	}, [initializeQuiz]);
 
 	if (!currentQuestion) {
 		return (
@@ -68,7 +66,8 @@ export default function QuizPage() {
 							answers={currentQuestion.answers}
 							showResult={showResult}
 							selectedAnswer={selectedAnswer}
-							onAnswerSelect={selectAnswer}
+							isCorrect={isCorrect}
+							onAnswerSelect={handleAnswerSelect}
 						/>
 					</div>
 				</div>

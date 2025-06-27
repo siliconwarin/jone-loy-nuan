@@ -1,24 +1,4 @@
-export interface QuizQuestion {
-	id: string;
-	question: string;
-	content: {
-		type: "image" | "text" | "svg" | "component";
-		data: string;
-		alt?: string;
-		component?: string;
-	};
-	answers: {
-		id: string;
-		text: string;
-		isCorrect: boolean;
-	}[];
-	result: {
-		correctTitle: string;
-		wrongTitle: string;
-		header: string;
-		explanation: string;
-	};
-}
+import { QuizQuestion } from "./types";
 
 export const quizData: QuizQuestion[] = [
 	{

@@ -5,21 +5,42 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Tooltip } from "./tooltip";
 import { ChatScenario } from "./chat-scenario";
+import type { QuizContent, ContentAreaProps } from "@/lib/types";
 
-interface ContentAreaProps {
-	content: {
-		type: "image" | "text" | "svg" | "component";
-		data: string;
-		alt?: string;
-		component?: string;
-	};
-	className?: string;
-	variant?: "default" | "compact" | "fullscreen";
-	animate?: boolean;
-	tooltipContent?: string;
-	tooltipVariant?: "default" | "warning" | "danger" | "info";
-	showResult?: boolean;
-}
+const ContentFactory = {
+	component: (data: QuizContent, props: any) => {
+		const componentMap = {
+			ChatScenario: () => <ChatScenario {...props} />,
+		};
+
+		const Component = componentMap[data.component as keyof typeof componentMap];
+		return Component ? <Component /> : null;
+	},
+
+	image: (data: QuizContent) => (
+		<Image
+			src={data.data}
+			alt={data.alt || "Content image"}
+			width={400}
+			height={600}
+			className="w-full h-auto rounded-xl shadow-lg"
+			priority
+		/>
+	),
+
+	text: (data: QuizContent) => (
+		<div className="text-center p-4">
+			<p className="text-lg text-gray-700">{data.data}</p>
+		</div>
+	),
+
+	svg: (data: QuizContent) => (
+		<div
+			className="w-full h-auto flex justify-center"
+			dangerouslySetInnerHTML={{ __html: data.data }}
+		/>
+	),
+} as const;
 
 export const ContentArea = ({
 	content,
@@ -56,45 +77,8 @@ export const ContentArea = ({
 		: {};
 
 	const renderContent = () => {
-		switch (content.type) {
-			case "component":
-				if (content.component === "ChatScenario") {
-					return (
-						<ChatScenario
-							animate={animate}
-							showResult={showResult}
-							showRedFlags={showResult}
-						/>
-					);
-				}
-				return null;
-			case "image":
-				return (
-					<Image
-						src={content.data}
-						alt={content.alt || "Content image"}
-						width={400}
-						height={600}
-						className="w-full h-auto rounded-xl shadow-lg"
-						priority
-					/>
-				);
-			case "svg":
-				return (
-					<div
-						className="w-full h-auto mx-auto rounded-lg shadow-xl overflow-hidden"
-						dangerouslySetInnerHTML={{ __html: content.data }}
-					/>
-				);
-			case "text":
-				return (
-					<div className="w-full max-w-sm mx-auto bg-white rounded-lg shadow-xl p-6">
-						<p className="text-gray-800 leading-relaxed">{content.data}</p>
-					</div>
-				);
-			default:
-				return null;
-		}
+		const renderer = ContentFactory[content.type];
+		return renderer ? renderer(content, { animate, showResult }) : null;
 	};
 
 	return (
