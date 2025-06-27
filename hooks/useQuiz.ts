@@ -1,34 +1,33 @@
-import { useCallback } from "react";
 import { useQuizStore } from "@/store/quiz-store";
 import { getCurrentQuestion } from "@/lib/quiz-data";
 import { BUTTON_VARIANTS } from "@/lib/constants";
 import type { ButtonVariant } from "@/lib/types";
 
 /**
- * 🎯 Custom Hook for Quiz Logic Management
- * จัดการ business logic ของ quiz แยกออกจาก UI components
+ * 🎯 Business Logic Only - Zustand State Management
+ * จัดการ business logic ของ quiz แยกจาก animation logic
+ * Animation logic อยู่ใน useQuizAnimations
  */
 export const useQuiz = () => {
 	const store = useQuizStore();
 
 	/**
 	 * เริ่มต้น quiz ด้วยคำถามแรก
+	 * React 19: React Compiler handles optimization automatically
 	 */
-	const initializeQuiz = useCallback(() => {
+	function initializeQuiz() {
 		const question = getCurrentQuestion();
 		store.setCurrentQuestion(question);
-	}, [store.setCurrentQuestion]);
+	}
 
 	/**
 	 * จัดการการเลือกคำตอบ
+	 * React 19: React Compiler handles optimization automatically
 	 */
-	const handleAnswerSelect = useCallback(
-		(answerId: string) => {
-			if (store.selectedAnswer || store.showResult) return; // Prevent multiple selections
-			store.selectAnswer(answerId);
-		},
-		[store.selectedAnswer, store.showResult, store.selectAnswer]
-	);
+	function handleAnswerSelect(answerId: string) {
+		if (store.selectedAnswer || store.showResult) return; // Prevent multiple selections
+		store.selectAnswer(answerId);
+	}
 
 	/**
 	 * ได้รับ variant ของปุ่มตามสถานะ
@@ -73,18 +72,20 @@ export const useQuiz = () => {
 
 	/**
 	 * รีเซ็ต quiz state
+	 * React 19: React Compiler handles optimization automatically
 	 */
-	const resetQuiz = useCallback(() => {
+	function resetQuiz() {
 		store.resetQuiz();
-	}, [store.resetQuiz]);
+	}
 
 	/**
 	 * เริ่มใหม่ทั้งหมด
+	 * React 19: React Compiler handles optimization automatically
 	 */
-	const restartQuiz = useCallback(() => {
+	function restartQuiz() {
 		store.resetQuiz();
 		initializeQuiz();
-	}, [store.resetQuiz, initializeQuiz]);
+	}
 
 	/**
 	 * ตรวจสอบว่า quiz เสร็จสิ้นหรือไม่

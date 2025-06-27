@@ -22,10 +22,10 @@ export default function QuizPage() {
 		resetQuiz,
 	} = useQuiz();
 
-	// Initialize quiz with first question
+	// Initialize quiz with first question - React 19: Run once on mount
 	useEffect(() => {
 		initializeQuiz();
-	}, [initializeQuiz]);
+	}, []); // Empty dependency array = run once on mount
 
 	if (!currentQuestion) {
 		return (

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 
 interface RedFlagTooltipProps {
 	message: string;
@@ -23,6 +24,9 @@ export const RedFlagTooltip = ({
 	className = "",
 	direction = "down",
 }: RedFlagTooltipProps) => {
+	// 🎨 Animation Logic - React Compiler Optimized
+	const { getRedFlagAnimation } = useQuizAnimations(show);
+
 	if (!show) return null;
 
 	const getArrowClasses = () => {
@@ -69,19 +73,7 @@ export const RedFlagTooltip = ({
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, scale: 0.8, y: 10 }}
-			animate={{
-				opacity: 1,
-				scale: 1,
-				y: 0,
-				transition: {
-					delay: delay,
-					duration: 0.4,
-					type: "spring",
-					stiffness: 200,
-					damping: 15,
-				},
-			}}
+			{...getRedFlagAnimation(delay)}
 			className={cn("absolute z-50 pointer-events-none", className)}
 			style={{
 				top: position.top,
@@ -110,19 +102,8 @@ export const RedFlagTooltip = ({
 					</div>
 				</div>
 
-				{/* Pulsing Red Dot Indicator */}
-				<motion.div
-					animate={{
-						scale: [1, 1.2, 1],
-						opacity: [0.8, 1, 0.8],
-					}}
-					transition={{
-						repeat: Infinity,
-						duration: 2,
-						ease: "easeInOut",
-					}}
-					className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 w-3 h-3 bg-red-500 rounded-full shadow-lg"
-				/>
+				{/* Static Red Dot Indicator */}
+				<div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 w-3 h-3 bg-red-500 rounded-full shadow-lg opacity-80" />
 			</div>
 		</motion.div>
 	);

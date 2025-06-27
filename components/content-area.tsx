@@ -5,10 +5,14 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Tooltip } from "./tooltip";
 import { ChatScenario } from "./chat-scenario";
+import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import type { QuizContent, ContentAreaProps } from "@/lib/types";
 
 const ContentFactory = {
-	component: (data: QuizContent, props: any) => {
+	component: (
+		data: QuizContent,
+		props: { animate: boolean; showResult: boolean }
+	) => {
 		const componentMap = {
 			ChatScenario: () => <ChatScenario {...props} />,
 		};
@@ -51,7 +55,11 @@ export const ContentArea = ({
 	tooltipVariant = "default",
 	showResult = false,
 }: ContentAreaProps) => {
-	const getVariantStyles = () => {
+	// 🎨 Animation Logic - React Compiler Optimized
+	const { getContentMotionProps } = useQuizAnimations(showResult);
+
+	// React 19: React Compiler จะ optimize functions เหล่านี้อัตโนมัติ
+	function getVariantStyles() {
 		switch (variant) {
 			case "compact":
 				return "w-full max-w-[380px]";
@@ -60,31 +68,22 @@ export const ContentArea = ({
 			default:
 				return "w-full max-w-sm";
 		}
-	};
+	}
 
-	const motionProps = animate
-		? {
-				initial: { opacity: 1, y: 0, scale: 1 },
-				animate: showResult
-					? { y: -20, scale: 1, opacity: 0.7 }
-					: { y: 0, scale: 1, opacity: 1 },
-				transition: {
-					duration: 1.0,
-					ease: "easeInOut" as const,
-					delay: showResult ? 0.2 : 0,
-				},
-		  }
-		: {};
+	function getMotionProps() {
+		if (!animate) return {};
+		return getContentMotionProps();
+	}
 
-	const renderContent = () => {
+	function renderContent() {
 		const renderer = ContentFactory[content.type];
 		return renderer ? renderer(content, { animate, showResult }) : null;
-	};
+	}
 
 	return (
 		<motion.div
 			className={cn("w-full mx-auto", getVariantStyles(), className)}
-			{...motionProps}
+			{...getMotionProps()}
 		>
 			{tooltipContent ? (
 				<Tooltip

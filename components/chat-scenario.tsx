@@ -5,6 +5,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { RedFlagTooltip } from "./red-flag-tooltip";
 import { RED_FLAGS_DATA } from "@/lib/constants";
+import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import type { ChatScenarioProps } from "@/lib/types";
 
 export const ChatScenario = ({
@@ -12,24 +13,20 @@ export const ChatScenario = ({
 	animate = true,
 	showResult = false,
 }: ChatScenarioProps) => {
-	const motionProps = animate
-		? {
-				initial: { opacity: 1, y: 0, scale: 1 },
-				animate: showResult
-					? { y: -60, scale: 1, opacity: 1.0 }
-					: { y: 0, scale: 1, opacity: 1 },
-				transition: {
-					duration: 1.0,
-					ease: "easeInOut" as const,
-					delay: showResult ? 0.2 : 0,
-				},
-		  }
-		: {};
+	// 🎨 Animation Logic - React Compiler Optimized
+	const { getChatScenarioMotionProps, getChatBubbleAnimation } =
+		useQuizAnimations(showResult);
+
+	// React 19: React Compiler จะ optimize function นี้อัตโนมัติ
+	function getMotionProps() {
+		if (!animate) return {};
+		return getChatScenarioMotionProps();
+	}
 
 	return (
 		<motion.div
 			className={cn("relative w-full max-w-[380px] mx-auto", className)}
-			{...motionProps}
+			{...getMotionProps()}
 		>
 			{/* Chat UI Background */}
 			<div className="relative">
@@ -44,19 +41,7 @@ export const ChatScenario = ({
 
 				{/* Chat Bubble Overlay */}
 				<motion.div
-					initial={{ opacity: 0, scale: 0.8, y: 20 }}
-					animate={{
-						opacity: 1,
-						scale: 1,
-						y: 0,
-						transition: {
-							delay: 0.5,
-							duration: 0.6,
-							type: "spring",
-							stiffness: 200,
-							damping: 20,
-						},
-					}}
+					{...getChatBubbleAnimation()}
 					className="absolute top-[35%] left-[8%] w-[84%]"
 				>
 					<Image
