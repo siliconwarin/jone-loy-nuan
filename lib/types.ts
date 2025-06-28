@@ -46,8 +46,13 @@ export interface ContentAreaProps {
 	tooltipContent?: string;
 	tooltipVariant?: "default" | "warning" | "danger" | "info";
 	showResult?: boolean;
+	onAnswer?: (isCorrect: boolean) => void;
 }
 
+// เพิ่มใหม่ - Answer Panel Layout Types
+export type AnswerPanelLayout = "auto" | "vertical" | "horizontal" | "hidden";
+
+// อัปเดต AnswerPanelProps
 export interface AnswerPanelProps {
 	answers: Answer[];
 	selectedAnswer: string | null;
@@ -55,6 +60,8 @@ export interface AnswerPanelProps {
 	isCorrect: boolean | null;
 	onAnswerSelect: (answerId: string) => void;
 	hideAnswers?: boolean;
+	layout?: AnswerPanelLayout; // 🆕 Layout variant
+	className?: string; // 🆕 Custom styling
 }
 
 export interface QuestionSectionProps {
@@ -63,9 +70,11 @@ export interface QuestionSectionProps {
 }
 
 export interface ResultCardProps {
+	showResult: boolean;
+	isCorrect: boolean | null;
 	result: QuizResult;
-	isCorrect: boolean;
-	onRestart?: () => void;
+	onReset: () => void;
+	isLoading?: boolean; // 🆕 External loading prop
 }
 
 export interface RedFlagTooltipProps {

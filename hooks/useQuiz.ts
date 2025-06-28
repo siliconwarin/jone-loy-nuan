@@ -13,12 +13,28 @@ export const useQuiz = () => {
 	const store = useQuizStore();
 
 	/**
-	 * เริ่มต้น quiz ครั้งแรก
+	 * 🆕 Initialize quiz session on first load
 	 */
 	const initializeQuiz = useCallback(() => {
-		if (!store.currentQuestion) {
-			const question = getCurrentQuestion();
-			store.setCurrentQuestion(question);
+		if (!store.session) {
+			store.initializeSession();
+		}
+	}, [store]);
+
+	/**
+	 * 🆕 Enhanced next question with survey redirect
+	 */
+	const goToNextQuestion = useCallback(() => {
+		if (store.isLastQuestion) {
+			// Show completion message then redirect
+			setTimeout(() => {
+				window.location.href = "/survey";
+			}, 1200);
+		} else {
+			// Regular next question
+			setTimeout(() => {
+				store.nextQuestion();
+			}, 1200);
 		}
 	}, [store]);
 
@@ -88,13 +104,6 @@ export const useQuiz = () => {
 		store.resetQuiz();
 	}, [store]);
 
-	const goToNextQuestion = useCallback(() => {
-		// รอให้ transition เล่นจบก่อน (1.2s) แล้วค่อยโหลดคำถามถัดไป
-		setTimeout(() => {
-			store.nextQuestion();
-		}, 1200);
-	}, [store]);
-
 	/**
 	 * เริ่มใหม่ทั้งหมด
 	 * React 19: React Compiler handles optimization automatically
@@ -117,9 +126,12 @@ export const useQuiz = () => {
 	const getQuizProgress = () => {
 		// สำหรับอนาคตเมื่อมีหลายคำถาม
 		return {
-			current: 1,
-			total: 1,
-			percentage: 100,
+			current: (store.session?.currentQuestionIndex || 0) + 1,
+			total: quizData.length,
+			percentage: Math.round(
+				(((store.session?.currentQuestionIndex || 0) + 1) / quizData.length) *
+					100
+			),
 		};
 	};
 

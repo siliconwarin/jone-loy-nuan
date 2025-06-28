@@ -5,23 +5,38 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Tooltip } from "./tooltip";
 import { ChatScenario } from "./chat-scenario";
+import { PinScenario } from "@/app/quiz/_component/pin-scenario";
+import { RomanceScamScenario } from "@/app/quiz/_component/romance-scam-scenario";
 import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import type { QuizContent, ContentAreaProps } from "@/lib/types";
 import { FeedAdScenarioWithFlags } from "./feed-ad-scenario-with-flags";
 import { useMemo } from "react";
 import JobAdScenario from "./job-ad-scenario";
 import InteractiveAdScenario from "./interactive-ad-scenario";
+import { InvestmentScamScenario } from "./investment-scam-scenario";
 
 const ContentFactory = {
 	component: (
 		data: QuizContent,
-		props: { animate: boolean; showResult: boolean }
+		props: {
+			animate: boolean;
+			showResult: boolean;
+			onAnswer?: (isCorrect: boolean) => void;
+		}
 	) => {
 		const componentMap = {
 			ChatScenario: () => <ChatScenario {...props} />,
 			FeedAdScenario: () => <FeedAdScenarioWithFlags {...props} />,
 			JobAdScenario: () => <JobAdScenario {...props} />,
 			InteractiveAdScenario: () => <InteractiveAdScenario {...props} />,
+			PinScenario: () => (
+				<PinScenario
+					onAnswer={props.onAnswer || (() => {})}
+					disabled={props.showResult}
+				/>
+			),
+			RomanceScamScenario: () => <RomanceScamScenario {...props} />,
+			InvestmentScamScenario: () => <InvestmentScamScenario {...props} />,
 		};
 
 		const Component = componentMap[data.component as keyof typeof componentMap];
@@ -61,6 +76,7 @@ export const ContentArea = ({
 	tooltipContent,
 	tooltipVariant = "default",
 	showResult = false,
+	onAnswer,
 }: ContentAreaProps) => {
 	// 🎨 Animation Logic - React Compiler Optimized
 	const { getContentMotionProps } = useQuizAnimations(showResult);
@@ -84,8 +100,10 @@ export const ContentArea = ({
 
 	const renderedContent = useMemo(() => {
 		const renderer = ContentFactory[content.type];
-		return renderer ? renderer(content, { animate, showResult }) : null;
-	}, [content, animate, showResult]);
+		return renderer
+			? renderer(content, { animate, showResult, onAnswer })
+			: null;
+	}, [content, animate, showResult, onAnswer]);
 
 	return (
 		<motion.div

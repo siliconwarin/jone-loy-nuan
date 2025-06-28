@@ -137,8 +137,8 @@ export const useQuizAnimations = (showResult: boolean) => {
 		 * Motion props สำหรับ Answer Panel
 		 * (responsive)
 		 */
-		function getAnswerPanelMotionProps() {
-			return {
+		function getAnswerPanelLayoutAnimation(layout: AnswerPanelLayout) {
+			const baseAnimation = {
 				initial: { opacity: 1, y: 0 },
 				animate: showResult
 					? {
@@ -149,19 +149,42 @@ export const useQuizAnimations = (showResult: boolean) => {
 					: { opacity: 1, y: 0, scale: 1 },
 				transition: { duration: 0.6, ease: "easeInOut" as const },
 			};
+
+			// Layout-specific adjustments
+			if (layout === "horizontal") {
+				return {
+					...baseAnimation,
+					// Horizontal layout ใช้ scale น้อยกว่า
+					animate: showResult
+						? { ...baseAnimation.animate, scale: 0.95 }
+						: baseAnimation.animate,
+				};
+			}
+
+			return baseAnimation;
 		}
 
 		/**
 		 * Animation สำหรับ Answer Button
 		 * (responsive)
 		 */
-		function getAnswerButtonAnimation(index: number) {
+		function getAnswerButtonLayoutAnimation(
+			index: number,
+			layout: AnswerPanelLayout
+		) {
+			if (layout === "horizontal") {
+				// Horizontal: Stagger จากซ้ายไปขวา
+				return {
+					initial: { opacity: 0, x: index === 0 ? -20 : 20 },
+					animate: { opacity: 1, x: 0 },
+					transition: { delay: index * 0.1, duration: 0.3 },
+				};
+			}
+
+			// Vertical: Stagger จากบนลงล่าง
 			return {
 				initial: { opacity: 0, y: responsiveValues.buttonY },
-				animate: {
-					opacity: 1,
-					y: 0,
-				},
+				animate: { opacity: 1, y: 0 },
 				transition: { delay: index * 0.1, duration: 0.3 },
 			};
 		}
@@ -243,6 +266,183 @@ export const useQuizAnimations = (showResult: boolean) => {
 			};
 		}
 
+		/**
+		 * Animation สำหรับ Romance Scam Scenario
+		 * (responsive และ state-aware)
+		 */
+		function getRomanceScenarioAnimation() {
+			return {
+				// Question state
+				question: {
+					initial: { opacity: 0, scale: 0.9 },
+					animate: { opacity: 1, scale: 1 },
+					exit: { opacity: 0, scale: 0.9 },
+					transition: { duration: 0.6 },
+				},
+				// Result state
+				result: {
+					initial: { opacity: 0, scale: 0.9 },
+					animate: { opacity: 1, scale: 1 },
+					transition: { duration: 0.8, delay: 0.2 },
+				},
+			};
+		}
+
+		/**
+		 * Animation สำหรับ Result Card
+		 * (responsive timing และ spring animations)
+		 */
+		function getResultCardAnimation() {
+			return {
+				// Overlay background
+				overlay: {
+					initial: { opacity: 0 },
+					animate: { opacity: 1 },
+					exit: { opacity: 0 },
+				},
+				// Main card
+				card: {
+					initial: { y: "100vh", opacity: 0 },
+					animate: {
+						y: 0,
+						opacity: 1,
+						transition: {
+							type: "spring" as const,
+							stiffness: 90,
+							damping: 15,
+							delay: 1.6,
+						},
+					},
+					exit: {
+						y: "100vh",
+						opacity: 0,
+						transition: { duration: 0.4, ease: "easeInOut" as const },
+					},
+				},
+				// Title text
+				title: {
+					initial: { opacity: 0, y: 20 },
+					animate: {
+						opacity: 1,
+						y: 0,
+						transition: {
+							delay: 2.2,
+							duration: 0.6,
+							ease: "easeOut" as const,
+						},
+					},
+				},
+				// Content text
+				content: {
+					initial: { opacity: 0, y: 20 },
+					animate: {
+						opacity: 1,
+						y: 0,
+						transition: {
+							delay: 2.6,
+							duration: 0.6,
+							ease: "easeOut" as const,
+						},
+					},
+				},
+				// Action button
+				button: {
+					initial: { opacity: 0, scale: 0.8 },
+					animate: {
+						opacity: 1,
+						scale: 1,
+						transition: {
+							delay: 3.0,
+							duration: 0.5,
+							type: "spring" as const,
+							stiffness: 200,
+							damping: 15,
+						},
+					},
+				},
+				// Top colored bar
+				topBar: {
+					initial: {
+						opacity: 0,
+						scale: 0.3,
+						y: -50,
+						rotateX: -90,
+					},
+					animate: {
+						opacity: 1,
+						scale: 1,
+						y: 0,
+						rotateX: 0,
+						transition: {
+							type: "spring" as const,
+							stiffness: 150,
+							damping: 10,
+							delay: 3.5,
+							duration: 0.8,
+						},
+					},
+					exit: {
+						opacity: 0,
+						scale: 0.3,
+						y: -50,
+						rotateX: -90,
+						transition: {
+							duration: 0.3,
+							ease: "easeInOut" as const,
+						},
+					},
+				},
+			};
+		}
+
+		/**
+		 * Animation สำหรับ Landing Page
+		 * (staggered entry sequence)
+		 */
+		function getLandingPageAnimation() {
+			return {
+				// Main container
+				container: {
+					initial: { opacity: 0 },
+					animate: { opacity: 1 },
+					transition: { delay: 2.4, duration: 0.4, ease: "easeIn" as const },
+				},
+				// Card container
+				card: {
+					initial: { opacity: 0, y: 30, scale: 0.95 },
+					animate: { opacity: 1, y: 0, scale: 1 },
+					transition: { delay: 2.6, duration: 0.5, ease: "easeOut" as const },
+				},
+				// Title
+				title: {
+					initial: { opacity: 0, y: 20 },
+					animate: { opacity: 1, y: 0 },
+					transition: { delay: 2.8, duration: 0.4 },
+				},
+				// Subtitle
+				subtitle: {
+					initial: { opacity: 0, y: 20 },
+					animate: { opacity: 1, y: 0 },
+					transition: { delay: 3.0, duration: 0.4 },
+				},
+				// CTA Button
+				cta: {
+					initial: { opacity: 0, y: 20 },
+					animate: { opacity: 1, y: 0 },
+					transition: { delay: 3.2, duration: 0.4 },
+					// Interactive states
+					hover: { scale: 1.02 },
+					tap: { scale: 0.98 },
+				},
+				// Footer
+				footer: {
+					initial: { opacity: 0, y: 20 },
+					animate: { opacity: 1, y: 0 },
+					transition: { delay: 3.4, duration: 0.4 },
+				},
+			};
+		}
+
 		return {
 			// Content animations
 			getContentMotionProps,
@@ -250,13 +450,18 @@ export const useQuizAnimations = (showResult: boolean) => {
 			getChatBubbleAnimation,
 
 			// UI component animations
-			getAnswerPanelMotionProps,
-			getAnswerButtonAnimation,
+			getAnswerPanelLayoutAnimation,
+			getAnswerButtonLayoutAnimation,
 			getQuestionExitAnimation,
 
 			// Environment animations
 			getBackgroundAnimation,
 			getRedFlagAnimation,
+
+			// Page-specific animations
+			getRomanceScenarioAnimation,
+			getResultCardAnimation,
+			getLandingPageAnimation,
 
 			// Utility
 			getStaggeredTextVariants,
