@@ -37,6 +37,7 @@ interface QuizStore {
 		isCorrect: boolean
 	) => Promise<void>;
 	checkIfLastQuestion: () => boolean;
+	getTotalScore: () => number;
 }
 
 export const useQuizStore = create<QuizStore>((set, get) => ({
@@ -54,7 +55,6 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 	setCurrentQuestion: (question) => {
 		set({
 			currentQuestion: question,
-			questionStartTime: new Date(), // 🆕 Track question start time
 			isLastQuestion: get().checkIfLastQuestion(),
 		});
 	},
@@ -195,6 +195,15 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 		if (!state.session) return false;
 
 		return state.session.currentQuestionIndex === quizData.length - 1;
+	},
+
+	// 🆕 Get total score from session responses
+	getTotalScore: () => {
+		const state = get();
+		if (!state.session) return 0;
+
+		return state.session.responses.filter((response) => response.isCorrect)
+			.length;
 	},
 }));
 

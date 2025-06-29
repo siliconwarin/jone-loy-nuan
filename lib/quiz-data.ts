@@ -7,8 +7,8 @@ export const quizData: QuizQuestion[] = [
 			"ถ้าคุณกำลังรอพัสดุ แล้วได้ SMS แจ้งว่าพัสดุเสียหายและมีเจ้าหน้าที่เสนอเงินชดเชย คุณจะ...?",
 		content: {
 			type: "component",
-			data: "",
-			component: "ChatScenario",
+			data: "sms-scam-1",
+			component: "ScenarioViewer",
 			alt: "Chat scenario showing SMS scam conversation",
 		},
 		answers: [
@@ -39,11 +39,12 @@ export const quizData: QuizQuestion[] = [
 	// Question 2 - Social Ad Scam
 	{
 		id: "social-ad-2",
-		question: "ถ้าคุณกำลังร้อนเงิน และเห็นโฆษณาสินเชื่อแบบนี้บนโซเชียล คุณจะ…?",
+		question:
+			"ถ้าคุณกําลังร้อนเงิน และค้นหาเงินกู้ แล้วเจอโฆษณาสินเชื่อแบบนีคุณจะ…?",
 		content: {
 			type: "component",
-			component: "FeedAdScenario",
-			data: "",
+			component: "ScenarioViewer",
+			data: "social-ad-2",
 			alt: "Social feed loan ad",
 		},
 		answers: [
@@ -64,8 +65,8 @@ export const quizData: QuizQuestion[] = [
 		question: "ถ้าคุณกำลังหางาน และเห็นโฆษณาสมัครงานแบบนี้ คุณจะ…?",
 		content: {
 			type: "component",
-			component: "InteractiveAdScenario",
-			data: "",
+			component: "ScenarioViewer",
+			data: "job-ad-3",
 			alt: "Interactive job advertisement scam",
 		},
 		interactive: true,
@@ -111,8 +112,8 @@ export const quizData: QuizQuestion[] = [
 			"ถ้าคุณเจอโปรไฟล์แบบนี้บนโซเชียลมีเดีย และมีคนมาแชทหาคุยอ้างว่าเป็นคนต่างชาติ คุณจะ...?",
 		content: {
 			type: "component",
-			component: "RomanceScamScenario",
-			data: "",
+			component: "ScenarioViewer",
+			data: "romance-scam-5",
 			alt: "Romance scam social media profile",
 		},
 		answers: [
@@ -134,8 +135,8 @@ export const quizData: QuizQuestion[] = [
 			"ถ้าคุณเห็นโพสต์โฆษณาลงทุนแบบนี้บนโซเชียลมีเดีย และมีคนมาแชทชวนลงทุน คุณจะ...?",
 		content: {
 			type: "component",
-			component: "InvestmentScamScenario",
-			data: "",
+			component: "ScenarioViewer",
+			data: "investment-scam-6",
 			alt: "Investment scam social media post with red flags",
 		},
 		answers: [
@@ -170,8 +171,8 @@ export const quizData: QuizQuestion[] = [
 			"ถ้าคุณได้รับคำเชิญเข้ากลุ่ม Line ที่อ้างเป็นกลุ่มลงทุน แล้วมีปัญหากิจให้เข้าไป คุณจะ...?",
 		content: {
 			type: "component",
-			component: "LineGroupScamScenario",
-			data: "",
+			component: "ScenarioViewer",
+			data: "line-group-scam-7",
 			alt: "Line group invitation scam scenario",
 		},
 		answers: [

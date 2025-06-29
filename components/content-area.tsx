@@ -4,16 +4,11 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Tooltip } from "./tooltip";
-import { ChatScenario } from "./chat-scenario";
 import { PinScenario } from "@/app/quiz/_component/pin-scenario";
-import { RomanceScamScenario } from "@/app/quiz/_component/romance-scam-scenario";
 import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import type { QuizContent, ContentAreaProps } from "@/lib/types";
-import { FeedAdScenarioWithFlags } from "./feed-ad-scenario-with-flags";
+import { ScenarioViewer } from "./scenario-viewer";
 import { useMemo } from "react";
-import JobAdScenario from "./job-ad-scenario";
-import InteractiveAdScenario from "./interactive-ad-scenario";
-import { InvestmentScamScenario } from "./investment-scam-scenario";
 
 const ContentFactory = {
 	component: (
@@ -24,23 +19,34 @@ const ContentFactory = {
 			onAnswer?: (isCorrect: boolean) => void;
 		}
 	) => {
-		const componentMap = {
-			ChatScenario: () => <ChatScenario {...props} />,
-			FeedAdScenario: () => <FeedAdScenarioWithFlags {...props} />,
-			JobAdScenario: () => <JobAdScenario {...props} />,
-			InteractiveAdScenario: () => <InteractiveAdScenario {...props} />,
-			PinScenario: () => (
+		// ใช้ ScenarioViewer สำหรับ scenario ทั้งหมด ยกเว้น PinScenario
+		if (data.component === "PinScenario") {
+			return (
 				<PinScenario
 					onAnswer={props.onAnswer || (() => {})}
 					disabled={props.showResult}
 				/>
-			),
-			RomanceScamScenario: () => <RomanceScamScenario {...props} />,
-			InvestmentScamScenario: () => <InvestmentScamScenario {...props} />,
-		};
+			);
+		}
 
-		const Component = componentMap[data.component as keyof typeof componentMap];
-		return Component ? <Component /> : null;
+		// ใช้ ScenarioViewer สำหรับ scenario อื่นๆ ทั้งหมด
+		return (
+			<ScenarioViewer
+				scenarioId={
+					data.data ||
+					(data.component
+						? data.component.replace(/Scenario$/, "").toLowerCase()
+						: "unknown")
+				}
+				showResult={props.showResult}
+				animate={props.animate}
+				onInteraction={(answerId, isCorrect) => {
+					if (props.onAnswer) {
+						props.onAnswer(isCorrect);
+					}
+				}}
+			/>
+		);
 	},
 
 	image: (data: QuizContent) => (
