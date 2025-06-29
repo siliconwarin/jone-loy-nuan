@@ -32,32 +32,35 @@ const ScenarioViewerComponent = ({
 	const { getChatScenarioMotionProps, getChatBubbleAnimation } =
 		useQuizAnimations(showResult);
 
+	// Move all hooks before any conditional logic
 	const config = SCENARIO_CONFIGS[scenarioId];
 
-	if (!config) {
-		console.warn(`Scenario config not found for: ${scenarioId}`);
-		return null;
-	}
-
-	// เลือกรูปตาม state
+	// เลือกรูปตาม state - moved before early return
 	const imageSrc = useMemo(() => {
+		if (!config) return "";
 		if (showResult || hasInteracted) {
 			return config.resultImage || config.baseImage;
 		}
 		return config.baseImage;
 	}, [config, showResult, hasInteracted]);
 
-	// Motion props
+	// Motion props - ย้ายออกมาจาก conditional
 	const motionProps = useMemo(() => {
-		if (!animate) return {};
-		return getChatScenarioMotionProps();
+		return animate ? getChatScenarioMotionProps() : {};
 	}, [animate, getChatScenarioMotionProps]);
 
-	// Chat bubble animation (สำหรับ SMS scenario)
+	// Chat bubble animation (สำหรับ SMS scenario) - ย้ายออกมาจาก conditional
 	const bubbleMotionProps = useMemo(() => {
-		if (!animate || showResult || scenarioId !== "sms-scam-1") return {};
-		return getChatBubbleAnimation();
+		return animate && !showResult && scenarioId === "sms-scam-1"
+			? getChatBubbleAnimation()
+			: {};
 	}, [animate, showResult, scenarioId, getChatBubbleAnimation]);
+
+	// Early return after all hooks
+	if (!config) {
+		console.warn(`Scenario config not found for: ${scenarioId}`);
+		return null;
+	}
 
 	// Handle interactive button click
 	const handleButtonClick = (buttonId: string) => {

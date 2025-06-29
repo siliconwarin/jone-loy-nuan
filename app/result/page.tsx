@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import {
 	CardContent,
 } from "@/components/ui/card";
 import { useQuizStore } from "@/store/quiz-store";
-import { CheckCircle, Trophy, RotateCcw, Home } from "lucide-react";
+import { CheckCircle, RotateCcw, Home } from "lucide-react";
 
 export default function ResultPage() {
 	const router = useRouter();
@@ -102,7 +101,7 @@ export default function ResultPage() {
 
 	return (
 		<motion.div
-			className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 py-8 px-4"
+			className="h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 py-8 px-4 overflow-y-auto"
 			variants={containerVariants}
 			initial="hidden"
 			animate="visible"

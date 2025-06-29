@@ -49,7 +49,7 @@ html, body {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* ป้องกันการ scroll ของ body */
+  overflow: auto; /* อนุญาตให้ scroll ได้ */
 }
 
 /* แก้ไขปัญหา viewport height บน mobile */
@@ -68,7 +68,7 @@ html, body {
 
 #root {
   height: 100%;
-  overflow-y: none; /* ทำให้ scroll ได้ */
+  overflow-y: auto; /* ทำให้ scroll ได้ */
 }
 
 /* ===== CUSTOM ANIMATIONS ===== */

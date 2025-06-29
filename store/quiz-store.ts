@@ -1,15 +1,14 @@
 import { create } from "zustand";
 import type { QuizQuestion } from "@/lib/types";
 import { getCurrentQuestion, quizData } from "@/lib/quiz-data";
-import type { QuizResponseData } from "@/app/api/quiz-response/route";
+import type { QuizSummaryData } from "@/app/api/quiz-response/route";
 
-// 🆕 Session และ Analytics Types
+// 🆕 Session และ Analytics Types (แบบใหม่)
 interface QuizSession {
 	sessionId: string;
 	startTime: Date;
 	currentQuestionIndex: number;
-	responses: QuizResponseData[];
-	questionStartTime: Date | null;
+	responses: Array<{ questionId: string; isCorrect: boolean }>; // เก็บแค่ผลลัพธ์ไม่เก็บรายละเอียด
 }
 
 interface QuizStore {
@@ -19,7 +18,7 @@ interface QuizStore {
 	showResult: boolean;
 	isCorrect: boolean | null;
 
-	// 🆕 New states for data collection
+	// 🆕 New states for summary collection
 	session: QuizSession | null;
 	isLastQuestion: boolean;
 
@@ -31,13 +30,10 @@ interface QuizStore {
 
 	// 🆕 New actions
 	initializeSession: () => void;
-	saveQuizResponse: (
-		questionId: string,
-		answerId: string,
-		isCorrect: boolean
-	) => Promise<void>;
+	saveQuizSummary: () => Promise<void>; // 🔄 เปลี่ยนจากการส่งทีละคำถาม
 	checkIfLastQuestion: () => boolean;
 	getTotalScore: () => number;
+	setNavigationCallback: (callback: () => void) => void; // ✅ เพิ่ม navigation callback
 }
 
 export const useQuizStore = create<QuizStore>((set, get) => ({
@@ -72,8 +68,21 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 			showResult: true,
 		});
 
-		// 🆕 Save response to API
-		state.saveQuizResponse(state.currentQuestion.id, answerId, isCorrect);
+		// 🆕 บันทึกผลลัพธ์ลง session (ไม่ส่ง API ทันที)
+		if (state.session) {
+			set({
+				session: {
+					...state.session,
+					responses: [
+						...state.session.responses,
+						{
+							questionId: state.currentQuestion.id,
+							isCorrect,
+						},
+					],
+				},
+			});
+		}
 	},
 
 	resetQuiz: () => {
@@ -95,8 +104,14 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
 		// Check if this was the last question
 		if (nextIndex >= quizData.length) {
-			// Redirect to survey
-			window.location.href = "/survey";
+			// 🆕 ส่งสรุปผลก่อนไป survey
+			state.saveQuizSummary().then(() => {
+				// ✅ ใช้ callback แทน window.location.href
+				const store = get() as any;
+				if (store.navigationCallback) {
+					store.navigationCallback();
+				}
+			});
 			return;
 		}
 
@@ -128,7 +143,6 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 				startTime: new Date(),
 				currentQuestionIndex: 0,
 				responses: [],
-				questionStartTime: new Date(),
 			},
 		});
 
@@ -137,28 +151,25 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 		get().setCurrentQuestion(firstQuestion);
 	},
 
-	// 🆕 Save quiz response to API
-	saveQuizResponse: async (questionId, answerId, isCorrect) => {
+	// 🆕 Save quiz summary to API (เมื่อจบ quiz)
+	saveQuizSummary: async () => {
 		const state = get();
 		if (!state.session) return;
 
 		try {
-			// Calculate time spent on question
-			const timeSpent = state.session.questionStartTime
-				? Math.round(
-						(Date.now() - state.session.questionStartTime.getTime()) / 1000
-				  )
-				: 0;
+			// Calculate total score
+			const correctAnswers = state.session.responses.filter(
+				(response) => response.isCorrect
+			).length;
+			const totalQuestions = quizData.length;
 
 			// Detect device type
 			const deviceType = getDeviceType();
 
-			const responseData: QuizResponseData = {
+			const summaryData: QuizSummaryData = {
 				sessionId: state.session.sessionId,
-				questionId,
-				answerId,
-				isCorrect,
-				timeSpent,
+				totalQuestions,
+				correctAnswers,
 				deviceType,
 				userAgent: navigator.userAgent,
 			};
@@ -169,23 +180,18 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(responseData),
+				body: JSON.stringify(summaryData),
 			});
 
 			if (!response.ok) {
-				throw new Error("Failed to save quiz response");
+				throw new Error("Failed to save quiz summary");
 			}
 
-			// Update session with response
-			set({
-				session: {
-					...state.session,
-					responses: [...state.session.responses, responseData],
-				},
-			});
+			const result = await response.json();
+			console.log("Quiz summary saved:", result);
 		} catch (error) {
-			console.error("Error saving quiz response:", error);
-			// Continue quiz even if save fails
+			console.error("Error saving quiz summary:", error);
+			// Continue to survey even if save fails
 		}
 	},
 
@@ -204,6 +210,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
 		return state.session.responses.filter((response) => response.isCorrect)
 			.length;
+	},
+
+	// ✅ เพิ่ม setNavigationCallback implementation
+	setNavigationCallback: (callback: () => void) => {
+		set({ navigationCallback: callback } as any);
 	},
 }));
 

@@ -211,7 +211,7 @@ export default function SurveyPage() {
 	const isLoading = actionState.status === "loading" || isPending;
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
+		<div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 overflow-y-auto">
 			<div className="max-w-2xl mx-auto">
 				{/* 🏆 Score Display */}
 				<Card className="mb-8 border-0 shadow-lg bg-white/80 backdrop-blur-sm">

@@ -1,8 +1,9 @@
 import { useQuizStore } from "@/store/quiz-store";
-import { getCurrentQuestion } from "@/lib/quiz-data";
+import { getCurrentQuestion, quizData } from "@/lib/quiz-data";
 import { BUTTON_VARIANTS } from "@/lib/constants";
 import type { ButtonVariant } from "@/lib/types";
 import { useCallback, useLayoutEffect } from "react";
+import { useRouter } from "next/navigation";
 
 /**
  * 🎯 Business Logic Only - Zustand State Management
@@ -11,6 +12,7 @@ import { useCallback, useLayoutEffect } from "react";
  */
 export const useQuiz = () => {
 	const store = useQuizStore();
+	const router = useRouter();
 
 	/**
 	 * 🆕 Initialize quiz session on first load
@@ -22,21 +24,17 @@ export const useQuiz = () => {
 	}, [store]);
 
 	/**
-	 * 🆕 Enhanced next question with survey redirect
+	 * 🆕 Enhanced next question with survey redirect - แก้ไขใช้ soft navigation
 	 */
 	const goToNextQuestion = useCallback(() => {
-		if (store.isLastQuestion) {
-			// Show completion message then redirect
-			setTimeout(() => {
-				window.location.href = "/survey";
-			}, 1200);
-		} else {
-			// Regular next question
-			setTimeout(() => {
-				store.nextQuestion();
-			}, 1200);
-		}
-	}, [store]);
+		setTimeout(() => {
+			// Set navigation callback ก่อนเรียก nextQuestion
+			store.setNavigationCallback(() => {
+				router.push("/survey"); // ✅ Soft navigation (ไม่ reload, store ไม่หาย)
+			});
+			store.nextQuestion();
+		}, 1200);
+	}, [store, router]);
 
 	// Auto-initialize ใน hook ด้วย useLayoutEffect
 	useLayoutEffect(() => {

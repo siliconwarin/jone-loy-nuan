@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useQuiz } from "@/hooks/useQuiz";
 import { useQuizAnimations } from "@/hooks/useQuizAnimations";
-import type { AnswerPanelProps } from "@/lib/types";
+import type { AnswerPanelProps, AnswerPanelLayout } from "@/lib/types";
 import { useMemo } from "react";
 
 export const AnswerPanel = (props: AnswerPanelProps) => {
@@ -16,7 +16,7 @@ export const AnswerPanel = (props: AnswerPanelProps) => {
 	// 🧠 Smart Layout Detection
 	const layoutInfo = useMemo(() => {
 		if (hideAnswers) {
-			return { layout: "hidden", showPanel: false };
+			return { layout: "hidden" as const, showPanel: false };
 		}
 
 		const answerCount = props.answers.length;
@@ -24,7 +24,7 @@ export const AnswerPanel = (props: AnswerPanelProps) => {
 		const isVertical = answerCount >= 3;
 
 		return {
-			layout: isHorizontal ? "horizontal" : "vertical",
+			layout: (isHorizontal ? "horizontal" : "vertical") as AnswerPanelLayout,
 			showPanel: true,
 			isHorizontal,
 			isVertical,

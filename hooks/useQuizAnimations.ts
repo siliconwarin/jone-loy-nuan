@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useEffect, useState } from "react";
+import type { AnswerPanelLayout } from "@/lib/types";
 
 /**
  * Hook สำหรับตรวจสอบขนาดหน้าจอและปรับ animation ตาม device
