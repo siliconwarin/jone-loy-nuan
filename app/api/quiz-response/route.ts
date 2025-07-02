@@ -13,6 +13,13 @@ export interface QuizSummaryData {
 
 export async function POST(request: NextRequest) {
 	try {
+		// 🔍 Debug environment variables
+		console.log("🔍 GOOGLE_SCRIPT_URL:", process.env.GOOGLE_SCRIPT_URL);
+		console.log(
+			"🔍 Environment keys containing 'GOOGLE':",
+			Object.keys(process.env).filter((key) => key.includes("GOOGLE"))
+		);
+
 		const data: QuizSummaryData = await request.json();
 
 		// Validate required fields

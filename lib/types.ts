@@ -20,6 +20,19 @@ export interface QuizResult {
 	explanation: string;
 }
 
+// 🆕 เพิ่ม type สำหรับ Scam Categories
+export type ScamCategory =
+	| "SMS_SCAM"
+	| "LOAN_APP_SCAM"
+	| "JOB_SCAM"
+	| "INVESTMENT_SCAM"
+	| "ROMANCE_SCAM"
+	| "GROUP_SCAM"
+	| "PIN_SCAM"
+	| "POLICE_AD_SCAM"
+	| "POLICE_CALL_SCAM"
+	| "MULE_ACCOUNT_SCAM";
+
 export interface QuizQuestion {
 	id: string;
 	question: string;
@@ -27,6 +40,10 @@ export interface QuizQuestion {
 	answers: Answer[];
 	result: QuizResult;
 	interactive?: boolean;
+	category?: ScamCategory; // 🆕 เพิ่ม category
+	difficulty?: "easy" | "medium" | "hard"; // 🆕 เพิ่ม difficulty
+	tags?: string[]; // 🆕 เพิ่ม tags สำหรับ filtering
+	redFlags?: string[]; // 🆕 เพิ่ม red flags แบบ raw data
 }
 
 export interface RedFlag {
