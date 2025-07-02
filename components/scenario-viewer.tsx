@@ -4,10 +4,9 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { memo, useMemo, useState } from "react";
 import { useQuizAnimations } from "@/hooks/useQuizAnimations";
-import { SCENARIO_CONFIGS } from "@/lib/scenario-configs";
+import { quizData } from "@/lib/quiz-data";
 import { RedFlagTooltip } from "./red-flag-tooltip";
 import ChatBubbleImage from "./chat-bubble-image";
-import FeedAdTextOverlay from "./feed-ad-text-overlay";
 
 interface ScenarioViewerProps {
 	scenarioId: string;
@@ -19,7 +18,7 @@ interface ScenarioViewerProps {
 
 /**
  * Generic ScenarioViewer - รองรับทุก scenario type
- * แทนที่ component แยกๆ ทั้งหมด
+ * ใช้ข้อมูลจาก quiz-data.ts และแสดง SVG/Image เพียวๆ
  */
 const ScenarioViewerComponent = ({
 	scenarioId,
@@ -32,120 +31,128 @@ const ScenarioViewerComponent = ({
 	const { getChatScenarioMotionProps, getChatBubbleAnimation } =
 		useQuizAnimations(showResult);
 
-	// Move all hooks before any conditional logic
-	const config = SCENARIO_CONFIGS[scenarioId];
+	// หาข้อมูลจาก quiz-data.ts
+	const questionData = useMemo(() => {
+		return quizData.find((q) => q.id === scenarioId);
+	}, [scenarioId]);
 
-	// เลือกรูปตาม state - moved before early return
-	const imageSrc = useMemo(() => {
-		if (!config) return "";
-		if (showResult || hasInteracted) {
-			return config.resultImage || config.baseImage;
-		}
-		return config.baseImage;
-	}, [config, showResult, hasInteracted]);
-
-	// Motion props - ย้ายออกมาจาก conditional
+	// Motion props
 	const motionProps = useMemo(() => {
 		return animate ? getChatScenarioMotionProps() : {};
 	}, [animate, getChatScenarioMotionProps]);
 
-	// Chat bubble animation (สำหรับ SMS scenario) - ย้ายออกมาจาก conditional
+	// Chat bubble animation (สำหรับ SMS scenario)
 	const bubbleMotionProps = useMemo(() => {
 		return animate && !showResult && scenarioId === "sms-scam-1"
 			? getChatBubbleAnimation()
 			: {};
 	}, [animate, showResult, scenarioId, getChatBubbleAnimation]);
 
-	// Early return after all hooks
-	if (!config) {
-		console.warn(`Scenario config not found for: ${scenarioId}`);
+	// Early return ถ้าไม่เจอข้อมูล
+	if (!questionData) {
+		console.warn(`Question data not found for: ${scenarioId}`);
 		return null;
 	}
 
-	// Handle interactive button click
-	const handleButtonClick = (buttonId: string) => {
-		if (hasInteracted || !config.buttons) return;
+	// กำหนด image path ตาม scenario
+	const getImagePath = () => {
+		const scenarioMap: Record<string, string> = {
+			"sms-scam-1": "/images/scenario-1/chat-ui.jpg",
+			"social-ad-2": "/images/scenario-2/feed-ui.svg", // SVG file!
+			"job-ad-3": "/images/scenario-3/ad-job.jpg",
+			"romance-scam-5": "/images/scenario-5/profile-social-ui.jpg",
+			"investment-scam-6": "/images/scenario-6/invest-ui.jpg",
+			"line-group-scam-7": "/images/scenario-7/line-group.jpg", // สมมติ
+			"fake-ads-8": "/images/scenario-8/fake-ads.jpg", // สมมติ
+			"fake-police-phone-call-9": "/images/scenario-9/police-call.jpg", // สมมติ
+			"mule-account-10": "/images/scenario-10/mule-account.jpg", // สมมติ
+		};
 
-		const button = config.buttons.find((b) => b.id === buttonId);
-		if (button && onInteraction) {
+		return scenarioMap[scenarioId] || "/placeholder.svg";
+	};
+
+	const imagePath = getImagePath();
+	const isSvgFile = imagePath.endsWith(".svg");
+
+	// Handle interactive button click
+	const handleButtonClick = (answerId: string) => {
+		if (hasInteracted || !onInteraction) return;
+
+		const answer = questionData.answers.find((a) => a.id === answerId);
+		if (answer) {
 			setHasInteracted(true);
-			onInteraction(buttonId, button.isCorrect);
+			onInteraction(answerId, answer.isCorrect);
 		}
 	};
 
 	return (
 		<motion.div
 			layoutId={`scenario-${scenarioId}`}
-			className={`${config.containerClass} ${className}`}
+			className={`relative ${className}`}
 			{...motionProps}
 		>
-			{/* รูปหลัก */}
-			<Image
-				src={imageSrc}
-				alt={config.alt}
-				width={400}
-				height={600}
-				className="w-full h-auto rounded-lg sm:rounded-xl shadow-md sm:shadow-lg"
-				priority
-			/>
-
-			{/* Text Overlay */}
-			{config.textOverlay && (
-				<>
-					{/* Chat Bubble (SMS Scenario) */}
-					{config.textOverlay.component === "ChatBubbleImage" && (
-						<motion.div
-							{...bubbleMotionProps}
-							className={config.textOverlay.position}
-						>
-							<ChatBubbleImage />
-						</motion.div>
-					)}
-
-					{/* Feed Ad Text (Social Ad Scenario) */}
-					{config.textOverlay.header && (
-						<div
-							className={
-								config.textOverlay.position +
-								" font-bold leading-snug space-y-2 sm:space-y-3 md:space-y-4"
-							}
-						>
-							<FeedAdTextOverlay
-								header={config.textOverlay.header}
-								body={config.textOverlay.body || []}
-								footer={config.textOverlay.footer || ""}
-							/>
-						</div>
-					)}
-				</>
+			{/* รูปหลัก - SVG หรือ Image */}
+			{isSvgFile ? (
+				// ใช้ SVG เพียวๆ แบบปกติ
+				<img
+					src={imagePath}
+					alt={questionData.content.alt || "Scenario SVG"}
+					className="w-full h-auto rounded-lg sm:rounded-xl shadow-md sm:shadow-lg"
+				/>
+			) : (
+				<Image
+					src={imagePath}
+					alt={questionData.content.alt || "Scenario image"}
+					width={400}
+					height={600}
+					className="w-full h-auto rounded-lg sm:rounded-xl shadow-md sm:shadow-lg"
+					priority
+				/>
 			)}
 
-			{/* Interactive Buttons */}
-			{config.interactive &&
-				config.buttons &&
+			{/* Text Overlay สำหรับ scenario พิเศษ */}
+			{scenarioId === "sms-scam-1" && (
+				<motion.div
+					{...bubbleMotionProps}
+					className="absolute top-[15%] left-[5%] w-[90%]"
+				>
+					<ChatBubbleImage />
+				</motion.div>
+			)}
+
+			{/* Text overlay ถูกเอาออกแล้ว - ใช้แค่ SVG เพียวๆ */}
+
+			{/* Interactive Buttons สำหรับ job-ad-3 */}
+			{scenarioId === "job-ad-3" &&
+				questionData.interactive &&
 				!showResult &&
 				!hasInteracted && (
 					<div className="absolute inset-0 pointer-events-none">
-						{config.buttons.map((button) => (
-							<button
-								key={button.id}
-								onClick={() => handleButtonClick(button.id)}
-								className={`absolute pointer-events-auto ${button.position} bg-transparent hover:bg-yellow-500/30 rounded-md transition-all duration-200 border-2 border-transparent hover:border-yellow-400 text-transparent hover:text-yellow-700 text-xs sm:text-sm font-medium flex items-center justify-center`}
-								aria-label={button.text}
-							/>
-						))}
+						<button
+							onClick={() => handleButtonClick("skip")}
+							className="absolute pointer-events-auto top-[20%] right-[10%] w-[25%] h-[8%] bg-transparent hover:bg-yellow-500/30 rounded-md transition-all duration-200 border-2 border-transparent hover:border-yellow-400 text-transparent hover:text-yellow-700 text-xs font-medium flex items-center justify-center"
+							aria-label="ข้าม"
+						/>
+						<button
+							onClick={() => handleButtonClick("register")}
+							className="absolute pointer-events-auto bottom-[25%] left-[10%] w-[80%] h-[10%] bg-transparent hover:bg-yellow-500/30 rounded-md transition-all duration-200 border-2 border-transparent hover:border-yellow-400 text-transparent hover:text-yellow-700 text-xs font-medium flex items-center justify-center"
+							aria-label="ลงทะเบียน"
+						/>
 					</div>
 				)}
 
 			{/* Red Flag Tooltips */}
 			{showResult &&
-				config.redFlags?.map((flag) => (
+				questionData.redFlags?.map((flag, index) => (
 					<RedFlagTooltip
-						key={flag.id}
-						message={flag.message}
-						position={flag.position}
-						direction={flag.direction}
-						delay={flag.delay}
+						key={index}
+						message={flag}
+						position={{
+							top: `${20 + index * 15}%`,
+							left: `${10 + (index % 2) * 40}%`,
+						}}
+						direction={index % 2 === 0 ? "down" : "up"}
+						delay={index * 0.3}
 						show={showResult}
 					/>
 				))}
