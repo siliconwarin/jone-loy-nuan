@@ -54,25 +54,39 @@ const ScenarioViewerComponent = ({
 		return null;
 	}
 
-	// กำหนด image path ตาม scenario
-	const getImagePath = () => {
+	// กำหนด image path ตาม scenario และ state (normal/result)
+	const getImagePath = (isResult: boolean = false) => {
+		if (isResult) {
+			// Result version paths
+			const resultScenarioMap: Record<string, string> = {
+				"sms-scam-1": "/images/scenario-1/result-sms-ui.svg",
+				"social-ad-2": "/images/scenario-2/result-feed-ui.svg",
+				"job-ad-3": "/images/scenario-3/result-ad-job.jpg",
+				"romance-scam-5": "/images/scenario-5/result-profile-social-ui.jpg",
+				"investment-scam-6": "/images/scenario-6/result-invest-ui.jpg",
+			};
+			return resultScenarioMap[scenarioId] || "/placeholder-result.svg";
+		}
+
+		// Normal version paths
 		const scenarioMap: Record<string, string> = {
-			"sms-scam-1": "/images/scenario-1/chat-ui.jpg",
-			"social-ad-2": "/images/scenario-2/feed-ui.svg", // SVG file!
+			"sms-scam-1": "/images/scenario-1/sms-ui.svg",
+			"social-ad-2": "/images/scenario-2/feed-ui.svg",
 			"job-ad-3": "/images/scenario-3/ad-job.jpg",
 			"romance-scam-5": "/images/scenario-5/profile-social-ui.jpg",
 			"investment-scam-6": "/images/scenario-6/invest-ui.jpg",
-			"line-group-scam-7": "/images/scenario-7/line-group.jpg", // สมมติ
-			"fake-ads-8": "/images/scenario-8/fake-ads.jpg", // สมมติ
-			"fake-police-phone-call-9": "/images/scenario-9/police-call.jpg", // สมมติ
-			"mule-account-10": "/images/scenario-10/mule-account.jpg", // สมมติ
+			"line-group-scam-7": "/images/scenario-7/line-group.jpg",
+			"fake-ads-8": "/images/scenario-8/fake-ads.jpg",
+			"fake-police-phone-call-9": "/images/scenario-9/police-call.jpg",
+			"mule-account-10": "/images/scenario-10/mule-account.jpg",
 		};
 
 		return scenarioMap[scenarioId] || "/placeholder.svg";
 	};
 
-	const imagePath = getImagePath();
-	const isSvgFile = imagePath.endsWith(".svg");
+	const normalImagePath = getImagePath(false);
+	const resultImagePath = getImagePath(true);
+	const isSvgFile = normalImagePath.endsWith(".svg");
 
 	// Handle interactive button click
 	const handleButtonClick = (answerId: string) => {
@@ -91,24 +105,60 @@ const ScenarioViewerComponent = ({
 			className={`relative ${className}`}
 			{...motionProps}
 		>
-			{/* รูปหลัก - SVG หรือ Image */}
-			{isSvgFile ? (
-				// ใช้ SVG เพียวๆ แบบปกติ
-				<img
-					src={imagePath}
-					alt={questionData.content.alt || "Scenario SVG"}
-					className="w-full h-auto rounded-lg sm:rounded-xl shadow-md sm:shadow-lg"
-				/>
-			) : (
-				<Image
-					src={imagePath}
-					alt={questionData.content.alt || "Scenario image"}
-					width={400}
-					height={600}
-					className="w-full h-auto rounded-lg sm:rounded-xl shadow-md sm:shadow-lg"
-					priority
-				/>
-			)}
+			{/* รูปหลัก - SVG หรือ Image with Crossfade */}
+			<div className="relative">
+				{/* Normal Image */}
+				<motion.div
+					key="normal-image"
+					initial={false}
+					animate={{ opacity: showResult ? 0 : 1 }}
+					transition={{ duration: 0.5, ease: "easeInOut" }}
+					className="absolute inset-0"
+				>
+					{isSvgFile ? (
+						<img
+							src={normalImagePath}
+							alt={questionData.content.alt || "Scenario SVG"}
+							className="w-full h-auto rounded-lg sm:rounded-xl shadow-md sm:shadow-lg"
+						/>
+					) : (
+						<Image
+							src={normalImagePath}
+							alt={questionData.content.alt || "Scenario image"}
+							width={400}
+							height={600}
+							className="w-full h-auto rounded-lg sm:rounded-xl shadow-md sm:shadow-lg"
+							priority
+						/>
+					)}
+				</motion.div>
+
+				{/* Result Image */}
+				<motion.div
+					key="result-image"
+					initial={false}
+					animate={{ opacity: showResult ? 1 : 0 }}
+					transition={{ duration: 0.5, ease: "easeInOut" }}
+					className={showResult ? "relative" : "absolute inset-0"}
+				>
+					{isSvgFile ? (
+						<img
+							src={resultImagePath}
+							alt={questionData.content.alt || "Scenario Result SVG"}
+							className="w-full h-auto rounded-lg sm:rounded-xl shadow-md sm:shadow-lg"
+						/>
+					) : (
+						<Image
+							src={resultImagePath}
+							alt={questionData.content.alt || "Scenario Result image"}
+							width={400}
+							height={600}
+							className="w-full h-auto rounded-lg sm:rounded-xl shadow-md sm:shadow-lg"
+							priority
+						/>
+					)}
+				</motion.div>
+			</div>
 
 			{/* Text Overlay สำหรับ scenario พิเศษ */}
 			{scenarioId === "sms-scam-1" && (
