@@ -106,7 +106,26 @@ const ScenarioViewerComponent = ({
 			{...motionProps}
 		>
 			{/* รูปหลัก - SVG หรือ Image with Crossfade */}
-			<div className="relative">
+			<div className="relative w-full">
+				{/* Base Image สำหรับกำหนด container height */}
+				<div className="w-full opacity-0 pointer-events-none">
+					{isSvgFile ? (
+						<img
+							src={normalImagePath}
+							alt=""
+							className="w-full h-auto rounded-lg sm:rounded-xl"
+						/>
+					) : (
+						<Image
+							src={normalImagePath}
+							alt=""
+							width={400}
+							height={600}
+							className="w-full h-auto rounded-lg sm:rounded-xl"
+						/>
+					)}
+				</div>
+
 				{/* Normal Image */}
 				<motion.div
 					key="normal-image"
@@ -139,7 +158,7 @@ const ScenarioViewerComponent = ({
 					initial={false}
 					animate={{ opacity: showResult ? 1 : 0 }}
 					transition={{ duration: 0.5, ease: "easeInOut" }}
-					className={showResult ? "relative" : "absolute inset-0"}
+					className="absolute inset-0"
 				>
 					{isSvgFile ? (
 						<img
