@@ -1,0 +1,31 @@
+<svg width="600" height="600" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background เปลี่ยนเป็นสีแดงอ่อน เพื่อบ่งบอกว่าเป็น scam -->
+  <rect x="0" y="0" width="600" height="600" rx="30" fill="#ffebee"/>
+  
+  <!-- Header text -->
+  <text x="30" y="60" font-family="Helvetica, Arial, sans-serif" font-size="27" fill="#d32f2f" font-weight="bold">&lt; 99+</text>
+  
+  <!-- Profile icon with warning theme -->
+  <g id="profile-icon">
+    <circle cx="300" cy="140" r="57" fill="#f44336"/>
+    <path d="M300,116 a 21,21 0 1,1 0,-0.01 z M262,170 a 45,30 0 0,1 75,0 z" fill="#ffebee"/>
+  </g>
+  
+  <!-- Status bar เปลี่ยนเป็นสีแดง -->
+  <rect x="225" y="220" width="150" height="21" rx="10" fill="#ffcdd2"/>
+  
+  <!-- Warning icon เปลี่ยนเป็นอันตราย -->
+  <g id="warning-icon" transform="translate(333, 163)">
+    <circle cx="0" cy="0" r="21" fill="#f44336" stroke="#ffebee" stroke-width="3"/>
+    <text x="0" y="8" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="white">!</text>
+  </g>
+
+  <!-- Message area เปลี่ยนเป็นสีแดงอ่อน -->
+  <rect x="50" y="280" width="500" height="250" rx="20" fill="#ffcdd2"/>
+  
+  <!-- เพิ่ม SCAM warning overlay -->
+  <g id="scam-warning">
+    <rect x="100" y="380" width="400" height="60" rx="30" fill="#d32f2f" fill-opacity="0.9"/>
+    <text x="300" y="420" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="white">⚠️ นี่คือการหลอกลวง SCAM</text>
+  </g>
+</svg> 
