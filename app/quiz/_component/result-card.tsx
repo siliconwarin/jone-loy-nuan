@@ -54,10 +54,6 @@ export const ResultCard = ({
 		return isCorrect ? "text-green-500" : "text-pink-500";
 	};
 
-	const getTopBarColor = () => {
-		return isCorrect ? "bg-green-500" : "bg-pink-500";
-	};
-
 	const LoadingSpinner = () => (
 		<motion.div
 			initial={{ opacity: 0, scale: 0.8 }}
@@ -97,67 +93,57 @@ export const ResultCard = ({
 					<div className="relative w-full max-w-xs md:max-w-md pt-6">
 						<motion.div
 							{...resultAnimation.card}
-							className="relative bg-white rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 z-10"
+							className="relative bg-white rounded-3xl shadow-2xl p-6 md:p-8 z-10"
 						>
-							<div className="text-center pt-8">
+							<div className="pt-4">
 								<motion.div {...resultAnimation.title}>
-									<h2 className={`text-2xl font-bold ${getTitleColor()}`}>
-										{getTitle()}
-									</h2>
-									<p
-										className={`text-lg font-semibold ${getTitleColor()} mb-4`}
-									>
-										{result.header}
-									</p>
+									<div className="flex items-start gap-4 mb-4">
+										<div className="w-10 h-10 bg-pink-500 rounded-md flex-shrink-0" />
+										<div className="flex-1 text-center">
+											<h2 className={`text-2xl font-bold ${getTitleColor()}`}>
+												{getTitle()}
+											</h2>
+											<p className={`text-lg font-semibold ${getTitleColor()}`}>
+												{result.header}
+											</p>
+										</div>
+									</div>
 								</motion.div>
-
-								<motion.div
-									{...resultAnimation.content}
-									className="bg-gray-100 rounded-xl p-4 text-sm text-gray-800 leading-relaxed"
-								>
-									{result.explanation}
-								</motion.div>
-
-								<motion.button
-									{...resultAnimation.button}
-									onClick={handleReset}
-									disabled={isButtonLoading}
-									className={`
-										mt-6 px-8 py-3 rounded-lg font-medium 
-										focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
-										transition-all duration-200 ease-in-out
-										min-w-[120px] h-[48px] flex items-center justify-center gap-2
-										${
-											isButtonLoading
-												? "bg-blue-400 cursor-not-allowed opacity-80"
-												: "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 cursor-pointer"
-										}
-										text-white
-									`}
-									whileTap={isButtonLoading ? {} : { scale: 0.98 }}
-									style={{
-										pointerEvents: isButtonLoading ? "none" : "auto",
-									}}
-								>
-									{isButtonLoading ? (
-										<>
-											<LoadingSpinner />
-											<span>กำลังดำเนินการ...</span>
-										</>
-									) : (
-										<span>รับทราบ</span>
-									)}
-								</motion.button>
 							</div>
-						</motion.div>
 
-						<motion.div
-							{...resultAnimation.topBar}
-							className={`absolute top-0 left-1/2 -translate-x-1/2 w-11/12 h-20 ${getTopBarColor()} rounded-2xl z-20 shadow-lg`}
-							style={{
-								transformOrigin: "center bottom",
-							}}
-						/>
+							<motion.div
+								{...resultAnimation.content}
+								className="bg-gray-100 rounded-xl p-4 text-sm text-gray-800 leading-relaxed"
+							>
+								{result.explanation}
+							</motion.div>
+
+							<motion.button
+								{...resultAnimation.button}
+								onClick={handleReset}
+								disabled={isButtonLoading}
+								className={`
+									mt-6 mx-auto w-full max-w-[260px] px-6 py-3 rounded-lg font-semibold text-[#003A70]
+									transition-all duration-200 ease-in-out
+									${
+										isButtonLoading
+											? "bg-yellow-300 opacity-70"
+											: "bg-[#FFD633] hover:bg-[#FFCF00]"
+									}
+								`}
+								whileTap={isButtonLoading ? {} : { scale: 0.97 }}
+								style={{ pointerEvents: isButtonLoading ? "none" : "auto" }}
+							>
+								{isButtonLoading ? (
+									<>
+										<LoadingSpinner />
+										<span>กำลังดำเนินการ...</span>
+									</>
+								) : (
+									<span>รับทราบ</span>
+								)}
+							</motion.button>
+						</motion.div>
 					</div>
 				</motion.div>
 			)}

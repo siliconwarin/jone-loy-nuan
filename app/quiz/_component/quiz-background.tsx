@@ -19,7 +19,7 @@ export const QuizBackground = ({
 
 	return (
 		<motion.div
-			className="h-[100dvh] flex flex-col relative overflow-hidden"
+			className="h-[100dvh] flex flex-col relative overflow-x-hidden overflow-y-auto"
 			{...getBackgroundAnimation(theme)}
 		>
 			{children}

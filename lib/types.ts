@@ -5,6 +5,10 @@ export interface QuizContent {
 	data: string;
 	alt?: string;
 	component?: string;
+	images?: {
+		normal: string;
+		result: string;
+	};
 }
 
 export interface Answer {

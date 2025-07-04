@@ -1,103 +1,65 @@
-"use client";
+import { createClient } from "@/utils/supabase/server";
+import { QuizClient } from "./_component/quiz-client";
+import { type Database } from "@/lib/database.types";
 
-import { PageContent } from "@/components/page-content";
-import { ContentArea } from "@/components/content-area";
-import { useQuiz } from "@/hooks/useQuiz";
-import { useState } from "react";
+export type QuestionWithImages =
+	Database["public"]["Functions"]["get_questions_with_images"]["Returns"][0];
 
-// Components
-import { QuestionSection } from "./_component/question-section";
-import { AnswerPanel } from "./_component/answer-panel";
-import { ResultCard } from "./_component/result-card";
-import { QuizBackground } from "./_component/quiz-background";
+type QuestionRow = Database["public"]["Tables"]["questions"]["Row"];
 
-export default function QuizPage() {
-	const {
-		currentQuestion,
-		selectedAnswer,
-		showResult,
-		isCorrect,
-		handleAnswerSelect,
-		goToNextQuestion,
-	} = useQuiz();
+function buildImageUrl(bucketUrl: string, path: string) {
+	return `${bucketUrl}/object/public/${encodeURIComponent(path)}`;
+}
 
-	// 🆕 Loading state for transitions
-	const [isTransitioning, setIsTransitioning] = useState(false);
+export default async function QuizPage() {
+	const supabase = await createClient();
 
-	// 🔄 Enhanced reset handler with loading
-	const handleReset = () => {
-		setIsTransitioning(true);
-		goToNextQuestion();
-		// Loading จะรีเซ็ตเมื่อโหลดคำถามใหม่เสร็จ
-		setTimeout(() => setIsTransitioning(false), 1200);
-	};
+	// Use the new RPC function to get questions with image URLs
+	let { data: questions, error } = await supabase.rpc(
+		"get_questions_with_images"
+	);
 
-	// Loading state ถ้ายังไม่มี currentQuestion
-	if (!currentQuestion) {
-		return (
-			<PageContent>
-				<div className="w-full h-full flex items-center justify-center">
-					<div className="text-center text-gray-500">กำลังโหลด...</div>
-				</div>
-			</PageContent>
+	if (error || !questions) {
+		// fallback to manual construction
+		const { data: rows, error: tableError } = await supabase
+			.from("questions")
+			.select("*")
+			.order("order_index", { ascending: true });
+
+		if (tableError || !rows) {
+			console.error("Error fetching questions fallback:", tableError);
+			return <div>Failed to load quiz. Please try again later.</div>;
+		}
+
+		// Build public URLs manually
+		const bucketUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(
+			/^https?:\/\//,
+			""
 		);
+		const fullBucketBase = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1`;
+
+		questions = (rows as QuestionRow[]).map((q) => {
+			const originalId = (q.content as any)?.original_id ?? "";
+			const normalPath = `${originalId}/normal.svg`;
+			const resultPath = `${originalId}/result.svg`;
+			const normal_image_url = supabase.storage
+				.from("scenario-images")
+				.getPublicUrl(normalPath).data.publicUrl;
+			const result_image_url = supabase.storage
+				.from("scenario-images")
+				.getPublicUrl(resultPath).data.publicUrl;
+
+			return {
+				...q,
+				normal_image_url,
+				result_image_url,
+			};
+		}) as unknown as QuestionWithImages[];
 	}
 
-	const isInteractive = currentQuestion.interactive || false;
+	if (!questions) {
+		return <div>Failed to load quiz questions.</div>;
+	}
 
-	// Handle PIN scenario answer (convert boolean to answerId)
-	const handlePinAnswer = (isCorrect: boolean) => {
-		const answerId = isCorrect ? "cancel" : "confirm";
-		handleAnswerSelect(answerId);
-	};
-
-	return (
-		<PageContent>
-			<QuizBackground showResult={showResult}>
-				<div className="w-full h-full flex flex-col p-2 sm:p-4 md:p-6">
-					{/* Header: Question Section */}
-					<div className="flex justify-end items-end basis-[15%] sm:basis-[18%] md:basis-[20%] pt-2 sm:pt-4 md:pt-5 pb-2 sm:pb-3 md:pb-4">
-						<div className="w-full max-w-[340px] sm:max-w-md md:max-w-lg mx-auto">
-							<QuestionSection
-								question={currentQuestion.question}
-								showResult={showResult}
-							/>
-						</div>
-					</div>
-
-					{/* Content: Chat/Feed Scenario */}
-					<div className="basis-[60%] sm:basis-[57%] md:basis-[55%] flex items-center justify-center py-2 sm:py-4">
-						<ContentArea
-							content={currentQuestion.content}
-							showResult={showResult}
-							variant="compact"
-							onAnswer={handlePinAnswer}
-						/>
-					</div>
-
-					{/* Footer: Answer Buttons */}
-					<div className="basis-[25%] pb-4 sm:pb-6 md:pb-8">
-						<AnswerPanel
-							answers={currentQuestion.answers}
-							selectedAnswer={selectedAnswer}
-							showResult={showResult}
-							isCorrect={isCorrect}
-							onAnswerSelect={handleAnswerSelect}
-							hideAnswers={isInteractive}
-							layout="auto"
-						/>
-					</div>
-				</div>
-
-				{/* Result Card with Loading */}
-				<ResultCard
-					showResult={showResult}
-					isCorrect={isCorrect}
-					result={currentQuestion.result}
-					onReset={handleReset}
-					isLoading={isTransitioning}
-				/>
-			</QuizBackground>
-		</PageContent>
-	);
+	return <QuizClient initialQuestions={questions} />;
 }
