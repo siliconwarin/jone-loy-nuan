@@ -31,16 +31,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 
 // 🔥 Modern Imports
 import { useQuizResultStore } from "@/store/quiz-store";
 import { surveySchema, type SurveyFormData } from "@/lib/schema";
 
-// 📊 Form Data Constants
+// 📊 Form Data Constants (เหลือแค่ 3 หัวข้อแรก)
 const FORM_DATA = {
 	ageGroups: [
 		{ value: "under18", label: "ต่ำกว่า 18 ปี" },
@@ -72,38 +68,6 @@ const FORM_DATA = {
 		{ value: "unemployed", label: "ว่างงาน" },
 		{ value: "other", label: "อื่นๆ" },
 	],
-	scamTypes: [
-		{ value: "investment", label: "หลอกลงทุน" },
-		{ value: "shopping", label: "หลอกซื้อสินค้า" },
-		{ value: "romance", label: "หลอกลวงความรัก" },
-		{ value: "job", label: "หลอกงาน" },
-		{ value: "lottery", label: "หลอกถูกรางวัล" },
-		{ value: "banking", label: "หลอกธนาคาร/การเงิน" },
-		{ value: "government", label: "หลอกเป็นหน่วยงานรัฐ" },
-		{ value: "callcenter", label: "คอลเซ็นเตอร์" },
-		{ value: "other", label: "อื่นๆ" },
-	],
-	socialMediaUsage: [
-		{ value: "never", label: "ไม่ใช้เลย" },
-		{ value: "rarely", label: "นานๆ ครั้ง (เดือนละ 1-2 ครั้ง)" },
-		{ value: "sometimes", label: "บางครั้ง (สัปดาห์ละ 1-2 ครั้ง)" },
-		{ value: "often", label: "บ่อย (2-3 วันต่อครั้ง)" },
-		{ value: "daily", label: "ทุกวัน (วันละ 1-2 ครั้ง)" },
-		{ value: "several_daily", label: "วันละหลายครั้ง" },
-		{ value: "hourly", label: "เกือบทุกชั่วโมง" },
-		{ value: "constantly", label: "ตลอดเวลา (เช็คทุก 5-10 นาที)" },
-	],
-	platforms: [
-		{ value: "facebook", label: "Facebook" },
-		{ value: "line", label: "Line" },
-		{ value: "instagram", label: "Instagram" },
-		{ value: "tiktok", label: "TikTok" },
-		{ value: "twitter", label: "Twitter/X" },
-		{ value: "youtube", label: "YouTube" },
-		{ value: "telegram", label: "Telegram" },
-		{ value: "whatsapp", label: "WhatsApp" },
-		{ value: "other", label: "อื่นๆ" },
-	],
 };
 
 // 🚀 Modern Action State Type
@@ -124,27 +88,22 @@ async function submitSurveyAction(
 		// 📊 Parse form data
 		const rawData = Object.fromEntries(formData.entries());
 
-		// Handle arrays (platforms, scamTypes)
-		const platforms = formData.getAll("platforms");
-		const scamTypes = formData.getAll("scamTypes");
-
 		// 🎯 Get quiz score data from hidden fields
 		const totalScore = parseInt(formData.get("totalScore") as string) || 0;
 		const totalQuestions =
 			parseInt(formData.get("totalQuestions") as string) || 0;
 
+		// ✅ สร้าง surveyData ให้ตรงกับ schema ใหม่
 		const surveyData = {
 			...rawData,
 			totalScore,
 			totalQuestions,
-			platforms,
-			scamTypes: scamTypes.length > 0 ? scamTypes : undefined,
 		};
 
 		// 🔍 Validate with Zod
 		const validatedData = surveySchema.parse(surveyData);
 
-		// 🚀 Call API (replace with actual API endpoint)
+		// 🚀 Call API
 		const response = await fetch("/api/survey-response", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -185,13 +144,9 @@ export default function SurveyPage() {
 	const form = useForm<SurveyFormData>({
 		resolver: zodResolver(surveySchema),
 		defaultValues: {
-			platforms: [],
-			scamTypes: [],
+			// ✅ ลบ default values ที่ไม่ใช้
 		},
 	});
-
-	// 🎯 Watch for scam experience to show/hide scam types
-	const hasScamExperience = form.watch("hasScamExperience");
 
 	// 🚀 Handle Success State
 	useEffect(() => {
@@ -326,197 +281,6 @@ export default function SurveyPage() {
 													))}
 												</SelectContent>
 											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								{/* 🚨 Scam Experience */}
-								<FormField
-									control={form.control}
-									name="hasScamExperience"
-									render={({ field }) => (
-										<FormItem className="space-y-3">
-											<FormLabel>คุณเคยถูกหลอกลวงออนไลน์หรือไม่? *</FormLabel>
-											<FormControl>
-												<RadioGroup
-													onValueChange={field.onChange}
-													defaultValue={field.value}
-													className="flex flex-col space-y-1"
-													name="hasScamExperience"
-												>
-													<div className="flex items-center space-x-2">
-														<RadioGroupItem value="yes" id="scam-yes" />
-														<Label htmlFor="scam-yes">เคย</Label>
-													</div>
-													<div className="flex items-center space-x-2">
-														<RadioGroupItem value="no" id="scam-no" />
-														<Label htmlFor="scam-no">ไม่เคย</Label>
-													</div>
-												</RadioGroup>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								{/* 🎯 Scam Types (Conditional) */}
-								{hasScamExperience === "yes" && (
-									<FormField
-										control={form.control}
-										name="scamTypes"
-										render={() => (
-											<FormItem>
-												<div className="mb-4">
-													<FormLabel className="text-base">
-														ประเภทการหลอกลวงที่เคยพบ (เลือกได้หลายข้อ)
-													</FormLabel>
-												</div>
-												{FORM_DATA.scamTypes.map((item) => (
-													<FormField
-														key={item.value}
-														control={form.control}
-														name="scamTypes"
-														render={({ field }) => {
-															return (
-																<FormItem
-																	key={item.value}
-																	className="flex flex-row items-start space-x-3 space-y-0"
-																>
-																	<FormControl>
-																		<Checkbox
-																			name="scamTypes"
-																			value={item.value}
-																			checked={field.value?.includes(
-																				item.value
-																			)}
-																			onCheckedChange={(checked) => {
-																				return checked
-																					? field.onChange([
-																							...(field.value || []),
-																							item.value,
-																					  ])
-																					: field.onChange(
-																							field.value?.filter(
-																								(value) => value !== item.value
-																							)
-																					  );
-																			}}
-																		/>
-																	</FormControl>
-																	<FormLabel className="font-normal">
-																		{item.label}
-																	</FormLabel>
-																</FormItem>
-															);
-														}}
-													/>
-												))}
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-								)}
-
-								{/* 📱 Social Media Usage */}
-								<FormField
-									control={form.control}
-									name="socialMediaUsage"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>ความถี่ในการใช้สื่อสังคมออนไลน์ *</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-												name="socialMediaUsage"
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="เลือกความถี่การใช้งาน" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{FORM_DATA.socialMediaUsage.map((usage) => (
-														<SelectItem key={usage.value} value={usage.value}>
-															{usage.label}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								{/* 🌐 Platforms */}
-								<FormField
-									control={form.control}
-									name="platforms"
-									render={() => (
-										<FormItem>
-											<div className="mb-4">
-												<FormLabel className="text-base">
-													แพลตฟอร์มที่ใช้ (เลือกได้หลายข้อ) *
-												</FormLabel>
-											</div>
-											{FORM_DATA.platforms.map((item) => (
-												<FormField
-													key={item.value}
-													control={form.control}
-													name="platforms"
-													render={({ field }) => {
-														return (
-															<FormItem
-																key={item.value}
-																className="flex flex-row items-start space-x-3 space-y-0"
-															>
-																<FormControl>
-																	<Checkbox
-																		name="platforms"
-																		value={item.value}
-																		checked={field.value?.includes(item.value)}
-																		onCheckedChange={(checked) => {
-																			return checked
-																				? field.onChange([
-																						...(field.value || []),
-																						item.value,
-																				  ])
-																				: field.onChange(
-																						field.value?.filter(
-																							(value) => value !== item.value
-																						)
-																				  );
-																		}}
-																	/>
-																</FormControl>
-																<FormLabel className="font-normal">
-																	{item.label}
-																</FormLabel>
-															</FormItem>
-														);
-													}}
-												/>
-											))}
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								{/* 💬 Feedback */}
-								<FormField
-									control={form.control}
-									name="feedback"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>ความคิดเห็นเพิ่มเติม</FormLabel>
-											<FormControl>
-												<Textarea
-													placeholder="แบ่งปันความคิดเห็นหรือข้อเสนอแนะ..."
-													className="resize-none"
-													{...field}
-													name="feedback"
-												/>
-											</FormControl>
 											<FormMessage />
 										</FormItem>
 									)}

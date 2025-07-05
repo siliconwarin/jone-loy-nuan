@@ -68,16 +68,31 @@ export async function fetchQuizQuestions() {
 // GET single question by id
 export async function fetchQuestionById(id: string) {
 	const supabase = await createClient();
+
 	const { data, error } = await supabase
-		.rpc("get_questions_with_answers")
+		.from("questions")
+		.select(
+			`
+			*,
+			answers (*)
+		`
+		)
 		.eq("id", id)
 		.single();
 
 	if (error) {
-		console.error(`Error fetching question ${id}:`, error);
+		console.error("Error fetching question:", error);
 		return null;
 	}
-	return data;
+
+	// เพิ่ม static image URLs
+	const questionWithImages = {
+		...data,
+		normal_image_url: `/images/scenarios/${id}/normal.svg`,
+		result_image_url: `/images/scenarios/${id}/result.svg`,
+	};
+
+	return questionWithImages;
 }
 
 // UPSERT question action

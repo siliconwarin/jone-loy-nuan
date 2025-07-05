@@ -92,22 +92,15 @@ function handleSurveyResponse(data) {
 	try {
 		const sheet = getOrCreateSheet(SHEET_NAME, getUnifiedHeaders());
 
-		// Validate required fields for survey
-		const required = [
-			"ageGroup",
-			"education",
-			"occupation",
-			"hasScamExperience",
-			"socialMediaUsage",
-			"platforms",
-		];
+		// ✅ แก้: Validate required fields สำหรับ 3 หัวข้อแรก
+		const required = ["ageGroup", "education", "occupation"];
 		for (const field of required) {
 			if (!data[field]) {
 				throw new Error(`Missing required field: ${field}`);
 			}
 		}
 
-		// Prepare row data for survey (unified format)
+		// ✅ แก้: Prepare row data สำหรับ 3 หัวข้อแรก
 		const rowData = [
 			new Date(), // Timestamp
 			"survey", // Data_Type
@@ -117,11 +110,11 @@ function handleSurveyResponse(data) {
 			data.ageGroup, // Age_Group
 			data.education, // Education
 			data.occupation, // Occupation
-			data.hasScamExperience, // Has_Scam_Experience
-			Array.isArray(data.scamTypes) ? data.scamTypes.join(", ") : "", // Scam_Types
-			data.socialMediaUsage, // Social_Media_Usage
-			Array.isArray(data.platforms) ? data.platforms.join(", ") : "", // Platforms
-			data.feedback || "", // Feedback
+			"", // Has_Scam_Experience (empty)
+			"", // Scam_Types (empty)
+			"", // Social_Media_Usage (empty)
+			"", // Platforms (empty)
+			"", // Feedback (empty)
 			data.deviceType || "unknown", // Device_Type
 			data.userAgent || "unknown", // User_Agent
 		];

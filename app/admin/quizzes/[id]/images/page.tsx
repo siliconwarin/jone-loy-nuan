@@ -60,8 +60,6 @@ export default async function UploadImagesPage({ params }: PageProps) {
 		return <p className="text-center p-4">Question not found.</p>;
 	}
 
-	const images = await getExistingImages(question.id);
-
 	return (
 		<div className="max-w-4xl mx-auto p-4">
 			<Button asChild variant="outline" size="sm" className="mb-4">
@@ -73,7 +71,7 @@ export default async function UploadImagesPage({ params }: PageProps) {
 
 			<div className="bg-white p-6 rounded-lg shadow-md">
 				<h1 className="text-2xl font-bold mb-2">
-					Manage Images for Question {question.order_index}
+					Images for Question {question.order_index}
 				</h1>
 				<p className="text-gray-600 mb-6">{question.question_text}</p>
 
@@ -81,38 +79,38 @@ export default async function UploadImagesPage({ params }: PageProps) {
 					<div>
 						<h2 className="text-lg font-semibold mb-2">Normal State Image</h2>
 						<div className="border rounded-md p-2 h-64 flex items-center justify-center bg-gray-50">
-							{images.normal ? (
-								<Image
-									src={images.normal}
-									alt="Normal state preview"
-									width={300}
-									height={200}
-									className="object-contain"
-								/>
-							) : (
-								<p className="text-gray-400">No image uploaded</p>
-							)}
+							<Image
+								src={question.normal_image_url}
+								alt="Normal state preview"
+								width={300}
+								height={200}
+								className="object-contain"
+							/>
 						</div>
 					</div>
 					<div>
 						<h2 className="text-lg font-semibold mb-2">Result State Image</h2>
 						<div className="border rounded-md p-2 h-64 flex items-center justify-center bg-gray-50">
-							{images.result ? (
-								<Image
-									src={images.result}
-									alt="Result state preview"
-									width={300}
-									height={200}
-									className="object-contain"
-								/>
-							) : (
-								<p className="text-gray-400">No image uploaded</p>
-							)}
+							<Image
+								src={question.result_image_url}
+								alt="Result state preview"
+								width={300}
+								height={200}
+								className="object-contain"
+							/>
 						</div>
 					</div>
 				</div>
 
-				<ImageUploadForm questionId={question.id} />
+				<div className="border-t pt-6">
+					<p className="text-gray-600">
+						📁 Images are stored in:{" "}
+						<code>public/images/scenarios/{question.id}/</code>
+					</p>
+					<p className="text-sm text-gray-500 mt-2">
+						To update images, replace the SVG files in the public folder.
+					</p>
+				</div>
 			</div>
 		</div>
 	);

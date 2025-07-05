@@ -43,9 +43,17 @@ SELECT q.id,
         ),
         '[]'::jsonb
     ) AS answers,
-    -- Join with scenario_images to get image URLs
-    si.normal_image_url,
-    si.result_image_url
+    -- ✅ แก้: ใช้ order_index แทน id เพื่อให้ตรงกับโฟลเดอร์
+    CONCAT(
+        '/images/scenarios/question-',
+        q.order_index::text,
+        '/normal.svg'
+    ) AS normal_image_url,
+    CONCAT(
+        '/images/scenarios/question-',
+        q.order_index::text,
+        '/result.svg'
+    ) AS result_image_url
 FROM public.questions q
     LEFT JOIN public.scenario_images si ON q.id = si.question_id;
 END;
