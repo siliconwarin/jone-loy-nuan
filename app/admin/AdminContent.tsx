@@ -101,6 +101,8 @@ const columns: ColumnDef<Question>[] = [
 ];
 // --- End Columns Definition ---
 
+import { useCallback } from "react";
+
 export default function AdminContent() {
 	const [questions, setQuestions] = useState<Question[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -108,32 +110,32 @@ export default function AdminContent() {
 	const router = useRouter();
 	const query = searchParams.get("query") || "";
 
+	const fetchQuestions = useCallback(async () => {
+		setIsLoading(true);
+		const supabase = createClient();
+		let queryBuilder = supabase
+			.rpc("get_questions_with_answers")
+			.order("order_index", { ascending: true });
+
+		if (query) {
+			queryBuilder = queryBuilder.ilike("question_text", `%${query}%`);
+		}
+
+		const { data, error } = await queryBuilder;
+
+		if (error) {
+			toast.error("Failed to fetch questions.");
+			console.error(error);
+			setQuestions([]);
+		} else {
+			setQuestions(data || []);
+		}
+		setIsLoading(false);
+	}, [query]); // query เป็น dependency ของ useCallback
+
 	useEffect(() => {
-		const fetchQuestions = async () => {
-			setIsLoading(true);
-			const supabase = createClient();
-			let queryBuilder = supabase
-				.rpc("get_questions_with_answers")
-				.order("order_index", { ascending: true });
-
-			if (query) {
-				queryBuilder = queryBuilder.ilike("question_text", `%${query}%`);
-			}
-
-			const { data, error } = await queryBuilder;
-
-			if (error) {
-				toast.error("Failed to fetch questions.");
-				console.error(error);
-				setQuestions([]);
-			} else {
-				setQuestions(data || []);
-			}
-			setIsLoading(false);
-		};
-
 		fetchQuestions();
-	}, [query]);
+	}, [fetchQuestions]);
 
 	// Handle search form submission
 	const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
