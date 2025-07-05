@@ -245,71 +245,41 @@ export const useQuizAnimations = (showResult: boolean) => {
 	);
 
 	// ✅ FIXED: Static animations that don't depend on responsive values
-	const getResultCardAnimation = useCallback(() => {
+	const getResultCardAnimation = () => {
 		return {
 			overlay: {
 				initial: { opacity: 0 },
 				animate: { opacity: 1 },
 				exit: { opacity: 0 },
+				transition: { duration: 0.3 },
 			},
 			card: {
-				initial: { y: "100vh", opacity: 0 },
-				animate: {
-					y: 0,
-					opacity: 1,
-					transition: {
-						type: "spring" as const,
-						stiffness: 90,
-						damping: 15,
-						delay: 1.6,
-					},
-				},
-				exit: {
-					y: "100vh",
-					opacity: 0,
-					transition: { duration: 0.4, ease: "easeInOut" as const },
+				initial: { y: "100%", opacity: 0 },
+				animate: { y: 0, opacity: 1 },
+				exit: { y: "100%", opacity: 0 },
+				transition: {
+					type: "spring" as const,
+					damping: 25,
+					stiffness: 300,
 				},
 			},
 			title: {
 				initial: { opacity: 0, y: 20 },
-				animate: {
-					opacity: 1,
-					y: 0,
-					transition: {
-						delay: 2.2,
-						duration: 0.6,
-						ease: "easeOut" as const,
-					},
-				},
+				animate: { opacity: 1, y: 0 },
+				transition: { delay: 0.2, duration: 0.4 },
 			},
 			content: {
 				initial: { opacity: 0, y: 20 },
-				animate: {
-					opacity: 1,
-					y: 0,
-					transition: {
-						delay: 2.6,
-						duration: 0.6,
-						ease: "easeOut" as const,
-					},
-				},
+				animate: { opacity: 1, y: 0 },
+				transition: { delay: 0.3, duration: 0.4 },
 			},
 			button: {
-				initial: { opacity: 0, scale: 0.8 },
-				animate: {
-					opacity: 1,
-					scale: 1,
-					transition: {
-						delay: 3.0,
-						duration: 0.5,
-						type: "spring" as const,
-						stiffness: 200,
-						damping: 15,
-					},
-				},
+				initial: { opacity: 0, y: 20 },
+				animate: { opacity: 1, y: 0 },
+				transition: { delay: 0.4, duration: 0.4 },
 			},
 		};
-	}, []);
+	};
 
 	// ✅ FIXED: Return stable object with useCallback functions
 	return useMemo(

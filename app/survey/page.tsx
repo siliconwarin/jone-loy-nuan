@@ -91,14 +91,25 @@ async function submitSurveyAction(
 		// 🎯 Get quiz score data from hidden fields
 		const totalScore = parseInt(formData.get("totalScore") as string) || 0;
 		const totalQuestions =
-			parseInt(formData.get("totalQuestions") as string) || 0;
+			parseInt(formData.get("totalQuestions") as string) || 10;
+
+		// ✅ เพิ่ม debug log
+		console.log("Form data entries:", Array.from(formData.entries()));
+		console.log("Raw form data:", rawData);
+		console.log("Total score:", totalScore);
+		console.log("Total questions:", totalQuestions);
 
 		// ✅ สร้าง surveyData ให้ตรงกับ schema ใหม่
 		const surveyData = {
-			...rawData,
+			ageGroup: rawData.ageGroup,
+			education: rawData.education,
+			occupation: rawData.occupation,
 			totalScore,
 			totalQuestions,
 		};
+
+		// ✅ เพิ่ม debug log
+		console.log("Survey data before validation:", surveyData);
 
 		// 🔍 Validate with Zod
 		const validatedData = surveySchema.parse(surveyData);
@@ -140,11 +151,14 @@ export default function SurveyPage() {
 	const { getSummary } = useQuizResultStore();
 	const { score, total } = getSummary();
 
+	// ✅ เพิ่ม debug log
+	console.log("Quiz store data:", { score, total });
+
 	// 🎨 React Hook Form Setup
 	const form = useForm<SurveyFormData>({
 		resolver: zodResolver(surveySchema),
 		defaultValues: {
-			// ✅ ลบ default values ที่ไม่ใช้
+			// ✅ ไม่ต้องใส่ default values เพราะใช้ hidden fields
 		},
 	});
 
@@ -193,8 +207,12 @@ export default function SurveyPage() {
 						<Form {...form}>
 							<form action={formAction} className="space-y-6">
 								{/* 🎯 Hidden Quiz Score Fields */}
-								<input type="hidden" name="totalScore" value={score} />
-								<input type="hidden" name="totalQuestions" value={total} />
+								<input type="hidden" name="totalScore" value={score || 0} />
+								<input
+									type="hidden"
+									name="totalQuestions"
+									value={total || 10}
+								/>
 
 								{/* 👤 Age Group */}
 								<FormField

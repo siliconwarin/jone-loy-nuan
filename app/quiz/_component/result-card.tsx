@@ -97,17 +97,40 @@ export const ResultCard = ({
 			{showResult && (
 				<motion.div
 					{...resultAnimation.overlay}
-					className="absolute inset-0 flex items-end justify-center p-4 md:p-8 mb-8"
+					className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6"
 				>
-					<div className="relative w-full max-w-xs md:max-w-md pt-6">
+					<div className="relative w-full max-w-xs md:max-w-md mx-auto">
+						{/* ปุ่มลูกศรขวาบน */}
+						{!isButtonLoading && !isLastQuestion && (
+							<button
+								onClick={handleReset}
+								className="absolute top-4 right-4 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-[#FFD633] hover:bg-[#FFCF00] shadow transition focus:outline-none"
+								aria-label="ถัดไป"
+								type="button"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									className="h-6 w-6 text-[#003A70]"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									strokeWidth={2}
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="M9 5l7 7-7 7"
+									/>
+								</svg>
+							</button>
+						)}
 						<motion.div
 							{...resultAnimation.card}
-							className="relative bg-white rounded-3xl shadow-2xl p-6 md:p-8 z-10"
+							className="relative bg-white rounded-t-3xl shadow-2xl p-6 md:p-8"
 						>
-							<div className="pt-4">
+							<div className="pt-6">
 								<motion.div {...resultAnimation.title}>
 									<div className="flex items-start gap-4 mb-4">
-										<div className="w-10 h-10 bg-pink-500 rounded-md flex-shrink-0" />
 										<div className="flex-1 text-center">
 											<h2 className={`text-2xl font-bold ${getTitleColor()}`}>
 												{getTitle()}
@@ -122,36 +145,12 @@ export const ResultCard = ({
 
 							<motion.div
 								{...resultAnimation.content}
-								className="bg-gray-100 rounded-xl p-4 text-sm text-gray-800 leading-relaxed"
+								className=" bg-[#c3d3e0] rounded-xl p-4 text-sm text-[#0b4979] leading-relaxed"
 							>
 								{result.explanation}
 							</motion.div>
 
-							<motion.button
-								{...resultAnimation.button}
-								onClick={handleReset}
-								disabled={isButtonLoading}
-								className={`
-									mt-6 mx-auto w-full max-w-[260px] px-6 py-3 rounded-lg font-semibold text-[#003A70]
-									transition-all duration-200 ease-in-out
-									${
-										isButtonLoading
-											? "bg-yellow-300 opacity-70"
-											: "bg-[#FFD633] hover:bg-[#FFCF00]"
-									}
-								`}
-								whileTap={isButtonLoading ? {} : { scale: 0.97 }}
-								style={{ pointerEvents: isButtonLoading ? "none" : "auto" }}
-							>
-								{isButtonLoading ? (
-									<>
-										<LoadingSpinner />
-										<span>กำลังดำเนินการ...</span>
-									</>
-								) : (
-									<span>{getButtonLabel()}</span>
-								)}
-							</motion.button>
+							<div className="h-2 md:h-3"></div>
 						</motion.div>
 					</div>
 				</motion.div>

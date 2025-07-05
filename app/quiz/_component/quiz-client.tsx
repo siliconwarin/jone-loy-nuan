@@ -1,11 +1,11 @@
 "use client";
 
-import { PageContent } from "@/components/page-content";
 import { ContentArea } from "@/components/content-area";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Answer, QuizResult, QuestionWithAnswers } from "@/lib/types";
 import { useQuizResultStore } from "@/store/quiz-store";
+import { motion } from "framer-motion";
 
 // Components
 import { QuestionSection } from "./question-section";
@@ -129,58 +129,67 @@ export function QuizClient({
 	// Loading state ถ้ายังไม่มี currentQuestion
 	if (!currentQuestion) {
 		return (
-			<PageContent>
-				<div className="w-full h-full flex items-center justify-center">
-					<div className="text-center text-gray-500">ไม่มีคำถามในระบบ...</div>
-				</div>
-			</PageContent>
+			<div className="h-[100dvh] bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+				<div className="text-center text-gray-500">ไม่มีคำถามในระบบ...</div>
+			</div>
 		);
 	}
 
 	return (
-		<PageContent>
+		<div className="relative h-[100dvh] bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden">
+			{/* Quiz Background */}
 			<QuizBackground showResult={showResult}>
-				<div className="w-full h-full flex flex-col p-2 sm:p-4 md:p-6">
-					{/* Header: Question Section */}
-					<div className="flex justify-end items-end basis-[15%] sm:basis-[18%] md:basis-[20%] pt-2 sm:pt-4 md:pt-5 pb-2 sm:pb-3 md:pb-4">
-						<div className="w-full max-w-[340px] sm:max-w-md md:max-w-lg mx-auto">
-							<QuestionSection
-								question={currentQuestion.question_text || ""}
+				<motion.div
+					className="h-[100dvh] relative flex flex-col p-4 md:p-8"
+					animate={{
+						scale: showResult ? 0.95 : 1,
+						opacity: showResult ? 0.7 : 1,
+					}}
+					transition={{ duration: 1.2, ease: "easeInOut" }}
+				>
+					{/* Content Area */}
+					<div className="relative w-full h-full flex flex-col">
+						{/* Question Section */}
+						<div className="flex justify-end items-end basis-[15%] sm:basis-[18%] md:basis-[20%] pt-2 sm:pt-4 md:pt-5 pb-2 sm:pb-3 md:pb-4">
+							<div className="w-full max-w-[340px] sm:max-w-md md:max-w-lg mx-auto">
+								<QuestionSection
+									question={currentQuestion?.question_text ?? ""}
+									showResult={showResult}
+								/>
+							</div>
+						</div>
+
+						{/* Content Area */}
+						<div className="basis-[60%] sm:basis-[57%] md:basis-[55%] flex items-center justify-center py-2 sm:py-4">
+							<ContentArea
+								questionData={currentQuestion}
 								showResult={showResult}
+								variant="fullscreen"
+							/>
+						</div>
+
+						{/* Answer Panel */}
+						<div className="basis-[25%] pb-4 sm:pb-6 md:pb-8">
+							<AnswerPanel
+								answers={answers}
+								selectedAnswer={selectedAnswer}
+								showResult={showResult}
+								onAnswerSelect={handleAnswerSelect}
 							/>
 						</div>
 					</div>
-
-					{/* Content: Chat/Feed Scenario */}
-					<div className="basis-[60%] sm:basis-[57%] md:basis-[55%] flex items-center justify-center py-2 sm:py-4">
-						<ContentArea
-							questionData={currentQuestion}
-							showResult={showResult}
-							variant="fullscreen"
-						/>
-					</div>
-
-					{/* Footer: Answer Buttons */}
-					<div className="basis-[25%] pb-4 sm:pb-6 md:pb-8">
-						<AnswerPanel
-							answers={answers}
-							selectedAnswer={selectedAnswer}
-							showResult={showResult}
-							onAnswerSelect={handleAnswerSelect}
-						/>
-					</div>
-				</div>
-
-				{/* Result Card with Loading */}
-				<ResultCard
-					showResult={showResult}
-					isCorrect={isCorrect}
-					result={currentQuestion.result as unknown as QuizResult}
-					onReset={handleReset}
-					isLoading={isTransitioning}
-					isLastQuestion={isLastQuestion}
-				/>
+				</motion.div>
 			</QuizBackground>
-		</PageContent>
+
+			{/* Result Card - ตอนนี้จะติดขอบล่าง */}
+			<ResultCard
+				showResult={showResult}
+				isCorrect={isCorrect}
+				result={currentQuestion.result as unknown as QuizResult}
+				onReset={handleReset}
+				isLoading={isTransitioning}
+				isLastQuestion={isLastQuestion}
+			/>
+		</div>
 	);
 }
