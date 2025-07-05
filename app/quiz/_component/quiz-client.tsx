@@ -19,8 +19,10 @@ export function QuizClient({
 	initialQuestions: QuestionWithAnswers[];
 }) {
 	const router = useRouter();
-	const { startQuiz, addResponse, getSummary, resetQuiz } =
-		useQuizResultStore();
+	const { startQuiz, addResponse } = useQuizResultStore((state) => ({
+		startQuiz: state.startQuiz,
+		addResponse: state.addResponse,
+	}));
 
 	// --- New State Management ---
 	const [questions] = useState(initialQuestions);
@@ -45,7 +47,10 @@ export function QuizClient({
 			return [];
 		}
 		// DB returns `answer_text` and `is_correct`, frontend expects `text` and `isCorrect`.
-		return (currentQuestion.answers as any[]).map((dbAnswer) => ({
+		// We define a type for the DB answer shape to avoid using `any`.
+		type DbAnswer = { id: string; answer_text: string; is_correct: boolean };
+
+		return (currentQuestion.answers as DbAnswer[]).map((dbAnswer) => ({
 			id: dbAnswer.id,
 			text: dbAnswer.answer_text,
 			isCorrect: dbAnswer.is_correct,

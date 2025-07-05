@@ -121,29 +121,7 @@ export interface InteractiveAdScenarioProps {
 	showResult?: boolean;
 }
 
-// Database Types
-export interface DatabaseQuestion {
-	id: string;
-	question_text: string;
-	category: string | null;
-	content: any;
-	answers: any;
-	result: any;
-	order_index: number | null;
-	created_at: string;
-	updated_at: string | null;
-}
-
-export interface QuestionWithImages extends DatabaseQuestion {
-	normal_image_url: string | null;
-	result_image_url: string | null;
-}
-
 export type QuestionWithAnswers =
 	Database["public"]["Functions"]["get_questions_with_answers"]["Returns"][number];
 
 // --- Database & API Related Types ---
-
-export interface Question {
-	// ... existing code ...
-}

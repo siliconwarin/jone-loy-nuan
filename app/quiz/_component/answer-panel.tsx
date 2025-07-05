@@ -19,12 +19,62 @@ export const AnswerPanel = (props: AnswerPanelProps) => {
 		hideAnswers = false,
 	} = props;
 
-	// ⭐️ Guard Clause: If no answers are provided, render nothing.
-	if (!answers || answers.length === 0) {
-		return <div className="flex-none h-20" />; // Return an empty placeholder
+	// All hooks are now at the top level, respecting the Rules of Hooks.
+
+	// 🧠 Smart Layout Detection
+	const layoutInfo = useMemo(() => {
+		const answerCount = answers?.length ?? 0;
+		if (hideAnswers || answerCount === 0) {
+			return { layout: "hidden" as const, showPanel: false };
+		}
+
+		const isHorizontal = answerCount === 2;
+		const isVertical = answerCount >= 3;
+
+		return {
+			layout: (isHorizontal ? "horizontal" : "vertical") as AnswerPanelLayout,
+			showPanel: true,
+			isHorizontal,
+			isVertical,
+		};
+	}, [hideAnswers, answers]);
+
+	// 🎨 Animation Logic
+	const { getAnswerPanelLayoutAnimation, getAnswerButtonLayoutAnimation } =
+		useQuizAnimations(props.showResult);
+
+	// 🎨 Layout-specific styles
+	const containerStyles = useMemo(() => {
+		if (!layoutInfo.showPanel) return "flex-none h-20";
+
+		const baseStyles = "w-full flex justify-center items-center";
+		if (layoutInfo.isHorizontal) {
+			return `${baseStyles} flex-row gap-3 sm:gap-4 md:gap-6`;
+		}
+		return `${baseStyles} flex-col`;
+	}, [layoutInfo]);
+
+	const answerContainerStyles = useMemo(() => {
+		if (layoutInfo.isHorizontal) {
+			return "flex flex-row justify-center items-center gap-3 sm:gap-4 md:gap-6";
+		}
+		return "flex flex-col justify-center items-center space-y-2.5 sm:space-y-3 md:space-y-4";
+	}, [layoutInfo.isHorizontal]);
+
+	const getButtonStyles = useMemo(() => {
+		if (layoutInfo.isHorizontal) {
+			return "w-[130px] sm:w-[150px] md:w-[170px] h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px]";
+		}
+		return "w-[280px] sm:w-[320px] md:w-[360px] h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px]";
+	}, [layoutInfo.isHorizontal]);
+
+	// ⭐️ Guard Clause moved after hooks.
+	// Now we conditionally render based on layoutInfo, instead of an early return.
+	if (!answers || !layoutInfo.showPanel) {
+		return <div className={containerStyles} />;
 	}
 
-	// 🔧 Local helpers instead of global store (fixes stale state)
+	// 🔧 Local helpers are now inside the component body, but after the early return check.
 	const getButtonVariant = (
 		answerId: string,
 		isCorrect: boolean
@@ -49,62 +99,6 @@ export const AnswerPanel = (props: AnswerPanelProps) => {
 
 	const getButtonDataState = (answerId: string): "selected" | "unselected" =>
 		selectedAnswer === answerId ? "selected" : "unselected";
-
-	// 🧠 Smart Layout Detection
-	const layoutInfo = useMemo(() => {
-		if (hideAnswers) {
-			return { layout: "hidden" as const, showPanel: false };
-		}
-
-		const answerCount = answers.length;
-		const isHorizontal = answerCount === 2;
-		const isVertical = answerCount >= 3;
-
-		return {
-			layout: (isHorizontal ? "horizontal" : "vertical") as AnswerPanelLayout,
-			showPanel: true,
-			isHorizontal,
-			isVertical,
-		};
-	}, [hideAnswers, answers]);
-
-	// 🎨 Animation Logic - ใช้ correct functions ที่มีอยู่จริง
-	const { getAnswerPanelLayoutAnimation, getAnswerButtonLayoutAnimation } =
-		useQuizAnimations(props.showResult);
-
-	// 🎨 Layout-specific styles
-	const containerStyles = useMemo(() => {
-		if (!layoutInfo.showPanel) return "flex-none h-20";
-
-		const baseStyles = "w-full flex justify-center items-center";
-
-		if (layoutInfo.isHorizontal) {
-			return `${baseStyles} flex-row gap-3 sm:gap-4 md:gap-6`;
-		}
-
-		return `${baseStyles} flex-col`;
-	}, [layoutInfo]);
-
-	const answerContainerStyles = useMemo(() => {
-		if (layoutInfo.isHorizontal) {
-			return "flex flex-row justify-center items-center gap-3 sm:gap-4 md:gap-6";
-		}
-
-		return "flex flex-col justify-center items-center space-y-2.5 sm:space-y-3 md:space-y-4";
-	}, [layoutInfo.isHorizontal]);
-
-	const getButtonStyles = useMemo(() => {
-		if (layoutInfo.isHorizontal) {
-			return "w-[130px] sm:w-[150px] md:w-[170px] h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px]";
-		}
-
-		return "w-[280px] sm:w-[320px] md:w-[360px] h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px]";
-	}, [layoutInfo.isHorizontal]);
-
-	// 🎨 Conditional Rendering แทน early return
-	if (!layoutInfo.showPanel) {
-		return <div className="flex-none h-20" />;
-	}
 
 	return (
 		<div className={containerStyles}>

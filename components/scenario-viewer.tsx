@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface ScenarioViewerProps {
 	showResult?: boolean;
@@ -32,10 +33,16 @@ export const ScenarioViewer = ({
 					className="relative"
 				>
 					{currentImage ? (
-						<img
+						<Image
 							src={currentImage}
 							alt={altText}
-							className="w-full h-auto object-contain rounded-lg"
+							// Next.js requires width/height, but `fill` with `object-cover`
+							// in the className makes it responsive.
+							width={0}
+							height={0}
+							sizes="100vw"
+							className="w-full h-full object-cover"
+							priority // Preload the first image
 						/>
 					) : (
 						<div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
