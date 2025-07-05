@@ -35,16 +35,8 @@ export default function Home() {
 
 				{/* CTA Button */}
 				<motion.div {...landingAnimation.cta}>
-					<Button asChild>
-						<Link href="/quiz">
-							<motion.span
-								whileHover={landingAnimation.cta.hover}
-								whileTap={landingAnimation.cta.tap}
-								className="mx-auto"
-							>
-								เริ่มทำแบบทดสอบ
-							</motion.span>
-						</Link>
+					<Button asChild className="w-full">
+						<Link href="/quiz">เริ่มทำแบบทดสอบ</Link>
 					</Button>
 				</motion.div>
 			</motion.div>

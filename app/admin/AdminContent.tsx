@@ -1,7 +1,7 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -100,8 +100,6 @@ const columns: ColumnDef<Question>[] = [
 	},
 ];
 // --- End Columns Definition ---
-
-import { useCallback } from "react";
 
 export default function AdminContent() {
 	const [questions, setQuestions] = useState<Question[]>([]);

@@ -19,10 +19,8 @@ export function QuizClient({
 	initialQuestions: QuestionWithAnswers[];
 }) {
 	const router = useRouter();
-	const { startQuiz, addResponse } = useQuizResultStore((state) => ({
-		startQuiz: state.startQuiz,
-		addResponse: state.addResponse,
-	}));
+	const startQuiz = useQuizResultStore((state) => state.startQuiz);
+	const addResponse = useQuizResultStore((state) => state.addResponse);
 
 	// --- New State Management ---
 	const [questions] = useState(initialQuestions);
@@ -46,15 +44,19 @@ export function QuizClient({
 		if (!currentQuestion?.answers || !Array.isArray(currentQuestion.answers)) {
 			return [];
 		}
-		// DB returns `answer_text` and `is_correct`, frontend expects `text` and `isCorrect`.
-		// We define a type for the DB answer shape to avoid using `any`.
-		type DbAnswer = { id: string; answer_text: string; is_correct: boolean };
+		return (currentQuestion.answers as any[]).map((ans) => {
+			// If already in frontend shape, return as is
+			if (typeof ans.text === "string" && typeof ans.isCorrect === "boolean") {
+				return ans as Answer;
+			}
 
-		return (currentQuestion.answers as DbAnswer[]).map((dbAnswer) => ({
-			id: dbAnswer.id,
-			text: dbAnswer.answer_text,
-			isCorrect: dbAnswer.is_correct,
-		}));
+			// Fallback: map from DB snake_case
+			return {
+				id: ans.id,
+				text: ans.answer_text ?? "",
+				isCorrect: ans.is_correct ?? false,
+			} as Answer;
+		});
 	}, [currentQuestion]);
 
 	const isCorrect = useMemo(() => {
