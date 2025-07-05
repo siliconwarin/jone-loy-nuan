@@ -178,7 +178,7 @@ export default function SurveyPage() {
 	});
 
 	// 🎯 Quiz Store for Score
-	const { getSummary, resetQuiz } = useQuizResultStore();
+	const { getSummary } = useQuizResultStore();
 	const { score, total } = getSummary();
 
 	// 🎨 React Hook Form Setup
@@ -198,13 +198,12 @@ export default function SurveyPage() {
 		if (actionState.status === "success") {
 			toast.success(actionState.message);
 			startTransition(() => {
-				resetQuiz();
 				router.push("/result");
 			});
 		} else if (actionState.status === "error") {
 			toast.error(actionState.message);
 		}
-	}, [actionState.status, actionState.message, router, resetQuiz]);
+	}, [actionState.status, actionState.message, router]);
 
 	// 🎨 Loading State
 	const isLoading = actionState.status === "loading" || isPending;

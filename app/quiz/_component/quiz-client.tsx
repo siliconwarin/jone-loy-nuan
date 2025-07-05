@@ -21,6 +21,9 @@ export function QuizClient({
 	const router = useRouter();
 	const startQuiz = useQuizResultStore((state) => state.startQuiz);
 	const addResponse = useQuizResultStore((state) => state.addResponse);
+	const saveQuizSummaryToApi = useQuizResultStore(
+		(state) => state.saveQuizSummaryToApi
+	);
 
 	// --- New State Management ---
 	const [questions] = useState(initialQuestions);
@@ -44,18 +47,28 @@ export function QuizClient({
 		if (!currentQuestion?.answers || !Array.isArray(currentQuestion.answers)) {
 			return [];
 		}
-		return (currentQuestion.answers as any[]).map((ans) => {
-			// If already in frontend shape, return as is
-			if (typeof ans.text === "string" && typeof ans.isCorrect === "boolean") {
-				return ans as Answer;
+
+		type DbAnswer = {
+			id: string;
+			answer_text: string;
+			is_correct: boolean;
+		};
+
+		type RawAnswer = Answer | DbAnswer;
+
+		const rawAnswers = currentQuestion.answers as RawAnswer[];
+
+		return rawAnswers.map((ans) => {
+			if ("text" in ans && "isCorrect" in ans) {
+				return ans; // already Answer type
 			}
 
-			// Fallback: map from DB snake_case
+			const dbAns = ans as DbAnswer;
 			return {
-				id: ans.id,
-				text: ans.answer_text ?? "",
-				isCorrect: ans.is_correct ?? false,
-			} as Answer;
+				id: dbAns.id,
+				text: dbAns.answer_text,
+				isCorrect: dbAns.is_correct,
+			} satisfies Answer;
 		});
 	}, [currentQuestion]);
 
@@ -87,19 +100,30 @@ export function QuizClient({
 		if (!isLastQuestion) {
 			setCurrentIndex((prevIndex) => prevIndex + 1);
 		} else {
-			// Navigate to the result page on quiz completion
-			router.push("/result");
+			// Complete quiz: save summary then navigate to survey
+			saveQuizSummaryToApi().finally(() => {
+				router.push("/survey");
+			});
 		}
 	};
 	// --------------------------
 
 	// 🔄 Enhanced reset handler with loading
 	const handleReset = () => {
+		// ถ้าเป็นข้อสุดท้าย ให้ไป survey ทันทีเพื่อไม่โชว์ข้อซ้ำ
+		if (isLastQuestion) {
+			saveQuizSummaryToApi().finally(() => {
+				router.push("/survey");
+			});
+			return;
+		}
+
+		// กรณีไม่ใช่ข้อสุดท้าย รอ transition แล้วไปข้อถัดไป
 		setIsTransitioning(true);
 		setTimeout(() => {
 			goToNextQuestion();
 			setIsTransitioning(false);
-		}, 1200); // Wait for result card animation
+		}, 1200);
 	};
 
 	// Loading state ถ้ายังไม่มี currentQuestion
@@ -154,6 +178,7 @@ export function QuizClient({
 					result={currentQuestion.result as unknown as QuizResult}
 					onReset={handleReset}
 					isLoading={isTransitioning}
+					isLastQuestion={isLastQuestion}
 				/>
 			</QuizBackground>
 		</PageContent>

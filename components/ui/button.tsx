@@ -20,11 +20,11 @@ const buttonVariants = cva(
 				ghost:
 					"hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
 				link: "text-primary underline-offset-4 hover:underline",
-				quiz: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+				quiz: "bg-blue-100 text-blue-800 rounded-xl shadow-xs hover:bg-blue-200",
 				"quiz-correct":
-					"bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 focus-visible:ring-emerald-500/20 dark:focus-visible:ring-emerald-500/40",
+					"bg-emerald-600 text-white rounded-xl shadow-xs hover:bg-emerald-700 focus-visible:ring-emerald-500/20 dark:focus-visible:ring-emerald-500/40",
 				"quiz-wrong":
-					"bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+					"bg-destructive text-white rounded-xl shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
 			},
 			size: {
 				default: "h-9 px-4 py-2 has-[>svg]:px-3",

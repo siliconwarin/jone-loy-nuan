@@ -15,6 +15,7 @@ interface ResultCardProps {
 	};
 	onReset: () => void;
 	isLoading?: boolean;
+	isLastQuestion?: boolean;
 }
 
 export const ResultCard = ({
@@ -23,6 +24,7 @@ export const ResultCard = ({
 	result,
 	onReset,
 	isLoading = false,
+	isLastQuestion = false,
 }: ResultCardProps) => {
 	const [internalLoading, setInternalLoading] = useState(false);
 
@@ -53,6 +55,13 @@ export const ResultCard = ({
 	const getTitleColor = () => {
 		return isCorrect ? "text-green-500" : "text-pink-500";
 	};
+
+	const getButtonLabel = () =>
+		isButtonLoading
+			? "กำลังดำเนินการ..."
+			: isLastQuestion
+			? "ทำแบบสอบถาม"
+			: "รับทราบ";
 
 	const LoadingSpinner = () => (
 		<motion.div
@@ -140,7 +149,7 @@ export const ResultCard = ({
 										<span>กำลังดำเนินการ...</span>
 									</>
 								) : (
-									<span>รับทราบ</span>
+									<span>{getButtonLabel()}</span>
 								)}
 							</motion.button>
 						</motion.div>
