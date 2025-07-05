@@ -1,3 +1,7 @@
+"use client";
+
+import type { Database } from "./database.types";
+
 // ✨ Global Types for Quiz Application
 
 export interface QuizContent {
@@ -43,19 +47,11 @@ export interface QuizQuestion {
 	content: QuizContent;
 	answers: Answer[];
 	result: QuizResult;
-	interactive?: boolean;
-	category?: ScamCategory; // 🆕 เพิ่ม category
-	difficulty?: "easy" | "medium" | "hard"; // 🆕 เพิ่ม difficulty
-	tags?: string[]; // 🆕 เพิ่ม tags สำหรับ filtering
-	redFlags?: string[]; // 🆕 เพิ่ม red flags แบบ raw data
-}
 
-export interface RedFlag {
-	id: string;
-	message: string;
-	position: { top: string; left: string };
-	direction: "down" | "left" | "right" | "up";
-	delay: number;
+	category?: ScamCategory;
+	difficulty?: "easy" | "medium" | "hard";
+	tags?: string[];
+	orderIndex: number;
 }
 
 // Component Props Types
@@ -75,14 +71,13 @@ export type AnswerPanelLayout = "auto" | "vertical" | "horizontal" | "hidden";
 
 // อัปเดต AnswerPanelProps
 export interface AnswerPanelProps {
-	answers: Answer[];
+	answers?: Answer[] | null;
 	selectedAnswer: string | null;
 	showResult: boolean;
-	isCorrect: boolean | null;
-	onAnswerSelect: (answerId: string) => void;
 	hideAnswers?: boolean;
-	layout?: AnswerPanelLayout; // 🆕 Layout variant
-	className?: string; // 🆕 Custom styling
+	onAnswerSelect: (answerId: string) => void;
+	layout?: AnswerPanelLayout;
+	className?: string;
 }
 
 export interface QuestionSectionProps {
@@ -95,16 +90,7 @@ export interface ResultCardProps {
 	isCorrect: boolean | null;
 	result: QuizResult;
 	onReset: () => void;
-	isLoading?: boolean; // 🆕 External loading prop
-}
-
-export interface RedFlagTooltipProps {
-	message: string;
-	position: { top: string; left: string };
-	direction: "down" | "left" | "right" | "up";
-	delay?: number;
-	show?: boolean;
-	className?: string;
+	isLoading?: boolean;
 }
 
 export interface ChatScenarioProps {
@@ -133,4 +119,31 @@ export interface InteractiveAdScenarioProps {
 	className?: string;
 	animate?: boolean;
 	showResult?: boolean;
+}
+
+// Database Types
+export interface DatabaseQuestion {
+	id: string;
+	question_text: string;
+	category: string | null;
+	content: any;
+	answers: any;
+	result: any;
+	order_index: number | null;
+	created_at: string;
+	updated_at: string | null;
+}
+
+export interface QuestionWithImages extends DatabaseQuestion {
+	normal_image_url: string | null;
+	result_image_url: string | null;
+}
+
+export type QuestionWithAnswers =
+	Database["public"]["Functions"]["get_questions_with_answers"]["Returns"][number];
+
+// --- Database & API Related Types ---
+
+export interface Question {
+	// ... existing code ...
 }

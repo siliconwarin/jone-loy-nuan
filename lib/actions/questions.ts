@@ -3,64 +3,136 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { Database, Json } from "@/lib/database.types";
+import { redirect } from "next/navigation";
 
 // Re-use generated types from database.types.ts
-export type QuestionRow = Database["public"]["Tables"]["questions"]["Row"];
-export type QuestionInsert =
-	Database["public"]["Tables"]["questions"]["Insert"];
-export type QuestionUpdate =
-	Database["public"]["Tables"]["questions"]["Update"];
+type QuestionRow =
+	Database["public"]["Functions"]["get_questions_with_answers"]["Returns"][number];
 
 export interface AdminQuestionDisplay {
 	id: string;
 	question: string;
 	category: string | null;
-	content: Json | null;
 	answerCount: number;
-	redFlagsCount: number;
 	orderIndex: number | null;
-	createdAt: string;
 }
 
-// Transform DB row -> Admin display
+// Transform DB function row -> Admin display
 function toAdminDisplay(q: QuestionRow): AdminQuestionDisplay {
 	return {
 		id: q.id,
 		question: q.question_text ?? "",
 		category: q.category,
-		content: q.content,
 		answerCount: Array.isArray(q.answers) ? q.answers.length : 0,
-		redFlagsCount: Array.isArray(q.red_flags) ? q.red_flags.length : 0,
 		orderIndex: q.order_index,
-		createdAt: q.created_at,
 	};
 }
 
-// GET all questions with optional search
-export async function fetchQuestions(
-	search?: string
-): Promise<AdminQuestionDisplay[]> {
+export async function fetchQuestions(search: string) {
 	const supabase = await createClient();
+	const { data, error } = await supabase.rpc("get_questions_with_answers");
 
-	let query = supabase
-		.from("questions")
-		.select("*")
-		.order("order_index", { ascending: true });
-
-	if (search) {
-		query = query.ilike("question_text", `%${search}%`);
+	if (error) {
+		console.error("Error fetching questions:", error);
+		return [];
 	}
 
-	const { data, error } = await query;
-	if (error) throw new Error(error.message);
+	const filteredData = search
+		? data.filter((q: QuestionRow) =>
+				q.question_text?.toLowerCase().includes(search.toLowerCase())
+		  )
+		: data;
 
-	return (data ?? []).map(toAdminDisplay);
+	return (filteredData ?? []).map(toAdminDisplay);
 }
 
-// DELETE question by id
-export async function removeQuestion(id: string) {
+// NEW: Function to fetch questions for the actual quiz client
+export async function fetchQuizQuestions() {
+	const supabase = await createClient();
+	// Fetch all questions and their answers, ordered by `order_index`
+	const { data, error } = await supabase
+		.rpc("get_questions_with_answers")
+		.order("order_index", { ascending: true });
+
+	if (error) {
+		console.error("Error fetching questions for quiz:", error);
+		return [];
+	}
+
+	// Return the full data structure, including the nested answers array
+	return data ?? [];
+}
+
+// GET single question by id
+export async function fetchQuestionById(id: string) {
+	const supabase = await createClient();
+	const { data, error } = await supabase
+		.rpc("get_questions_with_answers")
+		.eq("id", id)
+		.single();
+
+	if (error) {
+		console.error(`Error fetching question ${id}:`, error);
+		return null;
+	}
+	return data;
+}
+
+// UPSERT question action
+// This now needs to handle answers separately.
+// For simplicity, we'll focus on fetching first.
+// The upsert form needs a major refactor to handle separate answer fields.
+export async function upsertQuestion(
+	previousState: { error: string } | null,
+	formData: FormData
+) {
+	const supabase = await createClient();
+	const id = formData.get("id") as string | null;
+
+	try {
+		const questionData = {
+			question_text: formData.get("question_text") as string,
+			category: formData.get("category") as string,
+			order_index: Number(formData.get("order_index")),
+		};
+
+		if (id) {
+			// Update existing question
+			const { error } = await supabase
+				.from("questions")
+				.update(questionData)
+				.eq("id", id);
+			if (error) throw error;
+		} else {
+			// Create new question
+			const { error } = await supabase.from("questions").insert({
+				...questionData,
+				content: {}, // Provide default empty JSON
+				result: {}, // Provide default empty JSON
+			});
+			if (error) throw error;
+		}
+
+		revalidatePath("/admin");
+		redirect("/admin");
+	} catch (e: unknown) {
+		const error = e as Error;
+		return { error: error.message };
+	}
+}
+
+// DELETE question by id (new standalone action)
+// This works as intended because of "ON DELETE CASCADE" in the database.
+export async function deleteQuestionAction(id: string) {
+	"use server";
 	const supabase = await createClient();
 	const { error } = await supabase.from("questions").delete().eq("id", id);
-	if (error) throw new Error(error.message);
-	revalidatePath("/admin/quizzes");
+	if (error) {
+		// Log the error for server-side debugging
+		console.error("Delete error:", error);
+		// In a real app, you might want to handle this more gracefully
+		// For now, we'll just log it. The revalidation might not happen
+		// but the user will see the item is not deleted.
+	}
+	revalidatePath("/admin");
 }

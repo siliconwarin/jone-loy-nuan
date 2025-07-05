@@ -2,16 +2,53 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { useQuiz } from "@/hooks/useQuiz";
 import { useQuizAnimations } from "@/hooks/useQuizAnimations";
-import type { AnswerPanelProps, AnswerPanelLayout } from "@/lib/types";
+import type {
+	AnswerPanelProps,
+	AnswerPanelLayout,
+	ButtonVariant,
+} from "@/lib/types";
 import { useMemo } from "react";
 
 export const AnswerPanel = (props: AnswerPanelProps) => {
-	const { hideAnswers = false } = props;
+	const {
+		answers,
+		selectedAnswer,
+		showResult,
+		onAnswerSelect,
+		hideAnswers = false,
+	} = props;
 
-	// 🎯 Business Logic - Zustand Store (เรียกก่อนเสมอ)
-	const { getButtonVariant, isButtonDisabled, getButtonDataState } = useQuiz();
+	// ⭐️ Guard Clause: If no answers are provided, render nothing.
+	if (!answers || answers.length === 0) {
+		return <div className="flex-none h-20" />; // Return an empty placeholder
+	}
+
+	// 🔧 Local helpers instead of global store (fixes stale state)
+	const getButtonVariant = (
+		answerId: string,
+		isCorrect: boolean
+	): ButtonVariant => {
+		// No answer selected yet
+		if (!selectedAnswer) return "quiz";
+
+		// The clicked answer
+		if (selectedAnswer === answerId) {
+			return isCorrect ? "quiz-correct" : "quiz-wrong";
+		}
+
+		// After result revealed highlight correct answer
+		if (showResult && isCorrect) return "quiz-correct";
+
+		return "quiz";
+	};
+
+	const isButtonDisabled = (answerId: string): boolean => {
+		return selectedAnswer !== null && selectedAnswer !== answerId;
+	};
+
+	const getButtonDataState = (answerId: string): "selected" | "unselected" =>
+		selectedAnswer === answerId ? "selected" : "unselected";
 
 	// 🧠 Smart Layout Detection
 	const layoutInfo = useMemo(() => {
@@ -19,7 +56,7 @@ export const AnswerPanel = (props: AnswerPanelProps) => {
 			return { layout: "hidden" as const, showPanel: false };
 		}
 
-		const answerCount = props.answers.length;
+		const answerCount = answers.length;
 		const isHorizontal = answerCount === 2;
 		const isVertical = answerCount >= 3;
 
@@ -29,7 +66,7 @@ export const AnswerPanel = (props: AnswerPanelProps) => {
 			isHorizontal,
 			isVertical,
 		};
-	}, [hideAnswers, props.answers.length]);
+	}, [hideAnswers, answers]);
 
 	// 🎨 Animation Logic - ใช้ correct functions ที่มีอยู่จริง
 	const { getAnswerPanelLayoutAnimation, getAnswerButtonLayoutAnimation } =
@@ -68,9 +105,6 @@ export const AnswerPanel = (props: AnswerPanelProps) => {
 	if (!layoutInfo.showPanel) {
 		return <div className="flex-none h-20" />;
 	}
-
-	// Destructure เฉพาะตอนที่แน่ใจว่าจะใช้ (หลัง condition check)
-	const { answers, showResult, onAnswerSelect } = props;
 
 	return (
 		<div className={containerStyles}>

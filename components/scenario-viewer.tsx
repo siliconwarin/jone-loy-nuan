@@ -2,41 +2,23 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { RedFlagTooltip } from "./red-flag-tooltip";
-import { RED_FLAGS_DATA } from "@/lib/constants";
-import { PinScenario } from "@/app/quiz/_component/pin-scenario";
-import { type QuestionWithImages } from "@/app/quiz/page";
 
 interface ScenarioViewerProps {
-	questionData: QuestionWithImages;
 	showResult?: boolean;
-	animate?: boolean;
-	onInteraction?: (answerId: string, isCorrect: boolean) => void;
+	normal_image_url: string | null;
+	result_image_url: string | null;
+	altText: string;
 	className?: string;
 }
 
 export const ScenarioViewer = ({
-	questionData,
 	showResult = false,
-	animate = true,
+	normal_image_url,
+	result_image_url,
+	altText,
 	className,
 }: ScenarioViewerProps) => {
-	const { content, normal_image_url, result_image_url } = questionData;
-
-	const contentObj = content as Record<string, unknown> & {
-		interactive?: boolean;
-		alt?: string;
-	};
-
-	const isInteractive = contentObj.interactive ?? false;
-
-	const normalImage = normal_image_url;
-	const resultImage = result_image_url;
-	const currentImage = showResult ? resultImage : normalImage;
-
-	if (isInteractive) {
-		return <PinScenario onAnswer={() => {}} disabled={showResult} />;
-	}
+	const currentImage = showResult ? result_image_url : normal_image_url;
 
 	return (
 		<div className={cn("relative w-full max-w-sm mx-auto", className)}>
@@ -52,9 +34,8 @@ export const ScenarioViewer = ({
 					{currentImage ? (
 						<img
 							src={currentImage}
-							alt={contentObj.alt ?? "Scenario Image"}
+							alt={altText}
 							className="w-full h-auto object-contain rounded-lg"
-							// Add width/height for better performance if known
 						/>
 					) : (
 						<div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -63,20 +44,6 @@ export const ScenarioViewer = ({
 					)}
 				</motion.div>
 			</AnimatePresence>
-			{showResult && (
-				<div className="absolute inset-0">
-					{RED_FLAGS_DATA.map((flag) => (
-						<RedFlagTooltip
-							key={flag.id}
-							message={flag.message}
-							position={flag.position}
-							direction={flag.direction}
-							show={animate}
-							delay={flag.delay}
-						/>
-					))}
-				</div>
-			)}
 		</div>
 	);
 };

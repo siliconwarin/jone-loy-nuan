@@ -10,13 +10,20 @@ import {
 	CardDescription,
 	CardContent,
 } from "@/components/ui/card";
-import { useQuizStore } from "@/store/quiz-store";
+import { useQuizResultStore } from "@/store/quiz-store";
 import { CheckCircle, RotateCcw, Home } from "lucide-react";
+import { useEffect } from "react";
 
 export default function ResultPage() {
 	const router = useRouter();
-	const { getTotalScore, resetQuiz } = useQuizStore();
-	const totalScore = getTotalScore();
+	const { getSummary, resetQuiz, saveQuizSummaryToApi } = useQuizResultStore();
+	const { score, total, percentage } = getSummary();
+
+	// 📞 Save summary to API when page loads
+	useEffect(() => {
+		saveQuizSummaryToApi();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	// 🎯 Score Analysis
 	const getScoreAnalysis = (score: number) => {
@@ -65,7 +72,7 @@ export default function ResultPage() {
 		}
 	};
 
-	const analysis = getScoreAnalysis(totalScore);
+	const analysis = getScoreAnalysis(score);
 
 	// 🎨 Animation Variants
 	const containerVariants = {
@@ -126,7 +133,9 @@ export default function ResultPage() {
 							</CardTitle>
 							<CardDescription className="text-lg text-gray-700 mt-2">
 								คะแนนของคุณ:{" "}
-								<span className="font-bold text-2xl">{totalScore}/7</span>
+								<span className="font-bold text-2xl">
+									{score}/{total}
+								</span>
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="text-center">
@@ -176,16 +185,16 @@ export default function ResultPage() {
 							<div className="space-y-4">
 								<div className="flex justify-between items-center">
 									<span className="text-gray-600">คะแนนที่ได้</span>
-									<span className="font-bold text-lg">{totalScore} คะแนน</span>
+									<span className="font-bold text-lg">{score} คะแนน</span>
 								</div>
 								<div className="flex justify-between items-center">
 									<span className="text-gray-600">คะแนนเต็ม</span>
-									<span className="font-bold text-lg">7 คะแนน</span>
+									<span className="font-bold text-lg">{total} คะแนน</span>
 								</div>
 								<div className="flex justify-between items-center">
 									<span className="text-gray-600">เปอร์เซ็นต์</span>
 									<span className="font-bold text-lg text-blue-600">
-										{Math.round((totalScore / 7) * 100)}%
+										{percentage}%
 									</span>
 								</div>
 
@@ -194,7 +203,7 @@ export default function ResultPage() {
 									<motion.div
 										className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
 										initial={{ width: 0 }}
-										animate={{ width: `${(totalScore / 7) * 100}%` }}
+										animate={{ width: `${percentage}%` }}
 										transition={{ delay: 1.5, duration: 1.5, ease: "easeOut" }}
 									/>
 								</div>

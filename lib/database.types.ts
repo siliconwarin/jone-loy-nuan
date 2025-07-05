@@ -9,89 +9,121 @@ export type Json =
 export type Database = {
 	public: {
 		Tables: {
+			answers: {
+				Row: {
+					answer_text: string | null;
+					created_at: string;
+					id: string;
+					is_correct: boolean;
+					question_id: string | null;
+				};
+				Insert: {
+					answer_text?: string | null;
+					created_at?: string;
+					id?: string;
+					is_correct?: boolean;
+					question_id?: string | null;
+				};
+				Update: {
+					answer_text?: string | null;
+					created_at?: string;
+					id?: string;
+					is_correct?: boolean;
+					question_id?: string | null;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "answers_question_id_fkey";
+						columns: ["question_id"];
+						referencedRelation: "questions";
+						referencedColumns: ["id"];
+					}
+				];
+			};
 			questions: {
 				Row: {
-					answers: Json;
 					category: string | null;
-					content: Json;
+					content: Json | null;
 					created_at: string;
 					id: string;
 					order_index: number | null;
 					question_text: string | null;
-					red_flags: string[] | null;
-					result: Json;
+					result: Json | null;
 					updated_at: string | null;
 				};
 				Insert: {
-					answers: Json;
 					category?: string | null;
-					content: Json;
-					created_at?: string;
-					id: string;
-					order_index?: number | null;
-					question_text?: string | null;
-					red_flags?: string[] | null;
-					result: Json;
-					updated_at?: string | null;
-				};
-				Update: {
-					answers?: Json;
-					category?: string | null;
-					content?: Json;
+					content?: Json | null;
 					created_at?: string;
 					id?: string;
 					order_index?: number | null;
 					question_text?: string | null;
-					red_flags?: string[] | null;
-					result?: Json;
+					result?: Json | null;
+					updated_at?: string | null;
+				};
+				Update: {
+					category?: string | null;
+					content?: Json | null;
+					created_at?: string;
+					id?: string;
+					order_index?: number | null;
+					question_text?: string | null;
+					result?: Json | null;
 					updated_at?: string | null;
 				};
 				Relationships: [];
 			};
 			scenario_images: {
 				Row: {
-					id: string;
 					created_at: string;
-					scenario_id: string;
-					variant: string;
-					file_path: string;
+					id: string;
+					normal_image_url: string | null;
+					question_id: string;
+					result_image_url: string | null;
 				};
 				Insert: {
-					id?: string;
 					created_at?: string;
-					scenario_id: string;
-					variant: string;
-					file_path: string;
+					id?: string;
+					normal_image_url?: string | null;
+					question_id: string;
+					result_image_url?: string | null;
 				};
 				Update: {
-					id?: string;
 					created_at?: string;
-					scenario_id?: string;
-					variant?: string;
-					file_path?: string;
+					id?: string;
+					normal_image_url?: string | null;
+					question_id?: string;
+					result_image_url?: string | null;
 				};
-				Relationships: [];
+				Relationships: [
+					{
+						foreignKeyName: "scenario_images_question_id_fkey";
+						columns: ["question_id"];
+						referencedRelation: "questions";
+						referencedColumns: ["id"];
+					}
+				];
 			};
 		};
 		Views: {
 			[_ in never]: never;
 		};
 		Functions: {
-			get_questions_with_images: {
+			get_questions_with_answers: {
 				Args: Record<PropertyKey, never>;
 				Returns: {
 					id: string;
-					created_at: string;
-					updated_at: string | null;
-					question_text: string | null;
-					category: string | null;
-					order_index: number | null;
+					question_text: string;
+					category: string;
+					order_index: number;
 					content: Json;
-					answers: Json;
 					result: Json;
-					red_flags: string[] | null;
-					normal_image_url: string | null;
-					result_image_url: string | null;
+					created_at: string;
+					updated_at: string;
+					answers: Json;
+					// MANUALLY ADDED THESE FIELDS
+					normal_image_url: string;
+					result_image_url: string;
 				}[];
 			};
 		};

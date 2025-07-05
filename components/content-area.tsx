@@ -5,17 +5,14 @@ import { cn } from "@/lib/utils";
 import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import { ScenarioViewer } from "./scenario-viewer";
 import { useMemo } from "react";
-import type { QuestionWithImages } from "@/app/quiz/page";
-
-type QuestionRow = QuestionWithImages; // includes image URL fields
+import type { QuestionWithAnswers } from "@/lib/types";
 
 export interface ContentAreaProps {
-	questionData: QuestionRow;
+	questionData: QuestionWithAnswers;
 	className?: string;
 	variant?: "default" | "compact" | "fullscreen";
 	animate?: boolean;
 	showResult?: boolean;
-	onAnswer?: (isCorrect: boolean) => void;
 }
 
 export const ContentArea = ({
@@ -24,7 +21,6 @@ export const ContentArea = ({
 	variant = "default",
 	animate = true,
 	showResult = false,
-	onAnswer,
 }: ContentAreaProps) => {
 	// 🎨 Animation Logic - React Compiler Optimized
 	const { getContentMotionProps } = useQuizAnimations(showResult);
@@ -53,14 +49,10 @@ export const ContentArea = ({
 			{...motionProps}
 		>
 			<ScenarioViewer
-				questionData={questionData}
 				showResult={showResult}
-				animate={animate}
-				onInteraction={(answerId, isCorrect) => {
-					if (onAnswer) {
-						onAnswer(isCorrect);
-					}
-				}}
+				normal_image_url={questionData.normal_image_url}
+				result_image_url={questionData.result_image_url}
+				altText={questionData.question_text ?? "Scenario Image"}
 			/>
 		</motion.div>
 	);

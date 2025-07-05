@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -12,159 +12,131 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
 import { upsertScenarioImage } from "@/lib/actions/images";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 interface SvgUploadDialogProps {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
 	scenarioId: string;
-	onUploadComplete: () => void;
+	onClose: () => void;
+	open: boolean;
 }
 
 export function SvgUploadDialog({
 	open,
-	onOpenChange,
+	onClose,
 	scenarioId,
-	onUploadComplete,
 }: SvgUploadDialogProps) {
-	const [scenario, setScenario] = useState<string>("");
-	const [variant, setVariant] = useState<"normal" | "result">("normal");
-	const [file, setFile] = useState<File | null>(null);
+	const [normalFile, setNormalFile] = useState<File | null>(null);
+	const [resultFile, setResultFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const router = useRouter();
 
-	const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const f = e.target.files?.[0] || null;
-		setFile(f);
+	const handleFileChange = (
+		e: ChangeEvent<HTMLInputElement>,
+		variant: "normal" | "result"
+	) => {
+		const file = e.target.files?.[0] || null;
+		if (variant === "normal") {
+			setNormalFile(file);
+		} else {
+			setResultFile(file);
+		}
 	};
 
-	const handleUpload = async () => {
-		if (!scenarioId) {
-			setError("Scenario ID is missing. Cannot upload.");
+	const handleUpload = async (file: File, variant: "normal" | "result") => {
+		const supabase = createClient();
+		const filePath = `${scenarioId}/${variant}.svg`;
+
+		const { data: uploadData, error: uploadError } = await supabase.storage
+			.from("scenario-images")
+			.upload(filePath, file, { upsert: true });
+
+		if (uploadError) throw uploadError;
+
+		await upsertScenarioImage({
+			scenario_id: scenarioId,
+			variant: variant,
+			file_path: uploadData.path,
+		});
+	};
+
+	const handleSubmit = async (e: FormEvent) => {
+		e.preventDefault();
+		if (!normalFile && !resultFile) {
+			toast.error("Please select at least one file to upload.");
 			return;
 		}
 
 		setIsUploading(true);
-		setError(null);
-		const supabase = createClient();
-		const filePath = `${scenarioId}/${variant}.svg`;
-
 		try {
-			const { data: uploadData, error: uploadError } = await supabase.storage
-				.from("scenario-images")
-				.upload(filePath, file as File, {
-					cacheControl: "3600",
-					upsert: true,
-				});
-
-			if (uploadError) {
-				throw uploadError;
+			if (normalFile) {
+				await handleUpload(normalFile, "normal");
+				toast.success("Normal image uploaded successfully!");
 			}
-
-			// Call server action to update the database
-			await upsertScenarioImage({
-				scenario_id: scenarioId,
-				variant: variant,
-				file_path: uploadData.path,
-			});
-
-			toast.success(`Successfully uploaded ${variant} image!`);
-			onUploadComplete();
+			if (resultFile) {
+				await handleUpload(resultFile, "result");
+				toast.success("Result image uploaded successfully!");
+			}
+			router.refresh();
+			onClose();
 		} catch (err: unknown) {
-			console.error("Upload error:", err);
-			const errorObj = err as { message?: string; error?: string };
-			const errorMessage =
-				errorObj.message?.includes("bucket not found") ||
-				errorObj.error === "Not found"
-					? "Storage bucket 'scenario-images' not found. Please create it in your Supabase project."
-					: errorObj.message || "An unknown error occurred.";
-			setError(errorMessage);
-			toast.error(`Upload failed: ${errorMessage}`);
+			const error = err as Error;
+			console.error("Upload error:", error);
+			toast.error(`Upload failed: ${error.message}`);
 		} finally {
 			setIsUploading(false);
 		}
 	};
 
-	const handleOpenChange = (isOpen: boolean) => {
-		onOpenChange(isOpen);
-	};
-
 	return (
-		<Dialog open={open} onOpenChange={handleOpenChange}>
-			<DialogContent className="sm:max-w-md">
-				<DialogHeader>
-					<DialogTitle>Upload Scenario SVG</DialogTitle>
-					<DialogDescription>
-						เลือกหมายเลข Scenario ใส่ไฟล์ SVG แล้วกดอัพโหลด
-					</DialogDescription>
-				</DialogHeader>
-				<div className="space-y-4 py-4">
-					<div className="space-y-2">
-						<Label htmlFor="scenario">Scenario Number</Label>
-						<Input
-							id="scenario"
-							value={scenario}
-							onChange={(e) => setScenario(e.target.value)}
-							placeholder="เช่น 1, 2, 3"
-							type="number"
-						/>
-					</div>
-					<div className="space-y-2">
-						<Label>Variant</Label>
-						<div className="flex gap-4">
-							<label className="flex items-center gap-1 text-sm">
-								<input
-									type="radio"
-									name="variant"
-									value="normal"
-									checked={variant === "normal"}
-									onChange={() => setVariant("normal")}
-								/>
-								Normal
-							</label>
-							<label className="flex items-center gap-1 text-sm">
-								<input
-									type="radio"
-									name="variant"
-									value="result"
-									checked={variant === "result"}
-									onChange={() => setVariant("result")}
-								/>
-								Result
-							</label>
+		<Dialog open={open} onOpenChange={onClose}>
+			<DialogContent>
+				<form onSubmit={handleSubmit}>
+					<DialogHeader>
+						<DialogTitle>Upload Images for Scenario {scenarioId}</DialogTitle>
+						<DialogDescription>
+							Upload normal and result SVG images for this question.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="space-y-4 py-4">
+						<div className="space-y-2">
+							<Label htmlFor="normal-file">Normal State Image (SVG)</Label>
+							<Input
+								id="normal-file"
+								type="file"
+								accept=".svg"
+								onChange={(e) => handleFileChange(e, "normal")}
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="result-file">Result State Image (SVG)</Label>
+							<Input
+								id="result-file"
+								type="file"
+								accept=".svg"
+								onChange={(e) => handleFileChange(e, "result")}
+							/>
 						</div>
 					</div>
-					<div className="space-y-2">
-						<Label htmlFor="file">SVG File</Label>
-						<Input
-							id="file"
-							type="file"
-							accept=".svg"
-							onChange={handleFileChange}
-						/>
-					</div>
-					{isUploading && (
-						<div className="text-sm text-gray-600">Uploading...</div>
-					)}
-					{error && <p className="text-sm text-red-600">{error}</p>}
-				</div>
-				<DialogFooter>
-					<Button
-						variant="outline"
-						onClick={() => handleOpenChange(false)}
-						disabled={isUploading}
-					>
-						Cancel
-					</Button>
-					<Button
-						onClick={handleUpload}
-						disabled={!file || !scenario || isUploading}
-					>
-						Upload
-					</Button>
-				</DialogFooter>
+					<DialogFooter>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={onClose}
+							disabled={isUploading}
+						>
+							Cancel
+						</Button>
+						<Button
+							type="submit"
+							disabled={(!normalFile && !resultFile) || isUploading}
+						>
+							{isUploading ? "Uploading..." : "Upload Images"}
+						</Button>
+					</DialogFooter>
+				</form>
 			</DialogContent>
 		</Dialog>
 	);

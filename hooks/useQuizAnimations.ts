@@ -233,27 +233,6 @@ export const useQuizAnimations = (showResult: boolean) => {
 		}
 
 		/**
-		 * Red Flag Tooltip Animation
-		 */
-		function getRedFlagAnimation(delay = 0) {
-			return {
-				initial: { opacity: 0, scale: 0.8, y: 10 },
-				animate: {
-					opacity: 1,
-					scale: 1,
-					y: 0,
-					transition: {
-						delay: delay,
-						duration: 0.4,
-						type: "spring" as const,
-						stiffness: 200,
-						damping: 15,
-					},
-				},
-			};
-		}
-
-		/**
 		 * Utility: สร้าง Framer Motion variants สำหรับ text ที่ต้องการ stagger ทีละบรรทัด
 		 */
 		function getStaggeredTextVariants(initialX = -20, baseDelay = 0.15) {
@@ -457,7 +436,6 @@ export const useQuizAnimations = (showResult: boolean) => {
 
 			// Environment animations
 			getBackgroundAnimation,
-			getRedFlagAnimation,
 
 			// Page-specific animations
 			getRomanceScenarioAnimation,

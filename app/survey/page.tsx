@@ -37,9 +37,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 // 🔥 Modern Imports
-import { useQuizStore } from "@/store/quiz-store";
+import { useQuizResultStore } from "@/store/quiz-store";
 import { surveySchema, type SurveyFormData } from "@/lib/schema";
-import { quizData } from "@/lib/quiz-data";
 
 // 📊 Form Data Constants
 const FORM_DATA = {
@@ -179,8 +178,8 @@ export default function SurveyPage() {
 	});
 
 	// 🎯 Quiz Store for Score
-	const { getTotalScore, resetQuiz } = useQuizStore();
-	const totalScore = getTotalScore();
+	const { getSummary, resetQuiz } = useQuizResultStore();
+	const { score, total } = getSummary();
 
 	// 🎨 React Hook Form Setup
 	const form = useForm<SurveyFormData>({
@@ -217,7 +216,7 @@ export default function SurveyPage() {
 				<Card className="mb-8 border-0 shadow-lg bg-white/80 backdrop-blur-sm">
 					<CardHeader className="text-center">
 						<CardTitle className="text-2xl font-bold text-gray-900">
-							🎉 คุณทำคะแนนได้ {totalScore} คะแนน!
+							🎉 คุณทำคะแนนได้ {score} คะแนน!
 						</CardTitle>
 						<CardDescription className="text-gray-600">
 							กรุณากรอกแบบสอบถามเพื่อช่วยปรับปรุงระบบของเรา
@@ -240,12 +239,8 @@ export default function SurveyPage() {
 						<Form {...form}>
 							<form action={formAction} className="space-y-6">
 								{/* 🎯 Hidden Quiz Score Fields */}
-								<input type="hidden" name="totalScore" value={totalScore} />
-								<input
-									type="hidden"
-									name="totalQuestions"
-									value={quizData.length}
-								/>
+								<input type="hidden" name="totalScore" value={score} />
+								<input type="hidden" name="totalQuestions" value={total} />
 
 								{/* 👤 Age Group */}
 								<FormField

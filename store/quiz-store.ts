@@ -1,229 +1,129 @@
 import { create } from "zustand";
-import type { QuizQuestion } from "@/lib/types";
-import { getCurrentQuestion, quizData } from "@/lib/quiz-data";
-import type { QuizSummaryData } from "@/app/api/quiz-response/route";
 
-// 🆕 Session และ Analytics Types (แบบใหม่)
-interface QuizSession {
+// --- Data Types ---
+
+interface QuizResponse {
+	questionId: string;
+	isCorrect: boolean;
+}
+
+interface QuizSummaryData {
 	sessionId: string;
-	startTime: Date;
-	currentQuestionIndex: number;
-	responses: Array<{ questionId: string; isCorrect: boolean }>; // เก็บแค่ผลลัพธ์ไม่เก็บรายละเอียด
+	totalQuestions: number;
+	correctAnswers: number;
+	deviceType: "mobile" | "tablet" | "desktop";
+	userAgent: string;
 }
 
-interface QuizStore {
-	// Existing states
-	currentQuestion: QuizQuestion | null;
-	selectedAnswer: string | null;
-	showResult: boolean;
-	isCorrect: boolean | null;
+// --- Store Definition ---
 
-	// 🆕 New states for summary collection
-	session: QuizSession | null;
-	isLastQuestion: boolean;
+interface QuizResultState {
+	sessionId: string | null;
+	totalQuestions: number;
+	responses: QuizResponse[];
+}
 
-	// Existing actions
-	setCurrentQuestion: (question: QuizQuestion) => void;
-	selectAnswer: (answerId: string) => void;
+interface QuizResultActions {
+	startQuiz: (totalQuestions: number) => void;
+	addResponse: (response: QuizResponse) => void;
+	getSummary: () => { score: number; total: number; percentage: number };
 	resetQuiz: () => void;
-	nextQuestion: () => void;
-
-	// 🆕 New actions
-	initializeSession: () => void;
-	saveQuizSummary: () => Promise<void>; // 🔄 เปลี่ยนจากการส่งทีละคำถาม
-	checkIfLastQuestion: () => boolean;
-	getTotalScore: () => number;
-	setNavigationCallback: (callback: () => void) => void; // ✅ เพิ่ม navigation callback
+	saveQuizSummaryToApi: () => Promise<void>;
 }
 
-export const useQuizStore = create<QuizStore>((set, get) => ({
-	// Existing states
-	currentQuestion: null,
-	selectedAnswer: null,
-	showResult: false,
-	isCorrect: null,
+type QuizResultStore = QuizResultState & QuizResultActions;
 
-	// 🆕 New states
-	session: null,
-	isLastQuestion: false,
+const initialState: QuizResultState = {
+	sessionId: null,
+	totalQuestions: 0,
+	responses: [],
+};
 
-	// Existing actions
-	setCurrentQuestion: (question) => {
-		set({
-			currentQuestion: question,
-			isLastQuestion: get().checkIfLastQuestion(),
-		});
-	},
+export const useQuizResultStore = create<QuizResultStore>((set, get) => ({
+	...initialState,
 
-	selectAnswer: (answerId) => {
-		const state = get();
-		if (!state.currentQuestion) return;
-
-		const answer = state.currentQuestion.answers.find((a) => a.id === answerId);
-		const isCorrect = answer?.isCorrect || false;
-
-		set({
-			selectedAnswer: answerId,
-			isCorrect,
-			showResult: true,
-		});
-
-		// 🆕 บันทึกผลลัพธ์ลง session (ไม่ส่ง API ทันที)
-		if (state.session) {
-			set({
-				session: {
-					...state.session,
-					responses: [
-						...state.session.responses,
-						{
-							questionId: state.currentQuestion.id,
-							isCorrect,
-						},
-					],
-				},
-			});
-		}
-	},
-
-	resetQuiz: () => {
-		set({
-			currentQuestion: null,
-			selectedAnswer: null,
-			showResult: false,
-			isCorrect: null,
-			session: null,
-			isLastQuestion: false,
-		});
-	},
-
-	nextQuestion: () => {
-		const state = get();
-		if (!state.session) return;
-
-		const nextIndex = state.session.currentQuestionIndex + 1;
-
-		// Check if this was the last question
-		if (nextIndex >= quizData.length) {
-			// 🆕 ส่งสรุปผลก่อนไป survey
-			state.saveQuizSummary().then(() => {
-				// ✅ ใช้ callback แทน window.location.href
-				const store = get() as any;
-				if (store.navigationCallback) {
-					store.navigationCallback();
-				}
-			});
-			return;
-		}
-
-		// Load next question
-		const nextQuestion = quizData[nextIndex];
-
-		set({
-			currentQuestion: nextQuestion,
-			selectedAnswer: null,
-			showResult: false,
-			isCorrect: null,
-			session: {
-				...state.session,
-				currentQuestionIndex: nextIndex,
-			},
-			isLastQuestion: nextIndex === quizData.length - 1,
-		});
-	},
-
-	// 🆕 Initialize quiz session
-	initializeSession: () => {
+	/**
+	 * Initializes a new quiz session.
+	 * @param totalQuestions The total number of questions in the quiz.
+	 */
+	startQuiz: (totalQuestions) => {
 		const sessionId = `quiz_${Date.now()}_${Math.random()
 			.toString(36)
 			.substr(2, 9)}`;
-
 		set({
-			session: {
-				sessionId,
-				startTime: new Date(),
-				currentQuestionIndex: 0,
-				responses: [],
-			},
+			sessionId,
+			totalQuestions,
+			responses: [],
 		});
-
-		// Load first question
-		const firstQuestion = getCurrentQuestion();
-		get().setCurrentQuestion(firstQuestion);
 	},
 
-	// 🆕 Save quiz summary to API (เมื่อจบ quiz)
-	saveQuizSummary: async () => {
-		const state = get();
-		if (!state.session) return;
+	/**
+	 * Adds a user's response to the store.
+	 * @param response An object containing the questionId and whether it was correct.
+	 */
+	addResponse: (response) => {
+		set((state) => ({
+			responses: [...state.responses, response],
+		}));
+	},
+
+	/**
+	 * Resets the quiz state to its initial values.
+	 */
+	resetQuiz: () => {
+		set(initialState);
+	},
+
+	/**
+	 * Calculates and returns the user's score summary.
+	 */
+	getSummary: () => {
+		const { responses, totalQuestions } = get();
+		const score = responses.filter((r) => r.isCorrect).length;
+		const total = totalQuestions > 0 ? totalQuestions : responses.length;
+		const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+		return { score, total, percentage };
+	},
+
+	/**
+	 * Saves the final quiz summary to the backend API.
+	 */
+	saveQuizSummaryToApi: async () => {
+		const { sessionId, responses, totalQuestions } = get();
+		if (!sessionId) return;
 
 		try {
-			// Calculate total score
-			const correctAnswers = state.session.responses.filter(
-				(response) => response.isCorrect
-			).length;
-			const totalQuestions = quizData.length;
-
-			// Detect device type
-			const deviceType = getDeviceType();
+			const correctAnswers = responses.filter((r) => r.isCorrect).length;
 
 			const summaryData: QuizSummaryData = {
-				sessionId: state.session.sessionId,
+				sessionId,
 				totalQuestions,
 				correctAnswers,
-				deviceType,
+				deviceType: getDeviceType(),
 				userAgent: navigator.userAgent,
 			};
 
-			// Send to API
 			const response = await fetch("/api/quiz-response", {
 				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
+				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(summaryData),
 			});
 
 			if (!response.ok) {
 				throw new Error("Failed to save quiz summary");
 			}
-
-			const result = await response.json();
-			console.log("Quiz summary saved:", result);
+			console.log("Quiz summary saved:", await response.json());
 		} catch (error) {
 			console.error("Error saving quiz summary:", error);
-			// Continue to survey even if save fails
 		}
-	},
-
-	// 🆕 Check if current question is last
-	checkIfLastQuestion: () => {
-		const state = get();
-		if (!state.session) return false;
-
-		return state.session.currentQuestionIndex === quizData.length - 1;
-	},
-
-	// 🆕 Get total score from session responses
-	getTotalScore: () => {
-		const state = get();
-		if (!state.session) return 0;
-
-		return state.session.responses.filter((response) => response.isCorrect)
-			.length;
-	},
-
-	// ✅ เพิ่ม setNavigationCallback implementation
-	setNavigationCallback: (callback: () => void) => {
-		set({ navigationCallback: callback } as any);
 	},
 }));
 
-// 🆕 Device detection utility
+// --- Utility Functions ---
+
 function getDeviceType(): "mobile" | "tablet" | "desktop" {
 	if (typeof window === "undefined") return "desktop";
-
 	const width = window.innerWidth;
-
 	if (width < 640) return "mobile";
 	if (width < 1024) return "tablet";
 	return "desktop";

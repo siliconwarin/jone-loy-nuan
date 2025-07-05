@@ -5,13 +5,10 @@ export const QUIZ_CONFIG = {
 	ANIMATION_DELAYS: {
 		PAGE_CONTENT: 0.8,
 		STAIR_STEP: 0.1,
-		RED_FLAG_BASE: 0.5,
-		RED_FLAG_INCREMENT: 0.5,
 	},
 	DURATIONS: {
 		TRANSITION: 1.0,
 		STAIR_ANIMATION: 0.4,
-		RED_FLAG_ANIMATION: 0.6,
 	},
 } as const;
 
@@ -20,30 +17,6 @@ export const BUTTON_VARIANTS = {
 	QUIZ_CORRECT: "quiz-correct",
 	QUIZ_WRONG: "quiz-wrong",
 } as const;
-
-export const RED_FLAGS_DATA = [
-	{
-		id: "sender",
-		message: "ผู้ส่งไม่ระบุชื่อ",
-		position: { top: "8%", left: "55%" },
-		direction: "right" as const,
-		delay: 0.5,
-	},
-	{
-		id: "urgent",
-		message: "ข้อความเร่งด่วน",
-		position: { top: "45%", left: "50%" },
-		direction: "down" as const,
-		delay: 1.0,
-	},
-	{
-		id: "suspicious-link",
-		message: "ลิงก์แปลกปลอม",
-		position: { top: "60%", left: "50%" },
-		direction: "up" as const,
-		delay: 1.5,
-	},
-] as const;
 
 export const CONTENT_VARIANTS = {
 	DEFAULT: "default",
