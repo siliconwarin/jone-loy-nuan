@@ -22,7 +22,13 @@ export const ScenarioViewer = ({
 	className,
 }: ScenarioViewerProps) => {
 	const { content, normal_image_url, result_image_url } = questionData;
-	const isInteractive = (content as any)?.interactive || false;
+
+	const contentObj = content as Record<string, unknown> & {
+		interactive?: boolean;
+		alt?: string;
+	};
+
+	const isInteractive = contentObj.interactive ?? false;
 
 	const normalImage = normal_image_url;
 	const resultImage = result_image_url;
@@ -46,7 +52,7 @@ export const ScenarioViewer = ({
 					{currentImage ? (
 						<img
 							src={currentImage}
-							alt={(content as any)?.alt || "Scenario Image"}
+							alt={contentObj.alt ?? "Scenario Image"}
 							className="w-full h-auto object-contain rounded-lg"
 							// Add width/height for better performance if known
 						/>

@@ -72,7 +72,7 @@ export function QuizForm({
 							{initialData?.id
 								? "Make changes to the question here."
 								: "Add a new question to the quiz."}{" "}
-							Click save when you're done.
+							Click save when you&apos;re done.
 						</DialogDescription>
 					</DialogHeader>
 					<div className="grid gap-4 py-4">

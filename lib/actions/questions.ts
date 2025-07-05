@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import type { Database } from "@/lib/database.types";
+import type { Database, Json } from "@/lib/database.types";
 
 // Re-use generated types from database.types.ts
 export type QuestionRow = Database["public"]["Tables"]["questions"]["Row"];
@@ -15,7 +15,7 @@ export interface AdminQuestionDisplay {
 	id: string;
 	question: string;
 	category: string | null;
-	content: Json;
+	content: Json | null;
 	answerCount: number;
 	redFlagsCount: number;
 	orderIndex: number | null;

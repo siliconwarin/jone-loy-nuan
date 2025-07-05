@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import { upsertScenarioImage } from "@/lib/actions/images";
 
 interface SvgUploadDialogProps {
@@ -34,7 +33,6 @@ export function SvgUploadDialog({
 	const [variant, setVariant] = useState<"normal" | "result">("normal");
 	const [file, setFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
-	const [progress, setProgress] = useState(0);
 	const [error, setError] = useState<string | null>(null);
 
 	const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -74,12 +72,14 @@ export function SvgUploadDialog({
 
 			toast.success(`Successfully uploaded ${variant} image!`);
 			onUploadComplete();
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error("Upload error:", err);
+			const errorObj = err as { message?: string; error?: string };
 			const errorMessage =
-				err.message?.includes("bucket not found") || err.error === "Not found"
+				errorObj.message?.includes("bucket not found") ||
+				errorObj.error === "Not found"
 					? "Storage bucket 'scenario-images' not found. Please create it in your Supabase project."
-					: err.message || "An unknown error occurred.";
+					: errorObj.message || "An unknown error occurred.";
 			setError(errorMessage);
 			toast.error(`Upload failed: ${errorMessage}`);
 		} finally {
@@ -148,6 +148,7 @@ export function SvgUploadDialog({
 					{isUploading && (
 						<div className="text-sm text-gray-600">Uploading...</div>
 					)}
+					{error && <p className="text-sm text-red-600">{error}</p>}
 				</div>
 				<DialogFooter>
 					<Button

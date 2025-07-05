@@ -6,52 +6,12 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-	TableFooter,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-	Plus,
-	Search,
-	Edit,
-	Trash2,
-	Eye,
-	Tag,
-	AlertTriangle,
-} from "lucide-react";
-import { quizData } from "@/lib/quiz-data";
-import type { QuizQuestion, ScamCategory } from "@/lib/types";
+import { Search, Trash2 } from "lucide-react";
 import { fetchQuestions, removeQuestion } from "@/lib/actions/questions";
 import Link from "next/link";
-
-// แปลง QuizQuestion เป็น format สำหรับแสดงใน Admin
-interface QuizDisplayData {
-	id: string;
-	question: string;
-	category: ScamCategory | "UNKNOWN";
-	difficulty: "easy" | "medium" | "hard";
-	hasInteractive: boolean;
-	redFlagsCount: number;
-	answerCount: number;
-	isPublished: boolean;
-}
-
-// แปลงข้อมูลจาก quizData
-const convertQuizDataForAdmin = (): QuizDisplayData[] => {
-	return quizData.map((quiz, index) => ({
-		id: quiz.id,
-		question:
-			quiz.question.length > 60
-				? quiz.question.substring(0, 60) + "..."
-				: quiz.question,
-		category: quiz.category || "UNKNOWN",
-		difficulty: quiz.difficulty || "medium",
-		hasInteractive: quiz.interactive || false,
-		redFlagsCount: quiz.redFlags?.length || 0,
-		answerCount: quiz.answers.length,
-		isPublished: true, // สำหรับตอนนี้ถือว่าทุกคำถามเผยแพร่แล้ว
-	}));
-};
 
 interface PageProps {
 	searchParams: Promise<{ search?: string }>;

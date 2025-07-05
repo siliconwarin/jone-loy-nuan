@@ -135,7 +135,10 @@ export default function QuizTable({
 			<SvgUploadDialog
 				open={isUploadOpen}
 				onOpenChange={setUploadOpen}
-				scenarioId={(editingQuestion?.content as any)?.original_id ?? ""}
+				scenarioId={
+					(editingQuestion?.content as { original_id?: string } | null)
+						?.original_id ?? ""
+				}
 				onUploadComplete={() => {
 					setUploadOpen(false);
 					toast.success("SVG uploaded and linked successfully!");

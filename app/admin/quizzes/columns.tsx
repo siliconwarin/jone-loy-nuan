@@ -11,7 +11,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type Database } from "@/lib/database.types";
 import { type QuestionRow as AdminQuestionRow } from "@/lib/actions/questions";
 
 type QuestionRow = AdminQuestionRow & {

@@ -3,8 +3,7 @@
 import { PageContent } from "@/components/page-content";
 import { ContentArea } from "@/components/content-area";
 import { useState, useMemo } from "react";
-import type { Database } from "@/lib/database.types";
-import type { Answer } from "@/lib/types";
+import type { Answer, QuizResult } from "@/lib/types";
 import type { QuestionWithImages } from "../page";
 
 // Components
@@ -13,15 +12,13 @@ import { AnswerPanel } from "./answer-panel";
 import { ResultCard } from "./result-card";
 import { QuizBackground } from "./quiz-background";
 
-type Question = Database["public"]["Tables"]["questions"]["Row"];
-
-interface QuizClientProps {
+export function QuizClient({
+	initialQuestions,
+}: {
 	initialQuestions: QuestionWithImages[];
-}
-
-export function QuizClient({ initialQuestions }: QuizClientProps) {
+}) {
 	// --- New State Management ---
-	const [questions, setQuestions] = useState(initialQuestions);
+	const [questions] = useState(initialQuestions);
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 	const [showResult, setShowResult] = useState(false);
@@ -80,7 +77,8 @@ export function QuizClient({ initialQuestions }: QuizClientProps) {
 		);
 	}
 
-	const isInteractive = (currentQuestion as any).interactive || false; // Cast to any to avoid TS error for now
+	const isInteractive =
+		(currentQuestion as { interactive?: boolean }).interactive ?? false;
 
 	// Handle PIN scenario answer (convert boolean to answerId)
 	const handlePinAnswer = (isCorrect: boolean) => {
@@ -130,7 +128,7 @@ export function QuizClient({ initialQuestions }: QuizClientProps) {
 				<ResultCard
 					showResult={showResult}
 					isCorrect={isCorrect}
-					result={currentQuestion.result as any} // Cast to any to avoid TS error for now
+					result={currentQuestion.result as unknown as QuizResult}
 					onReset={handleReset}
 					isLoading={isTransitioning}
 				/>
