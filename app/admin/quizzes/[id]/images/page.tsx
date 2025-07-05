@@ -47,12 +47,13 @@ async function getExistingImages(questionId: string) {
 	};
 }
 
-export default async function UploadImagesPage({
-	params,
-}: {
-	params: { id: string };
-}) {
-	const { id } = params;
+interface PageProps {
+	params: Promise<{ id: string }>;
+	searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function UploadImagesPage({ params }: PageProps) {
+	const { id } = await params;
 	const question = (await fetchQuestionById(id)) as QuestionWithAnswers | null;
 
 	if (!question) {

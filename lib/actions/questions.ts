@@ -49,18 +49,20 @@ export async function fetchQuestions(search: string) {
 // NEW: Function to fetch questions for the actual quiz client
 export async function fetchQuizQuestions() {
 	const supabase = await createClient();
-	// Fetch all questions and their answers, ordered by `order_index`
-	const { data, error } = await supabase
-		.rpc("get_questions_with_answers")
-		.order("order_index", { ascending: true });
+	// Fetch all questions and their answers (ไม่ใช้ .order())
+	const { data, error } = await supabase.rpc("get_questions_with_answers");
 
 	if (error) {
-		console.error("Error fetching questions for quiz:", error);
+		console.error("Error fetching questions for quiz:", error, data);
 		return [];
 	}
 
-	// Return the full data structure, including the nested answers array
-	return data ?? [];
+	// Sort ข้อมูลใน JS ตาม order_index
+	const sortedData = (data ?? []).sort(
+		(a: QuestionRow, b: QuestionRow) =>
+			(a.order_index ?? 0) - (b.order_index ?? 0)
+	);
+	return sortedData;
 }
 
 // GET single question by id
@@ -123,16 +125,18 @@ export async function upsertQuestion(
 
 // DELETE question by id (new standalone action)
 // This works as intended because of "ON DELETE CASCADE" in the database.
-export async function deleteQuestionAction(id: string) {
+export async function deleteQuestionAction(
+	id: string
+): Promise<{ success: boolean; error?: string }> {
 	"use server";
 	const supabase = await createClient();
 	const { error } = await supabase.from("questions").delete().eq("id", id);
+
 	if (error) {
-		// Log the error for server-side debugging
 		console.error("Delete error:", error);
-		// In a real app, you might want to handle this more gracefully
-		// For now, we'll just log it. The revalidation might not happen
-		// but the user will see the item is not deleted.
+		return { success: false, error: error.message };
 	}
+
 	revalidatePath("/admin");
+	return { success: true };
 }
