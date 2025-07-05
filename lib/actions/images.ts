@@ -3,41 +3,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
-interface UpsertScenarioImageParams {
-	scenario_id: string;
-	variant: "normal" | "result";
-	file_path: string;
-}
-
-export async function upsertScenarioImage({
-	scenario_id,
-	variant,
-	file_path,
-}: UpsertScenarioImageParams) {
-	if (!scenario_id) {
-		throw new Error("Scenario ID is required.");
-	}
-
-	const supabase = await createClient();
-	const { data, error } = await supabase
-		.from("scenario_images")
-		.upsert(
-			{ scenario_id, variant, file_path },
-			{ onConflict: "scenario_id, variant" }
-		)
-		.select();
-
-	if (error) {
-		console.error("Error upserting scenario image:", error);
-		throw new Error(error.message);
-	}
-
-	// Revalidate the quiz page to show new images
-	revalidatePath("/quiz");
-
-	return data;
-}
-
 export async function uploadQuestionImages(
 	previousState: { error?: string; success?: boolean } | null,
 	formData: FormData
@@ -80,6 +45,7 @@ async function uploadVariant(
 ) {
 	const filePath = `${questionId}/${variant}.svg`;
 
+	// 1. Upload file to storage
 	const { error: uploadError } = await supabase.storage
 		.from("scenario-images")
 		.upload(filePath, file, {
@@ -89,5 +55,24 @@ async function uploadVariant(
 
 	if (uploadError) {
 		throw new Error(`Storage Error: ${uploadError.message}`);
+	}
+
+	// 2. Get public URL
+	const { data: urlData } = supabase.storage
+		.from("scenario-images")
+		.getPublicUrl(filePath);
+
+	// 3. Save URL to database
+	const { error: dbError } = await supabase.from("scenario_images").upsert(
+		{
+			question_id: questionId,
+			variant: variant,
+			image_url: urlData.publicUrl,
+		},
+		{ onConflict: "question_id, variant" }
+	);
+
+	if (dbError) {
+		throw new Error(`Database Error: ${dbError.message}`);
 	}
 }

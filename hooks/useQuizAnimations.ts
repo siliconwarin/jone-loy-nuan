@@ -7,12 +7,14 @@ import type { AnswerPanelLayout } from "@/lib/types";
  * Optimized hook for screen size detection
  */
 function useScreenSize() {
-	const [screenSize, setScreenSize] = useState({
-		width: typeof window !== "undefined" ? window.innerWidth : 1024,
-		height: typeof window !== "undefined" ? window.innerHeight : 768,
-	});
+	const [screenSize, setScreenSize] = useState<{
+		width: number;
+		height: number;
+	}>(() => ({
+		width: 1024,
+		height: 768,
+	}));
 
-	// Use useCallback to prevent recreating the handler
 	const handleResize = useCallback(() => {
 		setScreenSize({
 			width: window.innerWidth,
@@ -22,6 +24,8 @@ function useScreenSize() {
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
+
+		handleResize();
 
 		window.addEventListener("resize", handleResize);
 		return () => window.removeEventListener("resize", handleResize);

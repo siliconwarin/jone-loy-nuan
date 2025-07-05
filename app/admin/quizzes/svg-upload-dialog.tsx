@@ -13,9 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { upsertScenarioImage } from "@/lib/actions/images";
+import { uploadQuestionImages } from "@/lib/actions/images";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
 
 interface SvgUploadDialogProps {
 	scenarioId: string;
@@ -45,23 +44,6 @@ export function SvgUploadDialog({
 		}
 	};
 
-	const handleUpload = async (file: File, variant: "normal" | "result") => {
-		const supabase = createClient();
-		const filePath = `${scenarioId}/${variant}.svg`;
-
-		const { data: uploadData, error: uploadError } = await supabase.storage
-			.from("scenario-images")
-			.upload(filePath, file, { upsert: true });
-
-		if (uploadError) throw uploadError;
-
-		await upsertScenarioImage({
-			scenario_id: scenarioId,
-			variant: variant,
-			file_path: uploadData.path,
-		});
-	};
-
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 		if (!normalFile && !resultFile) {
@@ -71,14 +53,19 @@ export function SvgUploadDialog({
 
 		setIsUploading(true);
 		try {
-			if (normalFile) {
-				await handleUpload(normalFile, "normal");
-				toast.success("Normal image uploaded successfully!");
+			// ใช้ uploadQuestionImages แทน
+			const formData = new FormData();
+			formData.append("questionId", scenarioId);
+			if (normalFile) formData.append("normal_svg", normalFile);
+			if (resultFile) formData.append("result_svg", resultFile);
+
+			const result = await uploadQuestionImages(null, formData);
+
+			if (result?.error) {
+				throw new Error(result.error);
 			}
-			if (resultFile) {
-				await handleUpload(resultFile, "result");
-				toast.success("Result image uploaded successfully!");
-			}
+
+			toast.success("Images uploaded successfully!");
 			router.refresh();
 			onClose();
 		} catch (err: unknown) {
@@ -89,7 +76,6 @@ export function SvgUploadDialog({
 			setIsUploading(false);
 		}
 	};
-
 	return (
 		<Dialog open={open} onOpenChange={onClose}>
 			<DialogContent>
