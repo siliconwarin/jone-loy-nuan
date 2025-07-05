@@ -1,6 +1,44 @@
 import type { QuizQuestion } from "./types";
 
 export const quizData: QuizQuestion[] = [
+	// Question 7 - Line Group Scam
+	{
+		id: "line-group-scam-7",
+		question: "ถ้าคุณโพสต์ขายของ แล้วมีคนทักให้เข้าไป\nขายในกลุ่ม คุณจะ...",
+		content: {
+			type: "component",
+			component: "ScenarioViewer",
+			data: "line-group-scam-7",
+			alt: "Line group invitation scam scenario",
+		},
+		answers: [
+			{
+				id: "reject",
+				text: "ปฏิเสธ",
+				isCorrect: true,
+			},
+			{
+				id: "join",
+				text: "เข้าร่วม",
+				isCorrect: false,
+			},
+		],
+		result: {
+			correctTitle: "ฉลาดมาก!",
+			wrongTitle: "นี่คือมิจฉาชีพ",
+			header: "หลอกมาซื้อของ",
+			explanation:
+				"มิจฉาชีพจะแกล้งสนใจซื้อของ ล่อให้เข้ากลุ่ม จากนั้นชวน\nสมัครหรือเปิดร้าน โดยอ้างว่าต้องโอนเงินก่อน\nพอเหยื่อโอนแล้วจะถอนเงินไม่ได้ และถูกหลอกให้โอนซ้าๆ จนหมดตัว\nทั้งที่คนซื้อของจริงจะไม่พาเข้ากลุ่มหรือขอให้โอนเงินก่อน",
+		},
+		category: "GROUP_SCAM",
+		redFlags: [
+			"คำเชิญจากคนแปลกหน้า = น่าสงสัย! อย่าเข้าร่วมกลุ่มที่ไม่รู้จัก",
+			"จำนวนสมาชิก 99+ = อาจเป็นบอทหรือบัญชีปลอม",
+			"เสนอให้เข้ากลุ่มเพื่อขายของ หรือกลุ่มลูกค้า VIP",
+			"สนใจซื้อของมากเกินไป หรือผิดปกติไม่ต่อรองราคา",
+		],
+	},
+	// Question 1 - SMS Scam
 	{
 		id: "sms-scam-1",
 		question:
@@ -10,6 +48,10 @@ export const quizData: QuizQuestion[] = [
 			data: "sms-scam-1",
 			component: "ScenarioViewer",
 			alt: "Scenario showing SMS scam conversation",
+			images: {
+				normal: "/images/scenario-1/1.svg",
+				result: "/images/scenario-1/1-result.svg",
+			},
 		},
 		answers: [
 			{
@@ -52,6 +94,10 @@ export const quizData: QuizQuestion[] = [
 			component: "ScenarioViewer",
 			data: "social-ad-2",
 			alt: "Social feed loan ad",
+			images: {
+				normal: "/images/scenario-2/2.svg",
+				result: "/images/scenario-2/2-result.svg",
+			},
 		},
 		answers: [
 			{ id: "a", text: "ไม่สนใจ", isCorrect: true },
@@ -81,6 +127,10 @@ export const quizData: QuizQuestion[] = [
 			component: "ScenarioViewer",
 			data: "job-ad-3",
 			alt: "Job advertisement scam",
+			images: {
+				normal: "/images/scenario-3/3.svg",
+				result: "/images/scenario-3/3-result.svg",
+			},
 		},
 		interactive: true,
 		answers: [
@@ -142,6 +192,10 @@ export const quizData: QuizQuestion[] = [
 			component: "ScenarioViewer",
 			data: "romance-scam-5",
 			alt: "Romance scam social media profile",
+			images: {
+				normal: "/images/scenario-5/5.svg",
+				result: "/images/scenario-5/5-result.svg",
+			},
 		},
 		answers: [
 			{ id: "ignore", text: "ไม่สนใจ", isCorrect: true },
@@ -172,6 +226,10 @@ export const quizData: QuizQuestion[] = [
 			component: "ScenarioViewer",
 			data: "investment-scam-6",
 			alt: "Investment scam social media post with red flags",
+			images: {
+				normal: "/images/scenario-6/6.svg",
+				result: "/images/scenario-6/6-result.svg",
+			},
 		},
 		answers: [
 			{
@@ -205,43 +263,7 @@ export const quizData: QuizQuestion[] = [
 			"เร่งให้ตัดสินใจเร็ว = เทคนิคกดดันทั่วไป",
 		],
 	},
-	// Question 7 - Line Group Scam
-	{
-		id: "line-group-scam-7",
-		question: "ถ้าคุณโพสต์ขายของ แล้วมีคนทักให้เข้าไป\nขายในกลุ่ม คุณจะ...",
-		content: {
-			type: "component",
-			component: "ScenarioViewer",
-			data: "line-group-scam-7",
-			alt: "Line group invitation scam scenario",
-		},
-		answers: [
-			{
-				id: "reject",
-				text: "ปฏิเสธ",
-				isCorrect: true,
-			},
-			{
-				id: "join",
-				text: "เข้าร่วม",
-				isCorrect: false,
-			},
-		],
-		result: {
-			correctTitle: "ฉลาดมาก!",
-			wrongTitle: "นี่คือมิจฉาชีพ",
-			header: "หลอกมาซื้อของ",
-			explanation:
-				"มิจฉาชีพจะแกล้งสนใจซื้อของ ล่อให้เข้ากลุ่ม จากนั้นชวน\nสมัครหรือเปิดร้าน โดยอ้างว่าต้องโอนเงินก่อน\nพอเหยื่อโอนแล้วจะถอนเงินไม่ได้ และถูกหลอกให้โอนซ้าๆ จนหมดตัว\nทั้งที่คนซื้อของจริงจะไม่พาเข้ากลุ่มหรือขอให้โอนเงินก่อน",
-		},
-		category: "GROUP_SCAM",
-		redFlags: [
-			"คำเชิญจากคนแปลกหน้า = น่าสงสัย! อย่าเข้าร่วมกลุ่มที่ไม่รู้จัก",
-			"จำนวนสมาชิก 99+ = อาจเป็นบอทหรือบัญชีปลอม",
-			"เสนอให้เข้ากลุ่มเพื่อขายของ หรือกลุ่มลูกค้า VIP",
-			"สนใจซื้อของมากเกินไป หรือผิดปกติไม่ต่อรองราคา",
-		],
-	},
+
 	// Question 8 - Fake Ads
 	{
 		id: "fake-ads-8",
@@ -315,7 +337,7 @@ export const quizData: QuizQuestion[] = [
 			wrongTitle: "นี่คือมิจฉาชีพ",
 			header: "แก๊งคอลเซ็นเตอร",
 			explanation:
-				"มิจฉาชีพมักแอบอ้างว่าจะช่วยแจ้งความให้จากนั้นพาเหยื่อเข้าแชทหลอกขอข้อมูลส่วนตัวแล้วอ้างว่าต้องโอนค่าดําเนินการ สุดท้ายเหยื่อไม่ได้รับเงินคืนมื่อคุณตกเป็นเหยื่ออาชญากรรมไซเบอร์แจ้งความได้ที่สถานีตํารวจใกล้บ้าน หรือที่ www.thaipoliceonline.com เท่านั้น",
+				"มิจฉาชีพมักแอบอ้างว่าจะช่วยแจ้งความให้จากนั้นพาเหยื่อเข้าแชทหลอกขอข้อมูลส่วนตัวแล้วอ้างว่าต้องโอนค่าดําเนินการ สุดท้ายเหยื่อไม่ได้รับเงินคืน\nมื่อคุณตกเป็นเหยื่ออาชญากรรมไซเบอร์แจ้งความได้ที่สถานีตํารวจใกล้บ้าน หรือที่ www.thaipoliceonline.com เท่านั้น",
 		},
 		category: "POLICE_CALL_SCAM",
 		redFlags: [

@@ -1,9 +1,0 @@
-<svg width="480" height="160" viewBox="0 0 480 160" xmlns="http://www.w3.org/2000/svg">
-  <path d="M 30 30 C 30 13.431 43.431 0 60 0 H 450 C 466.569 0 480 13.431 480 30 V 100 C 480 116.569 466.569 130 450 130 H 60 C 43.431 130 30 116.569 30 100 V 50 C 30 50 7 50 0 35 C 7 35 30 35 30 30 Z" fill="#e7ffde"/>
-  
-  <text x="60" y="45" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#000000">
-    <tspan x="60" dy="0">พัสดุของท่าน เกิดการเสียหาย</tspan>
-    <tspan x="60" dy="1.4em">กรุณายื่นเคลมค่าเสียหาย</tspan>
-    <tspan x="60" dy="1.5em" fill="#007bff" text-decoration="underline" font-family="monospace" font-size="24">bit.ly/49dvdnhm</tspan>
-  </text>
-</svg>
