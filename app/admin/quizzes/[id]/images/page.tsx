@@ -1,51 +1,9 @@
 import { fetchQuestionById } from "@/lib/actions/questions";
-import { createClient } from "@/utils/supabase/server";
-import { ImageUploadForm } from "./image-upload-form";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import type { QuestionWithAnswers } from "@/lib/types";
-
-async function getExistingImages(questionId: string) {
-	const supabase = await createClient();
-	const bucket = "scenario-images";
-
-	const { data: normalData } = supabase.storage
-		.from(bucket)
-		.getPublicUrl(`${questionId}/normal.svg`);
-
-	const { data: resultData } = supabase.storage
-		.from(bucket)
-		.getPublicUrl(`${questionId}/result.svg`);
-
-	// Check if files exist, as getPublicUrl doesn't throw an error for non-existent files.
-	// We add a timestamp to the URL to bust the cache.
-	const { data: normalList } = await supabase.storage
-		.from(bucket)
-		.list(questionId, {
-			limit: 1,
-			search: "normal.svg",
-		});
-
-	const { data: resultList } = await supabase.storage
-		.from(bucket)
-		.list(questionId, {
-			limit: 1,
-			search: "result.svg",
-		});
-
-	return {
-		normal:
-			normalList && normalList.length > 0
-				? `${normalData.publicUrl}?t=${new Date().getTime()}`
-				: null,
-		result:
-			resultList && resultList.length > 0
-				? `${resultData.publicUrl}?t=${new Date().getTime()}`
-				: null,
-	};
-}
 
 interface PageProps {
 	params: Promise<{ id: string }>;
