@@ -99,7 +99,7 @@ export const ResultCard = ({
 					{...resultAnimation.overlay}
 					className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6"
 				>
-					<div className="relative w-full max-w-xs md:max-w-md mx-auto">
+					<div className="relative w-full md:max-w-md mx-auto">
 						{/* ปุ่มลูกศรขวาบน */}
 						{!isButtonLoading && !isLastQuestion && (
 							<button

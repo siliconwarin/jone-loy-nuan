@@ -6,6 +6,7 @@ import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import { ScenarioViewer } from "./scenario-viewer";
 import { useMemo } from "react";
 import type { QuestionWithAnswers } from "@/lib/types";
+import { PinScenario } from "@/app/quiz/_component/pin-scenario";
 
 export interface ContentAreaProps {
 	questionData: QuestionWithAnswers;
@@ -21,7 +22,10 @@ export const ContentArea = ({
 	variant = "default",
 	animate = true,
 	showResult = false,
-}: ContentAreaProps) => {
+	onPinScenarioAnswer,
+}: ContentAreaProps & {
+	onPinScenarioAnswer?: (isCorrect: boolean) => void;
+}) => {
 	// 🎨 Animation Logic - React Compiler Optimized
 	const { getContentMotionProps } = useQuizAnimations(showResult);
 
@@ -42,18 +46,28 @@ export const ContentArea = ({
 		return getContentMotionProps();
 	}, [animate, getContentMotionProps]);
 
+	// เช็คว่าข้อไหนต้องใช้ PinScenario (ใช้ order_index === 1 เท่านั้น เพราะไม่มี type ใน schema)
+	const isPinScenario = questionData.order_index === 1;
+
 	return (
 		<motion.div
-			layoutId={`content-area-${questionData.id}`} // Use question ID for unique layoutId
+			layoutId={`content-area-${questionData.id}`}
 			className={cn("w-full mx-auto", variantStyles, className)}
 			{...motionProps}
 		>
-			<ScenarioViewer
-				showResult={showResult}
-				normal_image_url={questionData.normal_image_url}
-				result_image_url={questionData.result_image_url}
-				altText={questionData.question_text ?? "Scenario Image"}
-			/>
+			{isPinScenario ? (
+				<PinScenario
+					onAnswer={onPinScenarioAnswer || (() => {})}
+					disabled={showResult}
+				/>
+			) : (
+				<ScenarioViewer
+					showResult={showResult}
+					normal_image_url={questionData.normal_image_url}
+					result_image_url={questionData.result_image_url}
+					altText={questionData.question_text ?? "Scenario Image"}
+				/>
+			)}
 		</motion.div>
 	);
 };

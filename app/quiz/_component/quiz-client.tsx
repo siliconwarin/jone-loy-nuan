@@ -106,7 +106,17 @@ export function QuizClient({
 			});
 		}
 	};
-	// --------------------------
+
+	// เพิ่ม handler สำหรับ PinScenario (ข้อแรก)
+	const handlePinScenarioAnswer = (isCorrect: boolean) => {
+		if (showResult) return;
+		setShowResult(true);
+		// บันทึก response (ข้อแรกไม่มี answerId)
+		addResponse({
+			questionId: currentQuestion.id,
+			isCorrect,
+		});
+	};
 
 	// 🔄 Enhanced reset handler with loading
 	const handleReset = () => {
@@ -165,17 +175,26 @@ export function QuizClient({
 								questionData={currentQuestion}
 								showResult={showResult}
 								variant="fullscreen"
+								// ส่ง onPinScenarioAnswer เฉพาะข้อแรก
+								onPinScenarioAnswer={
+									currentQuestion.order_index === 1
+										? handlePinScenarioAnswer
+										: undefined
+								}
 							/>
 						</div>
 
 						{/* Answer Panel */}
 						<div className="basis-[25%] pb-4 sm:pb-6 md:pb-8">
-							<AnswerPanel
-								answers={answers}
-								selectedAnswer={selectedAnswer}
-								showResult={showResult}
-								onAnswerSelect={handleAnswerSelect}
-							/>
+							{/* ข้อแรกไม่ต้องแสดง AnswerPanel */}
+							{currentQuestion.order_index !== 1 && (
+								<AnswerPanel
+									answers={answers}
+									selectedAnswer={selectedAnswer}
+									showResult={showResult}
+									onAnswerSelect={handleAnswerSelect}
+								/>
+							)}
 						</div>
 					</div>
 				</motion.div>

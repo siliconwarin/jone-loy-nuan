@@ -632,3 +632,17 @@ WHERE Data_Type = 'survey'
 GROUP BY Age_Group
 HAVING COUNT(*) >= 5  -- Only show groups with enough data for anonymity
 ```
+
+## UI/UX Decisions
+
+- ResultCard ใช้ปุ่ม Next (ลูกศร) ขวาบนเท่านั้น ไม่มีปุ่มเหลืองด้านล่าง เพื่อความสะอาดและเหมือน Duolingo
+- ResultCard ติดขอบล่าง (fixed bottom-0) พร้อม rounded-t-3xl
+- ปุ่ม AnswerPanel อยู่ล่างสุดของ quiz layout เสมอ
+- SurveyForm เหลือแค่ 3 หัวข้อ (ageGroup, education, occupation) เพื่อความกระชับ
+- ไม่มี console.log ใน production
+
+## Component Updates
+
+- ResultCard: ปุ่ม Next/Continue เป็น floating button ขวาบนของการ์ด
+- QuizClient: layout กลับไปใช้ flex basis เดิม, ปุ่ม AnswerPanel อยู่ล่าง, ResultCard ติดขอบล่าง
+- Survey: ตัดเหลือ 3 field, validate ด้วย Zod

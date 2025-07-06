@@ -246,3 +246,15 @@ If anything breaks:
 
 _Last Updated: [Current Date]_
 _Next Review: [Weekly]_
+
+## 🟢 Progress Update (ล่าสุด)
+
+- [x] ResultCard เหลือเฉพาะปุ่มลูกศรขวาบน (Next/Continue)
+- [x] Layout QuizClient: ปุ่ม AnswerPanel อยู่ล่าง, ResultCard ติดขอบล่าง, ปุ่ม Next อยู่ขวาบน
+- [x] Survey เหลือ 3 หัวข้อ (ageGroup, education, occupation)
+- [x] ไม่มี console.log ใน production
+- [x] TypeScript/TSX error ที่เกี่ยวกับ prop, type mismatch, Zod, ถูกแก้หมดแล้ว
+- [x] UI/UX: ปุ่ม Next/Continue, ResultCard ติดขอบล่าง, layout เหมือน Duolingo
+- [x] ลบปุ่มเหลืองด้านล่าง ResultCard
+- [x] ปรับ animation ให้ smooth, ใช้ spring type assertion
+- [x] Clean code, ไม่มี dead code, import สะอาด
