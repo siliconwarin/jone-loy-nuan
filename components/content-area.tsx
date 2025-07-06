@@ -7,6 +7,7 @@ import { ScenarioViewer } from "./scenario-viewer";
 import { useMemo } from "react";
 import type { QuestionWithAnswers } from "@/lib/types";
 import { PinScenario } from "@/app/quiz/_component/pin-scenario";
+import Image from "next/image";
 
 export interface ContentAreaProps {
 	questionData: QuestionWithAnswers;
@@ -56,10 +57,21 @@ export const ContentArea = ({
 			{...motionProps}
 		>
 			{isPinScenario ? (
-				<PinScenario
-					onAnswer={onPinScenarioAnswer || (() => {})}
-					disabled={showResult}
-				/>
+				<div className="relative w-full flex justify-center items-center">
+					<PinScenario
+						onAnswer={onPinScenarioAnswer || (() => {})}
+						disabled={showResult}
+					/>
+					{showResult && (
+						<Image
+							src="/images/scenarios/question-1/redflag-pin.svg"
+							alt="Redflag"
+							fill
+							className="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
+							style={{ objectFit: "contain" }}
+						/>
+					)}
+				</div>
 			) : (
 				<ScenarioViewer
 					showResult={showResult}

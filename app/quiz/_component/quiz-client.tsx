@@ -31,12 +31,19 @@ export function QuizClient({
 	const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 	const [showResult, setShowResult] = useState(false);
 	const [isTransitioning, setIsTransitioning] = useState(false);
+	const [isQuizReady, setIsQuizReady] = useState(false);
 
 	// Start quiz session on component mount
 	useEffect(() => {
 		startQuiz(initialQuestions.length);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+
+		// รอให้ transition จบก่อนแสดง quiz content
+		const timer = setTimeout(() => {
+			setIsQuizReady(true);
+		}, 100);
+
+		return () => clearTimeout(timer);
+	}, [startQuiz, initialQuestions.length]);
 
 	const currentQuestion = useMemo(() => {
 		return questions[currentIndex];
@@ -136,11 +143,14 @@ export function QuizClient({
 		}, 1200);
 	};
 
-	// Loading state ถ้ายังไม่มี currentQuestion
-	if (!currentQuestion) {
+	// Loading state ถ้ายังไม่มี currentQuestion หรือยังไม่พร้อม
+	if (!currentQuestion || !isQuizReady) {
 		return (
 			<div className="h-[100dvh] bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-				<div className="text-center text-gray-500">ไม่มีคำถามในระบบ...</div>
+				<div className="text-center">
+					<div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+					<div className="text-gray-500">กำลังเตรียมคำถาม...</div>
+				</div>
 			</div>
 		);
 	}

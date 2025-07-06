@@ -93,12 +93,6 @@ async function submitSurveyAction(
 		const totalQuestions =
 			parseInt(formData.get("totalQuestions") as string) || 10;
 
-		// ✅ เพิ่ม debug log
-		console.log("Form data entries:", Array.from(formData.entries()));
-		console.log("Raw form data:", rawData);
-		console.log("Total score:", totalScore);
-		console.log("Total questions:", totalQuestions);
-
 		// ✅ สร้าง surveyData ให้ตรงกับ schema ใหม่
 		const surveyData = {
 			ageGroup: rawData.ageGroup,

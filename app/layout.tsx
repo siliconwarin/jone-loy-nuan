@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Prompt } from "next/font/google";
 import "./globals.css";
-import StairTransition from "@/components/stair-transition";
-import PageTransition from "@/components/page-transition";
 
 const inter = Inter({
 	variable: "--font-inter",
@@ -33,11 +31,7 @@ export default function RootLayout({
 			<body
 				className={`${inter.variable} ${prompt.variable} font-sans antialiased`}
 			>
-				{/* Stair Transition - z-50 อยู่เหนือสุด */}
-				<StairTransition />
-
-				{/* Page Transition - z-40 อยู่ใต้ stairs */}
-				<PageTransition>{children}</PageTransition>
+				{children}
 			</body>
 		</html>
 	);

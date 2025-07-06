@@ -56,17 +56,14 @@ export const AnswerPanel = (props: AnswerPanelProps) => {
 
 	const answerContainerStyles = useMemo(() => {
 		if (layoutInfo.isHorizontal) {
-			return "flex flex-row justify-center items-center gap-3 sm:gap-4 md:gap-6";
+			return "flex flex-row justify-center items-stretch gap-3 sm:gap-4 md:gap-6 w-full";
 		}
-		return "flex flex-col justify-center items-center space-y-2.5 sm:space-y-3 md:space-y-4";
+		return "flex flex-col justify-center items-stretch space-y-2.5 sm:space-y-3 md:space-y-4 w-full";
 	}, [layoutInfo.isHorizontal]);
 
 	const getButtonStyles = useMemo(() => {
-		if (layoutInfo.isHorizontal) {
-			return "w-[130px] sm:w-[150px] md:w-[170px] h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px]";
-		}
-		return "w-[280px] sm:w-[320px] md:w-[360px] h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px]";
-	}, [layoutInfo.isHorizontal]);
+		return "w-full h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px] rounded-xl";
+	}, []);
 
 	// ⭐️ Guard Clause moved after hooks.
 	// Now we conditionally render based on layoutInfo, instead of an early return.
@@ -107,22 +104,23 @@ export const AnswerPanel = (props: AnswerPanelProps) => {
 				className={answerContainerStyles}
 			>
 				{answers.map((option, index) => (
-					<motion.div
-						key={option.id}
-						{...getAnswerButtonLayoutAnimation(index, layoutInfo.layout)}
-						className="flex justify-center"
-					>
-						<Button
-							variant={getButtonVariant(option.id, option.isCorrect)}
-							size="default"
-							onClick={() => onAnswerSelect(option.id)}
-							disabled={isButtonDisabled(option.id) || showResult}
-							data-state={getButtonDataState(option.id)}
-							className={getButtonStyles}
+					<div key={option.id} className="w-full flex">
+						<motion.div
+							{...getAnswerButtonLayoutAnimation(index, layoutInfo.layout)}
+							className="w-full"
 						>
-							{option.text}
-						</Button>
-					</motion.div>
+							<Button
+								variant={getButtonVariant(option.id, option.isCorrect)}
+								size="lg"
+								onClick={() => onAnswerSelect(option.id)}
+								disabled={isButtonDisabled(option.id) || showResult}
+								data-state={getButtonDataState(option.id)}
+								className={getButtonStyles}
+							>
+								{option.text}
+							</Button>
+						</motion.div>
+					</div>
 				))}
 			</motion.div>
 		</div>

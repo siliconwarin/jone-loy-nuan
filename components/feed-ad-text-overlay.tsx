@@ -41,7 +41,6 @@ function FeedAdTextOverlayComponent({
 	);
 }
 
-// Memoized to prevent unnecessary re-renders
 const FeedAdTextOverlay = memo(FeedAdTextOverlayComponent);
 
 export default FeedAdTextOverlay;
