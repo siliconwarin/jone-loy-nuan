@@ -1,42 +1,18 @@
 "use client";
-
-import { useActionState, useTransition, useEffect } from "react";
+import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useActionState } from "react";
 import { toast } from "sonner";
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
-
-// 🎨 shadcn/ui Components
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardHeader,
-	CardTitle,
-	CardDescription,
-	CardContent,
-} from "@/components/ui/card";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-
-// 🔥 Modern Imports
+import { submitSurveyAction } from "@/lib/actions/survey";
 import { useQuizResultStore } from "@/store/quiz-store";
-import { surveySchema, type SurveyFormData } from "@/lib/schema";
+import {
+	Loader2,
+	User,
+	GraduationCap,
+	Briefcase,
+	CheckCircle,
+} from "lucide-react";
 
-// 📊 Form Data Constants (เหลือแค่ 3 หัวข้อแรก)
 const FORM_DATA = {
 	ageGroups: [
 		{ value: "under18", label: "ต่ำกว่า 18 ปี" },
@@ -70,265 +46,178 @@ const FORM_DATA = {
 	],
 };
 
-// 🚀 Modern Action State Type
-type ActionState = {
-	status: "idle" | "loading" | "success" | "error";
-	message?: string;
-};
+const initialState = { success: false, message: "" };
 
-// 🔥 Modern Server Action (Async Function)
-async function submitSurveyAction(
-	prevState: ActionState,
-	formData: FormData
-): Promise<ActionState> {
-	try {
-		// 🔄 Simulate API delay for UX
-		await new Promise((resolve) => setTimeout(resolve, 1500));
+function SubmitButton() {
+	const { pending } = useFormStatus();
 
-		// 📊 Parse form data
-		const rawData = Object.fromEntries(formData.entries());
+	return (
+		<button
+			type="submit"
+			disabled={pending}
+			className="group relative w-full overflow-hidden rounded-xl border border-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-[1px] transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:scale-100 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:shadow-none"
+		>
+			<div className="flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white transition-all duration-300 group-hover:from-blue-700 group-hover:via-purple-700 group-hover:to-indigo-700 group-disabled:from-gray-400 group-disabled:via-gray-500 group-disabled:to-gray-400">
+				{pending ? (
+					<>
+						<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+						<span className="text-lg font-semibold">กำลังส่งข้อมูล...</span>
+					</>
+				) : (
+					<>
+						<CheckCircle className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+						<span className="text-lg font-semibold">ส่งแบบสอบถาม</span>
+					</>
+				)}
+			</div>
+		</button>
+	);
+}
 
-		// 🎯 Get quiz score data from hidden fields
-		const totalScore = parseInt(formData.get("totalScore") as string) || 0;
-		const totalQuestions =
-			parseInt(formData.get("totalQuestions") as string) || 10;
-
-		// ✅ สร้าง surveyData ให้ตรงกับ schema ใหม่
-		const surveyData = {
-			ageGroup: rawData.ageGroup,
-			education: rawData.education,
-			occupation: rawData.occupation,
-			totalScore,
-			totalQuestions,
-		};
-
-		// ✅ เพิ่ม debug log
-		console.log("Survey data before validation:", surveyData);
-
-		// 🔍 Validate with Zod
-		const validatedData = surveySchema.parse(surveyData);
-
-		// 🚀 Call API
-		const response = await fetch("/api/survey-response", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(validatedData),
-		});
-
-		if (!response.ok) {
-			throw new Error("Failed to submit survey");
-		}
-
-		return {
-			status: "success",
-			message: "ขอบคุณสำหรับการให้ข้อมูล! 🎉",
-		};
-	} catch (error) {
-		console.error("Survey submission error:", error);
-		return {
-			status: "error",
-			message: "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
-		};
-	}
+function FormField({
+	id,
+	label,
+	name,
+	options,
+	icon: Icon,
+	placeholder,
+}: {
+	id: string;
+	label: string;
+	name: string;
+	options: { value: string; label: string }[];
+	icon: React.ComponentType<{ className?: string }>;
+	placeholder: string;
+}) {
+	return (
+		<div className="group space-y-3">
+			<label
+				htmlFor={id}
+				className="flex items-center gap-2 text-sm font-semibold text-gray-700 transition-colors group-focus-within:text-purple-600"
+			>
+				<Icon className="h-4 w-4" />
+				{label}
+				<span className="text-red-500">*</span>
+			</label>
+			<div className="relative">
+				<select
+					name={name}
+					id={id}
+					required
+					className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-700 shadow-sm transition-all duration-200 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 hover:border-gray-300 hover:shadow-md"
+				>
+					<option value="" className="text-gray-400">
+						{placeholder}
+					</option>
+					{options.map((option) => (
+						<option
+							key={option.value}
+							value={option.value}
+							className="text-gray-700"
+						>
+							{option.label}
+						</option>
+					))}
+				</select>
+				<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+					<svg
+						className="h-4 w-4 text-gray-400 transition-colors group-focus-within:text-purple-600"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M19 9l-7 7-7-7"
+						/>
+					</svg>
+				</div>
+			</div>
+		</div>
+	);
 }
 
 export default function SurveyPage() {
 	const router = useRouter();
-	const [isPending, startTransition] = useTransition();
-
-	// 🔥 Modern useActionState Hook
-	const [actionState, formAction] = useActionState(submitSurveyAction, {
-		status: "idle" as const,
-	});
-
-	// 🎯 Quiz Store for Score
 	const { getSummary } = useQuizResultStore();
 	const { score, total } = getSummary();
+	const [state, formAction] = useActionState(submitSurveyAction, initialState);
 
-	// ✅ เพิ่ม debug log
-	console.log("Quiz store data:", { score, total });
-
-	// 🎨 React Hook Form Setup
-	const form = useForm<SurveyFormData>({
-		resolver: zodResolver(surveySchema),
-		defaultValues: {
-			// ✅ ไม่ต้องใส่ default values เพราะใช้ hidden fields
-		},
-	});
-
-	// 🚀 Handle Success State
 	useEffect(() => {
-		if (actionState.status === "success") {
-			toast.success(actionState.message);
-			startTransition(() => {
-				router.push("/result");
+		if (state.success) {
+			toast.success(state.message, {
+				duration: 3000,
+				style: {
+					background: "linear-gradient(to right, #059669, #10b981)",
+					color: "white",
+					border: "none",
+				},
 			});
-		} else if (actionState.status === "error") {
-			toast.error(actionState.message);
+			router.push("/result");
+		} else if (state.message && !state.success) {
+			toast.error(state.message, {
+				duration: 4000,
+				style: {
+					background: "linear-gradient(to right, #dc2626, #ef4444)",
+					color: "white",
+					border: "none",
+				},
+			});
 		}
-	}, [actionState.status, actionState.message, router]);
-
-	// 🎨 Loading State
-	const isLoading = actionState.status === "loading" || isPending;
+	}, [state, router]);
 
 	return (
-		<div className="h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 overflow-y-auto">
-			<div className="max-w-2xl mx-auto">
-				{/* 🏆 Score Display */}
-				<Card className="mb-8 border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-					<CardHeader className="text-center">
-						<CardTitle className="text-2xl font-bold text-gray-900">
-							🎉 คุณทำคะแนนได้ {score} คะแนน!
-						</CardTitle>
-						<CardDescription className="text-gray-600">
-							กรุณากรอกแบบสอบถามเพื่อช่วยปรับปรุงระบบของเรา
-						</CardDescription>
-					</CardHeader>
-				</Card>
+		<div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
+			<div className="mx-auto max-w-2xl">
+				{/* Header */}
+				<div className="mb-8 text-center">
+					<h1 className="text-3xl font-bold text-gray-800 mb-2">
+						แบบสอบถามข้อมูลส่วนบุคคล
+					</h1>
+					<p className="text-gray-600">กรุณากรอกข้อมูลเพื่อดำเนินการต่อ</p>
+				</div>
 
-				{/* 📝 Survey Form */}
-				<Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm">
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							📊 แบบสอบถามความคิดเห็น
-						</CardTitle>
-						<CardDescription>
-							ข้อมูลของคุณจะถูกเก็บเป็นความลับและใช้เพื่อการศึกษาเท่านั้น
-						</CardDescription>
-					</CardHeader>
+				{/* Form */}
+				<form
+					action={formAction}
+					className="space-y-8 rounded-2xl border border-white/20 bg-white/80 p-8 shadow-xl backdrop-blur-sm"
+				>
+					<input type="hidden" name="totalScore" value={score || 0} />
+					<input type="hidden" name="totalQuestions" value={total || 10} />
 
-					<CardContent>
-						<Form {...form}>
-							<form action={formAction} className="space-y-6">
-								{/* 🎯 Hidden Quiz Score Fields */}
-								<input type="hidden" name="totalScore" value={score || 0} />
-								<input
-									type="hidden"
-									name="totalQuestions"
-									value={total || 10}
-								/>
+					<FormField
+						id="ageGroup"
+						label="ช่วงอายุ"
+						name="ageGroup"
+						options={FORM_DATA.ageGroups}
+						icon={User}
+						placeholder="เลือกช่วงอายุของคุณ"
+					/>
 
-								{/* 👤 Age Group */}
-								<FormField
-									control={form.control}
-									name="ageGroup"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>ช่วงอายุ *</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-												name="ageGroup"
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="เลือกช่วงอายุ" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{FORM_DATA.ageGroups.map((age) => (
-														<SelectItem key={age.value} value={age.value}>
-															{age.label}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+					<FormField
+						id="education"
+						label="ระดับการศึกษา"
+						name="education"
+						options={FORM_DATA.educationLevels}
+						icon={GraduationCap}
+						placeholder="เลือกระดับการศึกษาของคุณ"
+					/>
 
-								{/* 🎓 Education */}
-								<FormField
-									control={form.control}
-									name="education"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>ระดับการศึกษา *</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-												name="education"
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="เลือกระดับการศึกษา" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{FORM_DATA.educationLevels.map((edu) => (
-														<SelectItem key={edu.value} value={edu.value}>
-															{edu.label}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+					<FormField
+						id="occupation"
+						label="อาชีพ"
+						name="occupation"
+						options={FORM_DATA.occupations}
+						icon={Briefcase}
+						placeholder="เลือกอาชีพของคุณ"
+					/>
 
-								{/* 💼 Occupation */}
-								<FormField
-									control={form.control}
-									name="occupation"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>อาชีพ *</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-												name="occupation"
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="เลือกอาชีพ" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{FORM_DATA.occupations.map((occ) => (
-														<SelectItem key={occ.value} value={occ.value}>
-															{occ.label}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								{/* 🚀 Submit Button */}
-								<div className="pt-6">
-									<Button
-										type="submit"
-										disabled={isLoading}
-										className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-									>
-										{isLoading ? (
-											<>
-												<Loader2 className="mr-2 h-5 w-5 animate-spin" />
-												กำลังส่งข้อมูล...
-											</>
-										) : actionState.status === "success" ? (
-											<>
-												<CheckCircle className="mr-2 h-5 w-5" />
-												ส่งสำเร็จ!
-											</>
-										) : actionState.status === "error" ? (
-											<>
-												<AlertCircle className="mr-2 h-5 w-5" />
-												ลองใหม่อีกครั้ง
-											</>
-										) : (
-											"ส่งแบบสอบถาม"
-										)}
-									</Button>
-								</div>
-							</form>
-						</Form>
-					</CardContent>
-				</Card>
+					<div className="pt-4">
+						<SubmitButton />
+					</div>
+				</form>
 			</div>
 		</div>
 	);

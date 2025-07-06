@@ -95,12 +95,12 @@ export const useQuizResultStore = create<QuizResultStore>((set, get) => ({
 		try {
 			const correctAnswers = responses.filter((r) => r.isCorrect).length;
 
-			const summaryData: QuizSummaryData = {
-				sessionId,
-				totalQuestions,
-				correctAnswers,
-				deviceType: getDeviceType(),
-				userAgent: navigator.userAgent,
+			const summaryData = {
+				session_id: sessionId,
+				total_questions: totalQuestions,
+				correct_answers: correctAnswers,
+				device_type: getDeviceType(),
+				user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "",
 			};
 
 			const response = await fetch("/api/quiz-response", {
@@ -109,10 +109,17 @@ export const useQuizResultStore = create<QuizResultStore>((set, get) => ({
 				body: JSON.stringify(summaryData),
 			});
 
+			let resBody = null;
+			try {
+				resBody = await response.json();
+			} catch (e) {}
+
 			if (!response.ok) {
-				throw new Error("Failed to save quiz summary");
+				console.error(
+					"Error saving quiz summary:",
+					resBody?.message || "Failed to save quiz summary"
+				);
 			}
-			console.log("Quiz summary saved:", await response.json());
 		} catch (error) {
 			console.error("Error saving quiz summary:", error);
 		}

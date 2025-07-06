@@ -19,6 +19,7 @@ export const PinScenario = ({
 	disabled = false,
 }: PinScenarioProps) => {
 	const [value, setValue] = useState("");
+	const [answered, setAnswered] = useState(false);
 	const maxLength = 6;
 
 	// Handle number pad press
@@ -36,13 +37,15 @@ export const PinScenario = ({
 	// Handle cancel (Correct answer)
 	const handleCancel = () => {
 		if (disabled) return;
-		onAnswer(true); // ยกเลิก = คำตอบที่ถูก
+		setAnswered(true);
+		onAnswer(true);
 	};
 
 	// Handle confirm (Incorrect answer)
 	const handleConfirm = () => {
 		if (disabled) return;
-		onAnswer(false); // ยืนยัน = คำตอบที่ผิด (ถูกหลอก)
+		setAnswered(true);
+		onAnswer(false);
 	};
 
 	// Number pad layout
@@ -54,18 +57,23 @@ export const PinScenario = ({
 	];
 
 	return (
-		<div className="w-full max-w-[280px] mx-auto">
+		<div className={`relative w-full h-full${answered ? " dark" : ""}`}>
+			{/* Dark overlay เมื่อ answered */}
+			{answered && (
+				<div className="absolute inset-0 z-20 bg-blue-500/10 transition-opacity duration-500 pointer-events-none" />
+			)}
+
 			{/* Phone-like container with blue header */}
-			<div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+			<div className="bg-white dark:bg-blue-900 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
 				{/* Blue header - ลดจาก h-20 เป็น h-[60px] (25% น้อยลง) */}
-				<div className="bg-blue-600 h-[60px] flex items-center justify-center">
-					<div className="text-white text-sm font-medium">
+				<div className="bg-blue-600 dark:bg-blue-900 h-[60px] flex items-center justify-center">
+					<div className="text-white dark:text-[#054877] text-sm font-medium">
 						กรุณากรอกรหัสผ่าน
 					</div>
 				</div>
 
 				{/* PIN input display using InputOTP - ลด padding */}
-				<div className="bg-gray-50 px-4 py-3">
+				<div className="bg-gray-50 dark:bg-gray-800 px-4 py-3">
 					<div className="flex justify-center">
 						<InputOTP
 							maxLength={maxLength}
@@ -86,7 +94,7 @@ export const PinScenario = ({
 				</div>
 
 				{/* Number pad - ลด padding และ gap */}
-				<div className="p-3 bg-gray-50">
+				<div className="p-3 bg-gray-50 dark:bg-gray-800">
 					<div className="grid grid-cols-3 gap-0.5">
 						{numbers.flat().map((item, index) => {
 							if (item === "") {
@@ -100,7 +108,7 @@ export const PinScenario = ({
 										whileTap={{ scale: 0.95 }}
 										onClick={handleBackspace}
 										disabled={disabled || value.length === 0}
-										className="aspect-4/3 flex items-center justify-center bg-white rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
+										className="aspect-4/3 flex items-center justify-center bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-200"
 									>
 										<svg
 											className="w-5 h-5"
@@ -125,7 +133,7 @@ export const PinScenario = ({
 									whileTap={{ scale: 0.95 }}
 									onClick={() => handleNumberPress(item)}
 									disabled={disabled}
-									className="aspect-4/3 flex items-center justify-center bg-white rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
+									className="aspect-4/3 flex items-center justify-center bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-200"
 								>
 									{item}
 								</motion.button>
@@ -142,7 +150,7 @@ export const PinScenario = ({
 					size="lg"
 					onClick={handleCancel}
 					disabled={disabled}
-					className="flex-1 h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px]"
+					className="flex-1 h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px] bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
 				>
 					ยกเลิก
 				</Button>
@@ -151,7 +159,7 @@ export const PinScenario = ({
 					size="lg"
 					onClick={handleConfirm}
 					disabled={disabled}
-					className="flex-1 h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px]"
+					className="flex-1 h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px] bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
 				>
 					ยืนยัน
 				</Button>

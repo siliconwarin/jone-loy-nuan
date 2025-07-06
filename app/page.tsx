@@ -23,14 +23,14 @@ export default function Home() {
 					className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-2"
 					{...landingAnimation.title}
 				>
-					Jone Loy Nuan
+					รู้เท่าทันกลโกง!!
 				</motion.h1>
 
 				<motion.p
 					className="text-rose-600/80 mb-6"
 					{...landingAnimation.subtitle}
 				>
-					Scam Awareness Quiz
+					มิจฉาชีพออนไลน์
 				</motion.p>
 
 				{/* CTA Button */}

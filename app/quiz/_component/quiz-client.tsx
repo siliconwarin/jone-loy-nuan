@@ -13,6 +13,15 @@ import { AnswerPanel } from "./answer-panel";
 import { ResultCard } from "./result-card";
 import { QuizBackground } from "./quiz-background";
 
+// เพิ่ม getDeviceType utility
+function getDeviceType() {
+	if (typeof window === "undefined") return "desktop";
+	const width = window.innerWidth;
+	if (width < 640) return "mobile";
+	if (width < 1024) return "tablet";
+	return "desktop";
+}
+
 export function QuizClient({
 	initialQuestions,
 }: {
@@ -21,9 +30,6 @@ export function QuizClient({
 	const router = useRouter();
 	const startQuiz = useQuizResultStore((state) => state.startQuiz);
 	const addResponse = useQuizResultStore((state) => state.addResponse);
-	const saveQuizSummaryToApi = useQuizResultStore(
-		(state) => state.saveQuizSummaryToApi
-	);
 
 	// --- New State Management ---
 	const [questions] = useState(initialQuestions);
@@ -100,17 +106,34 @@ export function QuizClient({
 		});
 	};
 
-	const goToNextQuestion = () => {
+	const goToNextQuestion = async () => {
 		setShowResult(false);
 		setSelectedAnswer(null);
 
 		if (!isLastQuestion) {
 			setCurrentIndex((prevIndex) => prevIndex + 1);
 		} else {
-			// Complete quiz: save summary then navigate to survey
-			saveQuizSummaryToApi().finally(() => {
-				router.push("/survey");
-			});
+			// Complete quiz: save summary via API then navigate to survey
+			try {
+				const { sessionId, responses, totalQuestions } =
+					useQuizResultStore.getState();
+				const correctAnswers = responses.filter((r) => r.isCorrect).length;
+				await fetch("/api/quiz-response", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						session_id: sessionId,
+						total_questions: totalQuestions,
+						correct_answers: correctAnswers,
+						device_type: getDeviceType(),
+						user_agent:
+							typeof navigator !== "undefined" ? navigator.userAgent : "",
+					}),
+				});
+			} catch (err) {
+				console.error("Failed to save quiz summary:", err);
+			}
+			router.push("/survey");
 		}
 	};
 
@@ -129,9 +152,28 @@ export function QuizClient({
 	const handleReset = () => {
 		// ถ้าเป็นข้อสุดท้าย ให้ไป survey ทันทีเพื่อไม่โชว์ข้อซ้ำ
 		if (isLastQuestion) {
-			saveQuizSummaryToApi().finally(() => {
+			(async () => {
+				try {
+					const { sessionId, responses, totalQuestions } =
+						useQuizResultStore.getState();
+					const correctAnswers = responses.filter((r) => r.isCorrect).length;
+					await fetch("/api/quiz-response", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							session_id: sessionId,
+							total_questions: totalQuestions,
+							correct_answers: correctAnswers,
+							device_type: getDeviceType(),
+							user_agent:
+								typeof navigator !== "undefined" ? navigator.userAgent : "",
+						}),
+					});
+				} catch (err) {
+					console.error("Failed to save quiz summary:", err);
+				}
 				router.push("/survey");
-			});
+			})();
 			return;
 		}
 
@@ -140,7 +182,7 @@ export function QuizClient({
 		setTimeout(() => {
 			goToNextQuestion();
 			setIsTransitioning(false);
-		}, 1200);
+		}, 2000);
 	};
 
 	// Loading state ถ้ายังไม่มี currentQuestion หรือยังไม่พร้อม

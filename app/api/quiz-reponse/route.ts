@@ -1,6 +1,5 @@
-//todo: implement quiz response api
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 
 export async function POST(req: Request) {
 	try {
@@ -26,9 +25,11 @@ export async function POST(req: Request) {
 				{ status: 400 }
 			);
 		}
-
 		// บันทึกลง Supabase
-		const supabase = await createClient();
+		const supabase = createClient(
+			process.env.NEXT_PUBLIC_SUPABASE_URL!,
+			process.env.SUPABASE_SERVICE_ROLE_KEY!
+		);
 		const { error } = await supabase.from("quiz_responses").insert([
 			{
 				session_id: data.session_id,

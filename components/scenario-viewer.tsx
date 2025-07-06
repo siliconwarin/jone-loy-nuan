@@ -20,13 +20,6 @@ export const ScenarioViewer = ({
 	className,
 }: ScenarioViewerProps) => {
 	const currentImage = showResult ? result_image_url : normal_image_url;
-	console.log("ScenarioViewer debug", {
-		showResult,
-		normal_image_url,
-		result_image_url,
-		altText,
-		currentImage,
-	});
 	return (
 		<div className={cn("relative w-full max-w-md mx-auto", className)}>
 			<AnimatePresence mode="wait">
