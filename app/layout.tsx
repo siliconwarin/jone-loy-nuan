@@ -16,7 +16,7 @@ const prompt = Prompt({
 });
 
 export const metadata: Metadata = {
-	title: "Jone Loy Nuan - Scam Awareness Quiz",
+	title: "Scam Hunt",
 	description: "แบบทดสอบความรู้เรื่องการป้องกันการโกงออนไลน์ เริ่มต้นที่นี่",
 };
 
