@@ -42,6 +42,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+   /* Shadows */
+   --shadow-card: 0 10px 30px -5px (var(--accent) / 0.1);
+   --shadow-button: 0 4px 15px (var(--accent) / 0.3);
 }
 
 html, body {
@@ -126,6 +129,7 @@ html, body {
   --sidebar-accent-foreground: oklch(0.28 0.036 262.05);
   --sidebar-border: oklch(0.89 0.02 245.3);
   --sidebar-ring: oklch(0.595 0.214 252.85);
+  
 }
 
 .dark {
