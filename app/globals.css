@@ -91,6 +91,13 @@ html, body {
   opacity: 0; /* เริ่มต้นซ่อน */
 }
 
+/* ใช้ได้เลยใน Tailwind CSS */
+.safe-height {
+  height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 :root {
   --radius: 0.5rem;
   --background: oklch(1 0 0); /* 0 0% 100% */
