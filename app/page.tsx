@@ -15,10 +15,10 @@ export default function Home() {
 			className="min-h-screen bg-blue-50 px-4 py-8 flex flex-col justify-center items-center w-full safe-height pb-8"
 			{...landingAnimation.container}
 		>
-			<div className="relative z-10 flex flex-col items-center w-full max-w-sm">
+			<div className="relative z-10 flex flex-col items-center w-full max-w-sm -mt-20">
 				{/* Header Section */}
 				<motion.div className="text-center mb-8" {...landingAnimation.title}>
-					<motion.h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-2">
+					<motion.h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-2 -mt-8">
 						สแกนโจร.online
 					</motion.h1>
 					<motion.p
@@ -31,7 +31,7 @@ export default function Home() {
 
 				{/* Main Illustration */}
 				<motion.div
-					className="relative mb-8 w-full aspect-square overflow-hidden"
+					className="relative mb-8 w-full aspect-square overflow-hidden -mt-10"
 					{...landingAnimation.card}
 				>
 					<Image
@@ -55,7 +55,7 @@ export default function Home() {
 
 				{/* Footer with Logos */}
 				<motion.div
-					className="w-full flex items-center justify-between bg-white rounded-2xl px-6 py-4 shadow-md"
+					className="w-full h-24 flex items-center justify-between bg-white rounded-2xl px-6 -py-4 shadow-md"
 					{...landingAnimation.footer}
 				>
 					<div className="flex-1 flex items-center justify-center">
@@ -65,7 +65,7 @@ export default function Home() {
 							width={0}
 							height={0}
 							quality={100}
-							className="w-auto h-full object-contain"
+							className="w-auto h-full object-contain -py-6"
 						/>
 					</div>
 					<div className="flex-1 flex items-center justify-center">
@@ -75,7 +75,7 @@ export default function Home() {
 							width={0}
 							height={0}
 							quality={100}
-							className="w-auto h-full object-contain max-w-[90%]"
+							className="w-auto h-full object-contain max-w-[70%]"
 						/>
 					</div>
 				</motion.div>
