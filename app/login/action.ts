@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 
+
 export async function login(formData: FormData) {
 	const supabase = await createClient();
 
@@ -14,14 +15,32 @@ export async function login(formData: FormData) {
 		password: formData.get("password") as string,
 	};
 
-	const { error } = await supabase.auth.signInWithPassword(data);
+	const redirectTo = formData.get("redirectTo") as string;
+
+	const { error, data: authData } = await supabase.auth.signInWithPassword(
+		data
+	);
 
 	if (error) {
 		redirect("/error");
 	}
 
 	revalidatePath("/", "layout");
-	redirect("/admin/quizzes");
+	// Redirect to admin dashboard or the originally requested page
+	redirect(redirectTo || "/admin");
+}
+
+export async function logout() {
+	const supabase = await createClient();
+
+	const { error } = await supabase.auth.signOut();
+
+	if (error) {
+		console.error("Logout error:", error);
+	}
+
+	revalidatePath("/", "layout");
+	redirect("/");
 }
 
 export async function signup(formData: FormData) {

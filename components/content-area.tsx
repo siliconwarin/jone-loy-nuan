@@ -6,7 +6,7 @@ import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import { ScenarioViewer } from "./scenario-viewer";
 import { useMemo } from "react";
 import type { QuestionWithAnswers } from "@/lib/types";
-import { PinScenario } from "@/app/quiz/_component/pin-scenario";
+import PinScenario from "@/app/quiz/_component/pin-scenario";
 import Image from "next/image";
 
 export interface ContentAreaProps {

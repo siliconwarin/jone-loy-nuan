@@ -5,7 +5,7 @@ import { useEffect, useState, useTransition, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowUpDown, MoreHorizontal, Search } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Search, Eye } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
 	DropdownMenu,
@@ -52,17 +52,23 @@ const CellAction = ({ questionId }: { questionId: string }) => {
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				<DropdownMenuLabel>Actions</DropdownMenuLabel>
+				<DropdownMenuLabel>การจัดการ</DropdownMenuLabel>
 				<DropdownMenuItem asChild>
-					<Link href={`/admin/quizzes/${questionId}/edit`}>Edit</Link>
+					<Link href={`/quiz?preview=${questionId}`}>
+						<Eye className="mr-2 h-4 w-4" />
+						ดูตัวอย่าง
+					</Link>
+				</DropdownMenuItem>
+				<DropdownMenuItem asChild>
+					<Link href={`/admin/quizzes/${questionId}/edit`}>แก้ไขคำถาม</Link>
 				</DropdownMenuItem>
 				<DropdownMenuItem asChild>
 					<Link href={`/admin/quizzes/${questionId}/images`}>
-						Manage Images
+						จัดการรูปภาพ
 					</Link>
 				</DropdownMenuItem>
-				<DropdownMenuItem onSelect={handleDelete} disabled={isPending}>
-					Delete
+				<DropdownMenuItem onSelect={handleDelete} disabled={isPending} className="text-red-600">
+					ลบคำถาม
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
@@ -71,31 +77,63 @@ const CellAction = ({ questionId }: { questionId: string }) => {
 
 const columns: ColumnDef<Question>[] = [
 	{
+		accessorKey: "order_index",
+		header: "#",
+		cell: ({ row }) => (
+			<div className="w-12 text-center font-mono text-sm">
+				{row.original.order_index}
+			</div>
+		),
+	},
+	{
 		accessorKey: "question_text",
 		header: ({ column }) => (
 			<Button
 				variant="ghost"
 				onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
 			>
-				Question
+				คำถาม
 				<ArrowUpDown className="ml-2 h-4 w-4" />
 			</Button>
 		),
 		cell: ({ row }) => {
 			const text = row.original.question_text;
 			return (
-				<div className="pl-4 font-medium" title={text}>
-					{text.length > 80 ? `${text.substring(0, 80)}...` : text}
+				<div className="max-w-md" title={text}>
+					<div className="font-medium line-clamp-2">
+						{text.length > 100 ? `${text.substring(0, 100)}...` : text}
+					</div>
 				</div>
 			);
 		},
 	},
 	{
 		accessorKey: "category",
-		header: "Category",
+		header: "หมวดหมู่",
+		cell: ({ row }) => {
+			const category = row.original.category;
+			return (
+				<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+					{category}
+				</span>
+			);
+		},
+	},
+	{
+		accessorKey: "created_at",
+		header: "สร้างเมื่อ",
+		cell: ({ row }) => {
+			const date = new Date(row.original.created_at);
+			return (
+				<div className="text-sm text-gray-500">
+					{date.toLocaleDateString('th-TH')}
+				</div>
+			);
+		},
 	},
 	{
 		id: "actions",
+		header: "การจัดการ",
 		cell: ({ row }) => <CellAction questionId={row.original.id} />,
 	},
 ];
@@ -144,31 +182,39 @@ export default function AdminContent() {
 	};
 
 	return (
-		<div className="flex flex-col min-h-screen">
-			<header className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-white border-b gap-4">
-				<h1 className="text-xl font-semibold">จัดการ Quiz</h1>
-				<div className="flex items-center gap-4">
-					<form onSubmit={handleSearch} className="relative flex-1">
-						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-						<Input
-							name="query"
-							placeholder="ค้นหาคำถาม..."
-							defaultValue={query}
-							className="pl-9"
-						/>
-					</form>
-					<Button asChild>
-						<Link href="/admin/quizzes/new">เพิ่มคำถาม</Link>
-					</Button>
+		<div className="space-y-6">
+			{/* Header Section */}
+			<div className="flex justify-between items-center">
+				<div>
+					<h1 className="text-3xl font-bold text-gray-900">จัดการคำถาม Quiz</h1>
+					<p className="text-gray-600">จัดการคำถาม คำตอบ และเนื้อหา Quiz ความตระหนักเรื่องการหลอกลวงออนไลน์</p>
 				</div>
-			</header>
-			<main className="flex-1 p-4 md:p-6">
+				<Button asChild>
+					<Link href="/admin/quizzes/new">เพิ่มคำถาม</Link>
+				</Button>
+			</div>
+
+			{/* Search Section */}
+			<div className="flex items-center space-x-4">
+				<form onSubmit={handleSearch} className="relative flex-1 max-w-sm">
+					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+					<Input
+						name="query"
+						placeholder="ค้นหาคำถาม..."
+						defaultValue={query}
+						className="pl-9"
+					/>
+				</form>
+			</div>
+
+			{/* Data Table Section */}
+			<div className="bg-white border rounded-lg">
 				{isLoading ? (
 					<div className="text-center py-8 text-gray-500">Loading...</div>
 				) : (
 					<DataTable columns={columns} data={questions} />
 				)}
-			</main>
+			</div>
 		</div>
 	);
 }

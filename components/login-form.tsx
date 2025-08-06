@@ -11,10 +11,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login, signup } from "@/app/login/action";
 
+interface LoginFormProps extends React.ComponentProps<"div"> {
+	redirectTo?: string;
+	error?: string;
+}
+
 export function LoginForm({
 	className,
+	redirectTo,
+	error,
 	...props
-}: React.ComponentProps<"div">) {
+}: LoginFormProps) {
+	const getErrorMessage = (errorType: string | undefined) => {
+		switch (errorType) {
+			case "auth_failed":
+				return "Authentication failed. Please try again.";
+			case "no_session":
+				return "Session expired. Please login again.";
+			default:
+				return null;
+		}
+	};
+
 	return (
 		<div className={cn("flex flex-col gap-6", className)} {...props}>
 			<Card>
@@ -23,16 +41,24 @@ export function LoginForm({
 					<CardDescription>
 						Enter your email below to login to your account.
 					</CardDescription>
+					{error && (
+						<div className="mt-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+							{getErrorMessage(error)}
+						</div>
+					)}
 				</CardHeader>
 				<CardContent>
 					<form className="flex flex-col gap-6">
+						{redirectTo && (
+							<input type="hidden" name="redirectTo" value={redirectTo} />
+						)}
 						<div className="grid gap-3">
-							<Label htmlFor="email">Email</Label>
+							<Label htmlFor="username">Email</Label>
 							<Input
 								id="email"
 								name="email"
 								type="email"
-								placeholder="m@example.com"
+								placeholder="email@example.com"
 								required
 							/>
 						</div>

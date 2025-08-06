@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import AdminContent from "./AdminContent";
+import { AdminDashboard } from "@/components/admin-dashboard";
 
 export default function AdminPage() {
 	return (
 		<Suspense fallback={<div>Loading...</div>}>
-			<AdminContent />
+			<AdminDashboard />
 		</Suspense>
 	);
 }

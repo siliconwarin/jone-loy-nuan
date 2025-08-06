@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@supabase/supabase-js": "^2.50.3",
+    "@supabase/supabase-js": "^2.53.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.4",
     "@types/react": "^19",
