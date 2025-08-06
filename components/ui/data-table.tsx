@@ -8,6 +8,8 @@ import {
 	VisibilityState,
 	flexRender,
 	getCoreRowModel,
+	getFacetedRowModel,
+	getFacetedUniqueValues,
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
@@ -22,91 +24,54 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-	DropdownMenu,
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
+import { DataTablePagination } from "./data-table-pagination";
+import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
+	searchKey?: string;
 }
 
 export function DataTable<TData, TValue>({
 	columns,
 	data,
+	searchKey,
 }: DataTableProps<TData, TValue>) {
-	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [rowSelection, setRowSelection] = React.useState({});
+	const [columnVisibility, setColumnVisibility] =
+		React.useState<VisibilityState>({});
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[]
 	);
-	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({});
-	const [rowSelection, setRowSelection] = React.useState({});
+	const [sorting, setSorting] = React.useState<SortingState>([]);
 
 	const table = useReactTable({
 		data,
 		columns,
-		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
-		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		onColumnVisibilityChange: setColumnVisibility,
-		onRowSelectionChange: setRowSelection,
 		state: {
 			sorting,
-			columnFilters,
 			columnVisibility,
 			rowSelection,
+			columnFilters,
 		},
+		enableRowSelection: true,
+		onRowSelectionChange: setRowSelection,
+		onSortingChange: setSorting,
+		onColumnFiltersChange: setColumnFilters,
+		onColumnVisibilityChange: setColumnVisibility,
+		getCoreRowModel: getCoreRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFacetedRowModel: getFacetedRowModel(),
+		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 
 	return (
-		<div>
-			<div className="flex items-center py-4">
-				<Input
-					placeholder="Filter questions..."
-					value={
-						(table.getColumn("question_text")?.getFilterValue() as string) ?? ""
-					}
-					onChange={(event) =>
-						table.getColumn("question_text")?.setFilterValue(event.target.value)
-					}
-					className="max-w-sm"
-				/>
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="outline" className="ml-auto">
-							Columns
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						{table
-							.getAllColumns()
-							.filter((column) => column.getCanHide())
-							.map((column) => {
-								return (
-									<DropdownMenuCheckboxItem
-										key={column.id}
-										className="capitalize"
-										checked={column.getIsVisible()}
-										onCheckedChange={(value) =>
-											column.toggleVisibility(!!value)
-										}
-									>
-										{column.id}
-									</DropdownMenuCheckboxItem>
-								);
-							})}
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</div>
+		<div className="space-y-4">
+			<DataTableToolbar table={table} searchKey={searchKey} />
 			<div className="rounded-md border">
 				<Table>
 					<TableHeader>
@@ -114,7 +79,7 @@ export function DataTable<TData, TValue>({
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => {
 									return (
-										<TableHead key={header.id}>
+										<TableHead key={header.id} colSpan={header.colSpan}>
 											{header.isPlaceholder
 												? null
 												: flexRender(
@@ -150,31 +115,14 @@ export function DataTable<TData, TValue>({
 									colSpan={columns.length}
 									className="h-24 text-center"
 								>
-									No results.
+									ไม่พบข้อมูล
 								</TableCell>
 							</TableRow>
 						)}
 					</TableBody>
 				</Table>
 			</div>
-			<div className="flex items-center justify-end space-x-2 py-4">
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={() => table.previousPage()}
-					disabled={!table.getCanPreviousPage()}
-				>
-					Previous
-				</Button>
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={() => table.nextPage()}
-					disabled={!table.getCanNextPage()}
-				>
-					Next
-				</Button>
-			</div>
+			<DataTablePagination table={table} />
 		</div>
 	);
 }

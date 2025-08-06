@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { login, signup } from "@/app/login/action";
+import { login } from "@/app/login/action";
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
 	redirectTo?: string;
@@ -68,9 +68,6 @@ export function LoginForm({
 						</div>
 						<div className="flex flex-col gap-3">
 							<Button formAction={login}>Login</Button>
-							<Button formAction={signup} variant="outline">
-								Sign up
-							</Button>
 						</div>
 					</form>
 				</CardContent>

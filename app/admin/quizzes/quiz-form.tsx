@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useFormStatus } from "react-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,10 +24,27 @@ interface QuizUpsertFormProps {
 	initialData?: Partial<QuestionWithAnswers> | null;
 }
 
+// Submit Button Component with useFormStatus
+function SubmitButton({ initialData }: { initialData?: any }) {
+	const { pending } = useFormStatus();
+	return (
+		<Button type="submit" disabled={pending}>
+			{pending ? (
+				<>
+					<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+					{initialData?.id ? "กำลังอัพเดต..." : "กำลังสร้าง..."}
+				</>
+			) : (
+				initialData?.id ? "บันทึกการเปลี่ยนแปลง" : "สร้างคำถาม"
+			)}
+		</Button>
+	);
+}
+
 export function QuizUpsertForm({ initialData }: QuizUpsertFormProps) {
 	const router = useRouter();
-	const [state, formAction] = useActionState(upsertQuestion, null);
 	const [answers, setAnswers] = useState<any[]>([]);
+	const formRef = useRef<HTMLFormElement>(null);
 
 	// Parse initial answers from the initialData and convert to proper format
 	const initialAnswers = initialData?.answers ? 
@@ -36,18 +54,26 @@ export function QuizUpsertForm({ initialData }: QuizUpsertFormProps) {
 			isCorrect: answer.isCorrect || false
 		})) : []) : [];
 
-	useEffect(() => {
-		if (state?.error) {
-			toast.error(state.error);
+	// Handle form submission with better error handling
+	const handleSubmit = async (formData: FormData) => {
+		try {
+			const result = await upsertQuestion(null, formData);
+			if (result?.error) {
+				toast.error(result.error);
+			} else if (result?.success) {
+				toast.success("คำถามบันทึกเรียบร้อยแล้ว!");
+				// Refresh และ redirect after successful save
+				router.refresh();
+				router.push("/admin/quizzes");
+			}
+		} catch (error) {
+			toast.error("เกิดข้อผิดพลาด: " + (error as Error).message);
 		}
-		if (state && !state.error) {
-			toast.success("คำถามบันทึกเรียบร้อยแล้ว!");
-		}
-	}, [state]);
+	};
 
 	return (
 		<div className="space-y-6">
-			<form action={formAction} className="space-y-6">
+			<form ref={formRef} action={handleSubmit} className="space-y-6">
 				{/* Question Details Card */}
 				<Card>
 					<CardHeader>
@@ -128,9 +154,7 @@ export function QuizUpsertForm({ initialData }: QuizUpsertFormProps) {
 							>
 								ยกเลิก
 							</Button>
-							<Button type="submit">
-								{initialData?.id ? "บันทึกการเปลี่ยนแปลง" : "สร้างคำถาม"}
-							</Button>
+							<SubmitButton initialData={initialData} />
 						</div>
 					</CardContent>
 				</Card>

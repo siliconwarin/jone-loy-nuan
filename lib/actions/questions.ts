@@ -181,7 +181,9 @@ export async function upsertQuestion(
 
 		revalidatePath("/admin");
 		revalidatePath("/admin/quizzes");
-		redirect("/admin/quizzes");
+		
+		// Return success instead of redirecting
+		return { success: true };
 	} catch (e: unknown) {
 		const error = e as Error;
 		return { error: error.message };
@@ -203,5 +205,6 @@ export async function deleteQuestionAction(
 	}
 
 	revalidatePath("/admin");
+	revalidatePath("/admin/quizzes");
 	return { success: true };
 }

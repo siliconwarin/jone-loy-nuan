@@ -1,85 +1,92 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { useQuizAnimations } from "@/hooks/useQuizAnimations";
-import { ScenarioViewer } from "./scenario-viewer";
-import { useMemo } from "react";
-import type { QuestionWithAnswers } from "@/lib/types";
-import PinScenario from "@/app/quiz/_component/pin-scenario";
 import Image from "next/image";
+import PinScenario from "@/app/quiz/_component/pin-scenario";
+import type { QuestionWithAnswers } from "@/lib/types";
 
-export interface ContentAreaProps {
+interface ContentAreaProps {
 	questionData: QuestionWithAnswers;
-	className?: string;
-	variant?: "default" | "compact" | "fullscreen";
-	animate?: boolean;
-	showResult?: boolean;
+	showResult: boolean;
+	variant?: "fullscreen" | "preview";
+	onPinScenarioAnswer?: (isCorrect: boolean) => void;
 }
 
-export const ContentArea = ({
+export function ContentArea({
 	questionData,
-	className = "",
-	variant = "default",
-	animate = true,
-	showResult = false,
+	showResult,
+	variant = "fullscreen",
 	onPinScenarioAnswer,
-}: ContentAreaProps & {
-	onPinScenarioAnswer?: (isCorrect: boolean) => void;
-}) => {
-	// 🎨 Animation Logic - React Compiler Optimized
-	const { getContentMotionProps } = useQuizAnimations(showResult);
+}: ContentAreaProps) {
+	// สำหรับข้อแรก (PIN Scenario)
+	if (questionData.order_index === 1) {
+		return (
+			<div className="w-full h-full flex items-center justify-center">
+				<PinScenario onAnswer={onPinScenarioAnswer} disabled={showResult} />
+			</div>
+		);
+	}
 
-	// ใช้ useMemo เพื่อป้องกัน re-calculation
-	const variantStyles = useMemo(() => {
-		switch (variant) {
-			case "compact":
-				return "w-full max-w-[320px] sm:max-w-[360px] md:max-w-[400px]";
-			case "fullscreen":
-				return "max-w-4xl w-full";
-			default:
-				return "w-full max-w-[300px] sm:max-w-sm md:max-w-md";
-		}
-	}, [variant]);
+	// สำหรับข้ออื่นๆ (รูปภาพ)
+	const normalImageUrl = questionData.normal_image_url;
+	const resultImageUrl = questionData.result_image_url;
 
-	const motionProps = useMemo(() => {
-		if (!animate) return {};
-		return getContentMotionProps();
-	}, [animate, getContentMotionProps]);
-
-	// เช็คว่าข้อไหนต้องใช้ PinScenario (ใช้ order_index === 1 เท่านั้น เพราะไม่มี type ใน schema)
-	const isPinScenario = questionData.order_index === 1;
+	if (!normalImageUrl && !resultImageUrl) {
+		return (
+			<div className="w-full h-full flex items-center justify-center">
+				<div className="text-center text-gray-500">
+					<p>ไม่มีรูปภาพสำหรับคำถามนี้</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
-		<motion.div
-			layoutId={`content-area-${questionData.id}`}
-			className={cn("w-full mx-auto", variantStyles, className)}
-			{...motionProps}
-		>
-			{isPinScenario ? (
-				<div className="relative w-full flex justify-center items-center">
-					<PinScenario
-						onAnswer={onPinScenarioAnswer || (() => {})}
-						disabled={showResult}
-					/>
-					{showResult && (
+		<div className="w-full h-full flex items-center justify-center">
+			<motion.div
+				className="relative w-full max-w-md aspect-square"
+				initial={{ scale: 0.9, opacity: 0 }}
+				animate={{ scale: 1, opacity: 1 }}
+				transition={{ duration: 0.5 }}
+			>
+				{/* Normal Image */}
+				{normalImageUrl && (
+					<motion.div
+						className="absolute inset-0"
+						animate={{
+							opacity: showResult ? 0 : 1,
+							scale: showResult ? 0.8 : 1,
+						}}
+						transition={{ duration: 0.6 }}
+					>
 						<Image
-							src="/images/scenarios/question-1/redflag-pin.svg"
-							alt="Redflag"
+							src={normalImageUrl}
+							alt="Normal state"
 							fill
-							className="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
-							style={{ objectFit: "contain" }}
+							className="object-contain"
+							priority
 						/>
-					)}
-				</div>
-			) : (
-				<ScenarioViewer
-					showResult={showResult}
-					normal_image_url={questionData.normal_image_url}
-					result_image_url={questionData.result_image_url}
-					altText={questionData.question_text ?? "Scenario Image"}
-				/>
-			)}
-		</motion.div>
+					</motion.div>
+				)}
+
+				{/* Result Image */}
+				{resultImageUrl && showResult && (
+					<motion.div
+						className="absolute inset-0"
+						initial={{ opacity: 0, scale: 1.2 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ duration: 0.6, delay: 0.3 }}
+					>
+						<Image
+							src={resultImageUrl}
+							alt="Result state"
+							fill
+							className="object-contain"
+							priority
+						/>
+					</motion.div>
+				)}
+			</motion.div>
+		</div>
 	);
-};
+}
