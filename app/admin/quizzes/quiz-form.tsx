@@ -51,7 +51,7 @@ export function QuizUpsertForm({ initialData }: QuizUpsertFormProps) {
 		(Array.isArray(initialData.answers) ? initialData.answers.map((answer: any) => ({
 			id: answer.id || crypto.randomUUID(),
 			text: answer.text || answer.answer_text || "",
-			isCorrect: answer.isCorrect || false
+			isCorrect: answer.isCorrect ?? answer.is_correct ?? false
 		})) : []) : [];
 
 	// Handle form submission with better error handling
