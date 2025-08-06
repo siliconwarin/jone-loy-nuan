@@ -79,7 +79,7 @@ export async function fetchQuestionById(id: string) {
 
 	// หาคำถามที่ต้องการ
 	const question = data?.find((q: any) => q.id === id);
-	
+
 	if (!question) {
 		console.error("Question not found:", id);
 		return null;
@@ -115,14 +115,14 @@ export async function upsertQuestion(
 			}
 		}
 
-		// Validate: must have at least 2 answers and exactly 1 correct answer
+		// Validate: must have at least 2 answers and at least 1 correct answer
 		if (answers.length < 2) {
 			throw new Error("คำถามต้องมีอย่างน้อย 2 คำตอบ");
 		}
 
 		const correctAnswers = answers.filter((a: any) => a.isCorrect);
-		if (correctAnswers.length !== 1) {
-			throw new Error("คำถามต้องมีคำตอบที่ถูกต้องเพียง 1 ข้อ");
+		if (correctAnswers.length < 1) {
+			throw new Error("คำถามต้องมีคำตอบที่ถูกต้องอย่างน้อย 1 ข้อ");
 		}
 
 		let questionId = id;
@@ -174,7 +174,7 @@ export async function upsertQuestion(
 
 		revalidatePath("/admin");
 		revalidatePath("/admin/quizzes");
-		
+
 		// Return success instead of redirecting
 		return { success: true };
 	} catch (e: unknown) {
