@@ -39,8 +39,8 @@ const OTPSlot = ({
 			onClick={onClick}
 			className={`
         relative flex items-center justify-center
-        h-14 w-14 
-        text-xl font-semibold
+        h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14
+        text-lg sm:text-xl font-semibold
         bg-white border-2 rounded-lg
         transition-all duration-200 ease-in-out cursor-pointer
         ${
@@ -64,7 +64,7 @@ const OTPSlot = ({
 					animate={{ opacity: 1 }}
 					className="absolute inset-0 flex items-center justify-center"
 				>
-					<div className="w-0.5 h-7 bg-blue-500 rounded-full animate-blink" />
+					<div className="w-0.5 h-5 sm:h-6 md:h-7 bg-blue-500 rounded-full animate-blink" />
 				</motion.div>
 			)}
 		</motion.div>
@@ -90,7 +90,7 @@ const NumberPadButton = ({
 	variant = "number",
 }: NumberPadButtonProps) => {
 	if (variant === "empty") {
-		return <div className="h-16" />;
+		return <div className="h-12 sm:h-14 md:h-16" />;
 	}
 
 	const Icon =
@@ -109,7 +109,7 @@ const NumberPadButton = ({
 				/>
 			</svg>
 		) : (
-			<span className="text-2xl font-medium">{value}</span>
+			<span className="text-xl sm:text-2xl font-medium">{value}</span>
 		);
 
 	return (
@@ -119,7 +119,7 @@ const NumberPadButton = ({
 			onClick={onClick}
 			disabled={disabled}
 			className={`
-        h-16 bg-white flex items-center justify-center
+        h-12 sm:h-14 md:h-16 bg-white flex items-center justify-center
         rounded-xl border border-gray-200
         hover:bg-gray-50 hover:border-gray-300
         active:bg-gray-100
@@ -235,7 +235,7 @@ export default function IntegratedPinScenario({
 
 	return (
 		<div
-			className={`relative w-full max-w-md mx-auto p-4 ${
+			className={`relative w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto p-2 sm:p-4 ${
 				answered ? "opacity-60" : ""
 			}`}
 			onKeyDown={handleKeyDown}
@@ -258,23 +258,23 @@ export default function IntegratedPinScenario({
 				className="w-full bg-gradient-to-b from-gray-50 to-white rounded-2xl shadow-lg overflow-hidden border border-gray-200"
 			>
 				{/* Header */}
-				<div className="text-center pt-8 pb-6 px-6 bg-white">
+				<div className="text-center pt-4 sm:pt-6 md:pt-8 pb-4 sm:pb-6 px-4 sm:px-6 bg-white">
 					<motion.h3
 						initial={{ scale: 0.9 }}
 						animate={{ scale: 1 }}
-						className="text-xl font-semibold text-gray-800 mb-2"
+						className="text-lg sm:text-xl font-semibold text-gray-800 mb-2"
 					>
 						กรุณากรอกรหัสผ่าน
 					</motion.h3>
-					<p id="pin-instructions" className="text-sm text-gray-500">
+					<p id="pin-instructions" className="text-xs sm:text-sm text-gray-500">
 						ป้อนรหัส PIN 6 หลักเพื่อดำเนินการต่อ
 					</p>
 				</div>
 
 				{/* OTP Input Slots with Separator */}
-				<div className="flex justify-center items-center gap-1 px-6 pb-8 bg-white">
+				<div className="flex justify-center items-center gap-1 px-2 sm:px-4 md:px-6 pb-4 sm:pb-6 md:pb-8 bg-white">
 					{/* First group */}
-					<div className="flex gap-2">
+					<div className="flex gap-1 sm:gap-2">
 						{[0, 1, 2].map((index) => (
 							<OTPSlot
 								key={index}
@@ -290,7 +290,7 @@ export default function IntegratedPinScenario({
 					<OTPSeparator />
 
 					{/* Second group */}
-					<div className="flex gap-2">
+					<div className="flex gap-1 sm:gap-2">
 						{[3, 4, 5].map((index) => (
 							<OTPSlot
 								key={index}
@@ -304,22 +304,9 @@ export default function IntegratedPinScenario({
 					</div>
 				</div>
 
-				{/* Error message */}
-				{hasError && (
-					<motion.div
-						initial={{ height: 0, opacity: 0 }}
-						animate={{ height: "auto", opacity: 1 }}
-						className="px-6 pb-4 bg-white"
-					>
-						<p className="text-center text-sm text-red-500">
-							กรุณากรอกรหัส PIN ให้ครบ 6 หลัก
-						</p>
-					</motion.div>
-				)}
-
 				{/* Number Pad */}
-				<div className="bg-gray-50 px-4 pb-6 pt-2">
-					<div className="grid grid-cols-3 gap-2">
+				<div className="bg-gray-50 px-2 sm:px-4 pb-4 sm:pb-6 pt-2">
+					<div className="grid grid-cols-3 gap-1 sm:gap-2">
 						{numberPadLayout.flat().map((item, index) => {
 							if (item === "empty") {
 								return <NumberPadButton key={index} variant="empty" value="" />;
@@ -355,7 +342,7 @@ export default function IntegratedPinScenario({
 				initial={{ y: 20, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ delay: 0.1 }}
-				className="flex gap-3 mt-6"
+				className="flex gap-2 sm:gap-3 mt-4 sm:mt-6"
 			>
 				<motion.button
 					whileHover={{ scale: 1.02 }}
@@ -363,7 +350,7 @@ export default function IntegratedPinScenario({
 					onClick={handleCancel}
 					disabled={disabled || answered}
 					className="
-            flex-1 h-12 text-base
+            flex-1 h-10 sm:h-12 text-sm sm:text-base
             bg-white text-gray-700 
             border-2 border-gray-300 rounded-xl
             hover:bg-gray-50 hover:border-gray-400
@@ -382,7 +369,7 @@ export default function IntegratedPinScenario({
 					onClick={handleConfirm}
 					disabled={disabled || answered}
 					className={`
-            flex-1 h-12 text-base
+            flex-1 h-10 sm:h-12 text-sm sm:text-base
             bg-gradient-to-r from-gray-800 to-gray-700 text-white 
             border-2 border-gray-800 rounded-xl
             hover:from-gray-700 hover:to-gray-600
@@ -401,18 +388,6 @@ export default function IntegratedPinScenario({
 					ยืนยัน
 				</motion.button>
 			</motion.div>
-
-			{/* Progress indicator */}
-			<div className="mt-4 px-4">
-				<div className="h-1 bg-gray-200 rounded-full overflow-hidden">
-					<motion.div
-						initial={{ width: 0 }}
-						animate={{ width: `${(value.length / maxLength) * 100}%` }}
-						className="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full"
-						transition={{ type: "spring", stiffness: 300, damping: 30 }}
-					/>
-				</div>
-			</div>
 
 			<style jsx>{`
 				@keyframes blink {
