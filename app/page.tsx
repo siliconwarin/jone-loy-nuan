@@ -55,27 +55,27 @@ export default function Home() {
 
 				{/* Footer with Logos */}
 				<motion.div
-					className="w-full flex items-center justify-center space-x-6 bg-white rounded-2xl px-4 shadow-md"
+					className="w-full flex items-center justify-between bg-white rounded-2xl px-6 py-4 shadow-md"
 					{...landingAnimation.footer}
 				>
-					<div className="flex items-center">
+					<div className="flex-1 flex items-center justify-center">
 						<Image
 							src="/Logo_TMF_left.svg"
 							alt="กองทุนพัฒนาสื่อ ปลอดภัยและสร้างสรรค์"
 							width={0}
 							height={0}
 							quality={100}
-							className="w-full h-auto object-contain"
+							className="w-auto h-full object-contain"
 						/>
 					</div>
-					<div className="flex items-center justify-center scale-90">
+					<div className="flex-1 flex items-center justify-center">
 						<Image
 							src="/Logo_BoT_right.svg"
 							alt="ธนาคารแห่งประเทศไทย"
 							width={0}
 							height={0}
 							quality={100}
-							className="w-full h-auto object-contain"
+							className="w-auto h-full object-contain max-w-[90%]"
 						/>
 					</div>
 				</motion.div>
