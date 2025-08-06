@@ -28,13 +28,13 @@ export function AnswerFields({
 	const formatAnswers = (answers: any[]): Answer[] => {
 		if (!Array.isArray(answers)) return [];
 
-		return answers.map((answer) => {
+		return answers.map((answer, index) => {
 			// รองรับทั้ง format เก่าและใหม่
 			const answerText = answer.text || answer.answer_text || "";
-			const isCorrect = answer.isCorrect || answer.is_correct || false;
+			const isCorrect = answer.isCorrect ?? answer.is_correct ?? false;
 
 			return {
-				id: answer.id || crypto.randomUUID(),
+				id: answer.id || `answer-${index}-${Date.now()}`,
 				text: answerText,
 				isCorrect: Boolean(isCorrect),
 			};
@@ -57,27 +57,33 @@ export function AnswerFields({
 	});
 
 	const [correctAnswerId, setCorrectAnswerId] = useState<string>(() => {
-		const correct = answers.find((a) => a.isCorrect);
+		const formatted = formatAnswers(initialAnswers);
+		const correct = formatted.find((a) => a.isCorrect);
 		return correct?.id || "";
 	});
 
 	// Sync เมื่อ initialAnswers เปลี่ยน
 	useEffect(() => {
+		console.log("AnswerFields: initialAnswers changed", initialAnswers);
 		const formatted = formatAnswers(initialAnswers);
+		console.log("AnswerFields: formatted answers", formatted);
 		if (formatted.length > 0) {
 			const limitedAnswers = formatted.slice(0, 4);
 			setAnswers(limitedAnswers);
 			const correct = limitedAnswers.find((a) => a.isCorrect);
+			console.log("AnswerFields: correct answer", correct);
 			setCorrectAnswerId(correct?.id || "");
 		}
 	}, [initialAnswers]);
 
 	const updateAnswers = (newAnswers: Answer[]) => {
+		console.log("AnswerFields: updateAnswers called with", newAnswers);
 		setAnswers(newAnswers);
 		onChange(newAnswers);
 	};
 
 	const handleTextChange = (id: string, text: string) => {
+		console.log("AnswerFields: handleTextChange called", { id, text });
 		const newAnswers = answers.map((answer) =>
 			answer.id === id ? { ...answer, text } : answer
 		);
@@ -85,11 +91,13 @@ export function AnswerFields({
 	};
 
 	const handleCorrectChange = (answerId: string) => {
+		console.log("AnswerFields: handleCorrectChange called with", answerId);
 		setCorrectAnswerId(answerId);
 		const newAnswers = answers.map((answer) => ({
 			...answer,
 			isCorrect: answer.id === answerId,
 		}));
+		console.log("AnswerFields: newAnswers after correct change", newAnswers);
 		updateAnswers(newAnswers);
 	};
 
@@ -117,6 +125,8 @@ export function AnswerFields({
 		answers.length >= 2 &&
 		correctAnswersCount === 1 &&
 		answers.every((a) => a.text.trim().length > 0);
+
+	console.log("AnswerFields render:", { answers, correctAnswerId, initialAnswers });
 
 	return (
 		<Card>
@@ -148,11 +158,12 @@ export function AnswerFields({
 						เลือกคำตอบที่ถูกต้อง: <span className="text-red-500">*</span>
 					</Label>
 					<RadioGroup
-						value={correctAnswerId}
+						value={correctAnswerId || ""}
 						onValueChange={handleCorrectChange}
+						className="space-y-2"
 					>
 						{answers.map((answer, index) => (
-							<div key={answer.id} className="space-y-2">
+							<div key={`answer-${index}-${answer.id}`} className="space-y-2">
 								<div className="flex items-start space-x-3 p-3 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
 									<RadioGroupItem
 										value={answer.id}

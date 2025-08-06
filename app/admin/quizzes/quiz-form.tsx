@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import { toast } from "sonner";
@@ -47,12 +47,17 @@ export function QuizUpsertForm({ initialData }: QuizUpsertFormProps) {
 	const formRef = useRef<HTMLFormElement>(null);
 
 	// Parse initial answers from the initialData and convert to proper format
-	const initialAnswers = initialData?.answers ? 
-		(Array.isArray(initialData.answers) ? initialData.answers.map((answer: any) => ({
-			id: answer.id || crypto.randomUUID(),
-			text: answer.text || answer.answer_text || "",
-			isCorrect: answer.isCorrect ?? answer.is_correct ?? false
-		})) : []) : [];
+	const initialAnswers = useMemo(() => {
+		console.log("QuizUpsertForm: initialData", initialData);
+		const result = initialData?.answers ? 
+			(Array.isArray(initialData.answers) ? initialData.answers.map((answer: any) => ({
+				id: answer.id || crypto.randomUUID(),
+				text: answer.text || answer.answer_text || "",
+				isCorrect: answer.isCorrect ?? answer.is_correct ?? false
+			})) : []) : [];
+		console.log("QuizUpsertForm: initialAnswers", result);
+		return result;
+	}, [initialData]);
 
 	// Handle form submission with better error handling
 	const handleSubmit = async (formData: FormData) => {
