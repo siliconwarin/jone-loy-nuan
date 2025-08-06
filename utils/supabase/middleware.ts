@@ -62,11 +62,31 @@ export async function updateSession(request: NextRequest) {
 			},
 		});
 
-		// this will refresh session cookie, ignore result
-		await supabase.auth.getUser();
+		// Get user session for authentication check
+		const { data: { user }, error } = await supabase.auth.getUser();
+		
+		// Check if accessing admin routes
+		const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+		
+		if (isAdminRoute) {
+			// If no user or error getting user, redirect to login
+			if (!user || error) {
+				const loginUrl = new URL('/login', request.url);
+				loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname);
+				return NextResponse.redirect(loginUrl);
+			}
+		}
 	} catch (error) {
 		console.error("[middleware] updateSession error", error);
-		// Return the original response even if session fetch fails
+		
+		// If error and accessing admin routes, redirect to login
+		if (request.nextUrl.pathname.startsWith('/admin')) {
+			const loginUrl = new URL('/login', request.url);
+			loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname);
+			return NextResponse.redirect(loginUrl);
+		}
+		
+		// Return the original response even if session fetch fails for non-admin routes
 		return response;
 	}
 

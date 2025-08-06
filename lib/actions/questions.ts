@@ -95,10 +95,7 @@ export async function fetchQuestionById(id: string) {
 	return questionWithImages;
 }
 
-// UPSERT question action
-// This now needs to handle answers separately.
-// For simplicity, we'll focus on fetching first.
-// The upsert form needs a major refactor to handle separate answer fields.
+// Enhanced UPSERT question with answers
 export async function upsertQuestion(
 	previousState: { error: string } | null,
 	formData: FormData
@@ -107,11 +104,35 @@ export async function upsertQuestion(
 	const id = formData.get("id") as string | null;
 
 	try {
+		// Parse question data
 		const questionData = {
 			question_text: formData.get("question_text") as string,
 			category: formData.get("category") as string,
 			order_index: Number(formData.get("order_index")),
 		};
+
+		// Parse answers data (JSON string from form)
+		const answersJson = formData.get("answers") as string;
+		let answers = [];
+		if (answersJson) {
+			try {
+				answers = JSON.parse(answersJson);
+			} catch {
+				throw new Error("Invalid answers format");
+			}
+		}
+
+		// Validate: must have at least 2 answers and exactly 1 correct answer
+		if (answers.length < 2) {
+			throw new Error("คำถามต้องมีอย่างน้อย 2 คำตอบ");
+		}
+
+		const correctAnswers = answers.filter((a: any) => a.isCorrect);
+		if (correctAnswers.length !== 1) {
+			throw new Error("คำถามต้องมีคำตอบที่ถูกต้องเพียง 1 ข้อ");
+		}
+
+		let questionId = id;
 
 		if (id) {
 			// Update existing question
@@ -120,18 +141,47 @@ export async function upsertQuestion(
 				.update(questionData)
 				.eq("id", id);
 			if (error) throw error;
+
+			// Delete existing answers
+			const { error: deleteError } = await supabase
+				.from("answers")
+				.delete()
+				.eq("question_id", id);
+			if (deleteError) throw deleteError;
 		} else {
 			// Create new question
-			const { error } = await supabase.from("questions").insert({
-				...questionData,
-				content: {}, // Provide default empty JSON
-				result: {}, // Provide default empty JSON
-			});
+			const { data: newQuestion, error } = await supabase
+				.from("questions")
+				.insert({
+					...questionData,
+					content: {},
+					result: {},
+				})
+				.select("id")
+				.single();
+
 			if (error) throw error;
+			questionId = newQuestion.id;
+		}
+
+		// Insert new answers
+		if (answers.length > 0 && questionId) {
+			const answersData = answers.map((answer: any) => ({
+				question_id: questionId,
+				answer_text: answer.text,
+				is_correct: answer.isCorrect,
+			}));
+
+			const { error: answersError } = await supabase
+				.from("answers")
+				.insert(answersData);
+
+			if (answersError) throw answersError;
 		}
 
 		revalidatePath("/admin");
-		redirect("/admin");
+		revalidatePath("/admin/quizzes");
+		redirect("/admin/quizzes");
 	} catch (e: unknown) {
 		const error = e as Error;
 		return { error: error.message };

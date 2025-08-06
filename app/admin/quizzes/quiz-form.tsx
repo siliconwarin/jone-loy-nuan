@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { upsertQuestion } from "@/lib/actions/questions";
 import { QuestionWithAnswers } from "@/lib/types";
+import { AnswerFields } from "@/components/admin/answer-fields";
 
 interface QuizUpsertFormProps {
 	initialData?: Partial<QuestionWithAnswers> | null;
@@ -25,76 +26,115 @@ interface QuizUpsertFormProps {
 export function QuizUpsertForm({ initialData }: QuizUpsertFormProps) {
 	const router = useRouter();
 	const [state, formAction] = useActionState(upsertQuestion, null);
+	const [answers, setAnswers] = useState<any[]>([]);
+
+	// Parse initial answers from the initialData and convert to proper format
+	const initialAnswers = initialData?.answers ? 
+		(Array.isArray(initialData.answers) ? initialData.answers.map((answer: any) => ({
+			id: answer.id || crypto.randomUUID(),
+			text: answer.text || answer.answer_text || "",
+			isCorrect: answer.isCorrect || false
+		})) : []) : [];
 
 	useEffect(() => {
 		if (state?.error) {
 			toast.error(state.error);
 		}
+		if (state && !state.error) {
+			toast.success("คำถามบันทึกเรียบร้อยแล้ว!");
+		}
 	}, [state]);
 
 	return (
-		<form action={formAction}>
-			<Card>
-				<CardHeader>
-					<CardTitle>
-						{initialData?.id ? "Edit Question" : "Create New Question"}
-					</CardTitle>
-					<CardDescription>
-						{initialData?.id
-							? "Make changes to the question here."
-							: "Add a new question to the quiz."}{" "}
-						Click save when you&apos;re done.
-					</CardDescription>
-				</CardHeader>
-				<CardContent className="grid gap-4 py-4">
-					{initialData?.id && (
-						<input type="hidden" name="id" value={initialData.id} />
-					)}
+		<div className="space-y-6">
+			<form action={formAction} className="space-y-6">
+				{/* Question Details Card */}
+				<Card>
+					<CardHeader>
+						<CardTitle>
+							{initialData?.id ? "แก้ไขคำถาม" : "สร้างคำถามใหม่"}
+						</CardTitle>
+						<CardDescription>
+							{initialData?.id
+								? "แก้ไขข้อมูลคำถามและคำตอบ"
+								: "เพิ่มคำถามและคำตอบใหม่ลงในระบบ"}
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="space-y-6">
+						{initialData?.id && (
+							<input type="hidden" name="id" value={initialData.id} />
+						)}
 
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="question_text" className="text-right">
-							Question
-						</Label>
-						<Textarea
-							id="question_text"
-							name="question_text"
-							defaultValue={initialData?.question_text ?? ""}
-							className="col-span-3"
-							required
-						/>
-					</div>
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="category" className="text-right">
-							Category
-						</Label>
-						<Input
-							id="category"
-							name="category"
-							defaultValue={initialData?.category ?? ""}
-							className="col-span-3"
-						/>
-					</div>
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="order_index" className="text-right">
-							Order
-						</Label>
-						<Input
-							id="order_index"
-							name="order_index"
-							type="number"
-							defaultValue={initialData?.order_index ?? ""}
-							className="col-span-3"
-							required
-						/>
-					</div>
-				</CardContent>
-				<CardFooter className="justify-end gap-2">
-					<Button type="button" variant="outline" onClick={() => router.back()}>
-						Cancel
-					</Button>
-					<Button type="submit">Save changes</Button>
-				</CardFooter>
-			</Card>
-		</form>
+						{/* Question Text */}
+						<div className="space-y-2">
+							<Label htmlFor="question_text">
+								คำถาม <span className="text-red-500">*</span>
+							</Label>
+							<Textarea
+								id="question_text"
+								name="question_text"
+								defaultValue={initialData?.question_text ?? ""}
+								placeholder="กรอกคำถามสำหรับ Quiz..."
+								rows={3}
+								required
+							/>
+						</div>
+
+						{/* Category */}
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="space-y-2">
+								<Label htmlFor="category">หมวดหมู่</Label>
+								<Input
+									id="category"
+									name="category"
+									defaultValue={initialData?.category ?? ""}
+									placeholder="เช่น การหลอกลวงออนไลน์"
+								/>
+							</div>
+
+							{/* Order Index */}
+							<div className="space-y-2">
+								<Label htmlFor="order_index">
+									ลำดับคำถาม <span className="text-red-500">*</span>
+								</Label>
+								<Input
+									id="order_index"
+									name="order_index"
+									type="number"
+									min="1"
+									defaultValue={initialData?.order_index ?? ""}
+									placeholder="1"
+									required
+								/>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+
+				{/* Answers Management */}
+				<AnswerFields 
+					initialAnswers={initialAnswers}
+					onChange={setAnswers}
+				/>
+
+				{/* Action Buttons */}
+				<Card>
+					<CardContent className="pt-6">
+						<div className="flex justify-end gap-3">
+							<Button 
+								type="button" 
+								variant="outline" 
+								onClick={() => router.back()}
+							>
+								ยกเลิก
+							</Button>
+							<Button type="submit">
+								{initialData?.id ? "บันทึกการเปลี่ยนแปลง" : "สร้างคำถาม"}
+							</Button>
+						</div>
+					</CardContent>
+				</Card>
+			</form>
+		</div>
 	);
 }

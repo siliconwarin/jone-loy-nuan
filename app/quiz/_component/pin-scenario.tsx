@@ -72,15 +72,6 @@ const OTPSlot = ({
 };
 
 /**
- * OTP Group Separator Component
- */
-const OTPSeparator = () => (
-	<div className="flex items-center justify-center w-4">
-		<div className="w-2 h-0.5 bg-gray-300 rounded-full" />
-	</div>
-);
-
-/**
  * Number Pad Button Component
  */
 const NumberPadButton = ({
@@ -271,37 +262,18 @@ export default function IntegratedPinScenario({
 					</p>
 				</div>
 
-				{/* OTP Input Slots with Separator */}
+				{/* OTP Input Slots */}
 				<div className="flex justify-center items-center gap-1 px-2 sm:px-4 md:px-6 pb-4 sm:pb-6 md:pb-8 bg-white">
-					{/* First group */}
-					<div className="flex gap-1 sm:gap-2">
-						{[0, 1, 2].map((index) => (
-							<OTPSlot
-								key={index}
-								value={value[index] || ""}
-								isActive={index === activeIndex}
-								index={index}
-								onClick={() => handleSlotClick(index)}
-								hasError={hasError}
-							/>
-						))}
-					</div>
-
-					<OTPSeparator />
-
-					{/* Second group */}
-					<div className="flex gap-1 sm:gap-2">
-						{[3, 4, 5].map((index) => (
-							<OTPSlot
-								key={index}
-								value={value[index] || ""}
-								isActive={index === activeIndex}
-								index={index}
-								onClick={() => handleSlotClick(index)}
-								hasError={hasError}
-							/>
-						))}
-					</div>
+					{[0, 1, 2, 3, 4, 5].map((index) => (
+						<OTPSlot
+							key={index}
+							value={value[index] || ""}
+							isActive={index === activeIndex}
+							index={index}
+							onClick={() => handleSlotClick(index)}
+							hasError={hasError}
+						/>
+					))}
 				</div>
 
 				{/* Number Pad */}

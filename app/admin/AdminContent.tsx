@@ -114,8 +114,35 @@ const columns: ColumnDef<Question>[] = [
 			const category = row.original.category;
 			return (
 				<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-					{category}
+					{category || "ไม่มีหมวดหมู่"}
 				</span>
+			);
+		},
+	},
+	{
+		accessorKey: "answers",
+		header: "คำตอบ",
+		cell: ({ row }) => {
+			const answers = row.original.answers;
+			const answerCount = Array.isArray(answers) ? answers.length : 0;
+			const correctAnswers = Array.isArray(answers) ? 
+				answers.filter((a: any) => a.isCorrect).length : 0;
+			
+			return (
+				<div className="flex items-center gap-2">
+					<span className="text-sm font-mono">
+						{answerCount} ข้อ
+					</span>
+					{correctAnswers === 1 ? (
+						<span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+							✓
+						</span>
+					) : (
+						<span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+							✗
+						</span>
+					)}
+				</div>
 			);
 		},
 	},
