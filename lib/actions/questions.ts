@@ -69,30 +69,23 @@ export async function fetchQuizQuestions() {
 export async function fetchQuestionById(id: string) {
 	const supabase = await createClient();
 
-	const { data, error } = await supabase
-		.from("questions")
-		.select(
-			`
-			*,
-			answers (*)
-		`
-		)
-		.eq("id", id)
-		.single();
+	// ใช้ get_questions_with_answers function เพื่อให้ได้ format ข้อมูลที่สม่ำเสมอ
+	const { data, error } = await supabase.rpc("get_questions_with_answers");
 
 	if (error) {
-		console.error("Error fetching question:", error);
+		console.error("Error fetching questions:", error);
 		return null;
 	}
 
-	// เพิ่ม static image URLs
-	const questionWithImages = {
-		...data,
-		normal_image_url: `/images/scenarios/${id}/normal.svg`,
-		result_image_url: `/images/scenarios/${id}/result.svg`,
-	};
+	// หาคำถามที่ต้องการ
+	const question = data?.find((q: any) => q.id === id);
 
-	return questionWithImages;
+	if (!question) {
+		console.error("Question not found:", id);
+		return null;
+	}
+
+	return question;
 }
 
 // Enhanced UPSERT question with answers
@@ -122,14 +115,14 @@ export async function upsertQuestion(
 			}
 		}
 
-		// Validate: must have at least 2 answers and exactly 1 correct answer
+		// Validate: must have at least 2 answers and at least 1 correct answer
 		if (answers.length < 2) {
 			throw new Error("คำถามต้องมีอย่างน้อย 2 คำตอบ");
 		}
 
 		const correctAnswers = answers.filter((a: any) => a.isCorrect);
-		if (correctAnswers.length !== 1) {
-			throw new Error("คำถามต้องมีคำตอบที่ถูกต้องเพียง 1 ข้อ");
+		if (correctAnswers.length < 1) {
+			throw new Error("คำถามต้องมีคำตอบที่ถูกต้องอย่างน้อย 1 ข้อ");
 		}
 
 		let questionId = id;
@@ -181,7 +174,7 @@ export async function upsertQuestion(
 
 		revalidatePath("/admin");
 		revalidatePath("/admin/quizzes");
-		
+
 		// Return success instead of redirecting
 		return { success: true };
 	} catch (e: unknown) {

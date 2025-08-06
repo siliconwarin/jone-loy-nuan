@@ -46,12 +46,12 @@ export function QuizUpsertForm({ initialData }: QuizUpsertFormProps) {
 	const [answers, setAnswers] = useState<any[]>([]);
 	const formRef = useRef<HTMLFormElement>(null);
 
-	// Parse initial answers from the initialData and convert to proper format
+	// Simple initial answers parsing
 	const initialAnswers = initialData?.answers ? 
 		(Array.isArray(initialData.answers) ? initialData.answers.map((answer: any) => ({
 			id: answer.id || crypto.randomUUID(),
 			text: answer.text || answer.answer_text || "",
-			isCorrect: answer.isCorrect || false
+			isCorrect: answer.isCorrect ?? answer.is_correct ?? false
 		})) : []) : [];
 
 	// Handle form submission with better error handling
