@@ -28,6 +28,8 @@ export function QuizClient({
 	initialQuestions: QuestionWithAnswers[];
 }) {
 	const router = useRouter();
+
+	// Zustand store hooks with error handling
 	const startQuiz = useQuizResultStore((state) => state.startQuiz);
 	const addResponse = useQuizResultStore((state) => state.addResponse);
 
@@ -39,16 +41,22 @@ export function QuizClient({
 	const [isTransitioning, setIsTransitioning] = useState(false);
 	const [isQuizReady, setIsQuizReady] = useState(false);
 
-	// Start quiz session on component mount
+	// Start quiz session on component mount with error handling
 	useEffect(() => {
-		startQuiz(initialQuestions.length);
+		try {
+			startQuiz(initialQuestions.length);
 
-		// รอให้ transition จบก่อนแสดง quiz content
-		const timer = setTimeout(() => {
+			// รอให้ transition จบก่อนแสดง quiz content
+			const timer = setTimeout(() => {
+				setIsQuizReady(true);
+			}, 100);
+
+			return () => clearTimeout(timer);
+		} catch (error) {
+			console.error("Error starting quiz:", error);
+			// Fallback: set quiz ready even if store fails
 			setIsQuizReady(true);
-		}, 100);
-
-		return () => clearTimeout(timer);
+		}
 	}, [startQuiz, initialQuestions.length]);
 
 	const currentQuestion = useMemo(() => {

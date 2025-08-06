@@ -1,169 +1,435 @@
 "use client";
-
-import { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-} from "@/components/ui/input-otp";
-import { Button } from "@/components/ui/button";
 
-interface PinScenarioProps {
-	onAnswer: (isCorrect: boolean) => void;
+// Type definitions
+interface OTPSlotProps {
+	value: string;
+	isActive: boolean;
+	index: number;
+	onClick: () => void;
+	hasError?: boolean;
+}
+
+interface NumberPadButtonProps {
+	value?: string;
+	onClick?: () => void;
+	disabled?: boolean;
+	variant?: "number" | "backspace" | "empty";
+}
+
+interface IntegratedPinScenarioProps {
+	onAnswer?: (isCorrect: boolean) => void;
 	disabled?: boolean;
 }
 
-export const PinScenario = ({
-	onAnswer,
+/**
+ * OTP Input Slot Component - shadcn/ui style with enhanced features
+ */
+const OTPSlot = ({
+	value,
+	isActive,
+	index,
+	onClick,
+	hasError = false,
+}: OTPSlotProps) => {
+	return (
+		<motion.div
+			whileTap={{ scale: 0.95 }}
+			onClick={onClick}
+			className={`
+        relative flex items-center justify-center
+        h-14 w-14 
+        text-xl font-semibold
+        bg-white border-2 rounded-lg
+        transition-all duration-200 ease-in-out cursor-pointer
+        ${
+					isActive
+						? "border-blue-500 ring-2 ring-blue-100 shadow-sm"
+						: value
+						? "border-gray-400"
+						: "border-gray-300 hover:border-gray-400"
+				}
+        ${hasError ? "border-red-500 bg-red-50" : ""}
+        ${value ? "text-gray-900" : "text-gray-400"}
+      `}
+			role="textbox"
+			aria-label={`PIN digit ${index + 1}`}
+			aria-describedby="pin-instructions"
+		>
+			<span className={value ? "block" : "hidden"}>{value ? "•" : ""}</span>
+			{isActive && !value && (
+				<motion.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					className="absolute inset-0 flex items-center justify-center"
+				>
+					<div className="w-0.5 h-7 bg-blue-500 rounded-full animate-blink" />
+				</motion.div>
+			)}
+		</motion.div>
+	);
+};
+
+/**
+ * OTP Group Separator Component
+ */
+const OTPSeparator = () => (
+	<div className="flex items-center justify-center w-4">
+		<div className="w-2 h-0.5 bg-gray-300 rounded-full" />
+	</div>
+);
+
+/**
+ * Number Pad Button Component
+ */
+const NumberPadButton = ({
+	value = "",
+	onClick,
 	disabled = false,
-}: PinScenarioProps) => {
+	variant = "number",
+}: NumberPadButtonProps) => {
+	if (variant === "empty") {
+		return <div className="h-16" />;
+	}
+
+	const Icon =
+		variant === "backspace" ? (
+			<svg
+				className="w-6 h-6"
+				fill="none"
+				stroke="currentColor"
+				viewBox="0 0 24 24"
+				strokeWidth={2}
+			>
+				<path
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"
+				/>
+			</svg>
+		) : (
+			<span className="text-2xl font-medium">{value}</span>
+		);
+
+	return (
+		<motion.button
+			whileTap={{ scale: 0.92 }}
+			whileHover={{ scale: 1.02 }}
+			onClick={onClick}
+			disabled={disabled}
+			className={`
+        h-16 bg-white flex items-center justify-center
+        rounded-xl border border-gray-200
+        hover:bg-gray-50 hover:border-gray-300
+        active:bg-gray-100
+        disabled:opacity-40 disabled:cursor-not-allowed
+        text-gray-700
+        transition-all duration-150
+        shadow-sm hover:shadow
+      `}
+			aria-label={
+				variant === "backspace" ? "Delete last digit" : `Enter digit ${value}`
+			}
+		>
+			{Icon}
+		</motion.button>
+	);
+};
+
+/**
+ * Main PIN Scenario Component with Integrated OTP Input
+ */
+export default function IntegratedPinScenario({
+	onAnswer = (isCorrect: boolean) => console.log("Answer:", isCorrect),
+	disabled = false,
+}: IntegratedPinScenarioProps) {
 	const [value, setValue] = useState("");
 	const [answered, setAnswered] = useState(false);
+	const [activeIndex, setActiveIndex] = useState(0);
+	const [hasError, setHasError] = useState(false);
 	const maxLength = 6;
+	const inputRef = useRef<HTMLDivElement>(null);
+
+	// Auto-focus management
+	useEffect(() => {
+		setActiveIndex(Math.min(value.length, maxLength - 1));
+	}, [value]);
 
 	// Handle number pad press
 	const handleNumberPress = (num: string) => {
-		if (disabled || value.length >= maxLength) return;
-		setValue((prev) => prev + num);
+		if (disabled || answered || value.length >= maxLength) return;
+
+		const newValue = value + num;
+		setValue(newValue);
+		setHasError(false);
+
+		// Auto-submit when complete
+		if (newValue.length === maxLength) {
+			setTimeout(() => {
+				// You can add auto-verification logic here
+			}, 100);
+		}
 	};
 
 	// Handle backspace
 	const handleBackspace = () => {
-		if (disabled) return;
+		if (disabled || answered) return;
 		setValue((prev) => prev.slice(0, -1));
+		setHasError(false);
 	};
 
-	// Handle cancel (Correct answer)
+	// Handle slot click
+	const handleSlotClick = (index: number) => {
+		if (disabled || answered) return;
+		setActiveIndex(index);
+		// Focus management for accessibility
+		if (inputRef.current) {
+			inputRef.current.focus();
+		}
+	};
+
+	// Handle cancel (Correct answer in quiz context)
 	const handleCancel = () => {
 		if (disabled) return;
 		setAnswered(true);
 		onAnswer(true);
 	};
 
-	// Handle confirm (Incorrect answer)
+	// Handle confirm (Incorrect answer in quiz context)
 	const handleConfirm = () => {
 		if (disabled) return;
+
+		// Validate PIN (example validation)
+		if (value.length !== maxLength) {
+			setHasError(true);
+			// Shake animation
+			setTimeout(() => setHasError(false), 500);
+			return;
+		}
+
 		setAnswered(true);
 		onAnswer(false);
 	};
 
+	// Handle keyboard input
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (disabled || answered) return;
+
+		if (e.key >= "0" && e.key <= "9") {
+			handleNumberPress(e.key);
+		} else if (e.key === "Backspace") {
+			handleBackspace();
+		} else if (e.key === "Enter" && value.length === maxLength) {
+			handleConfirm();
+		}
+	};
+
 	// Number pad layout
-	const numbers = [
+	const numberPadLayout = [
 		["1", "2", "3"],
 		["4", "5", "6"],
 		["7", "8", "9"],
-		["", "0", "backspace"],
+		["empty", "0", "backspace"],
 	];
 
 	return (
-		<div className={`relative w-full h-full${answered ? " dark" : ""}`}>
-			{/* Dark overlay เมื่อ answered */}
+		<div
+			className={`relative w-full max-w-md mx-auto p-4 ${
+				answered ? "opacity-60" : ""
+			}`}
+			onKeyDown={handleKeyDown}
+			tabIndex={0}
+			ref={inputRef}
+		>
+			{/* Overlay when answered */}
 			{answered && (
-				<div className="absolute inset-0 z-20 bg-blue-500/10 transition-opacity duration-500 pointer-events-none" />
+				<motion.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					className="absolute inset-0 z-20 bg-black/10 rounded-2xl transition-opacity duration-500 pointer-events-none"
+				/>
 			)}
 
-			{/* Phone-like container with blue header */}
-			<div className="bg-white dark:bg-blue-900 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-				{/* Blue header - ลดจาก h-20 เป็น h-[60px] (25% น้อยลง) */}
-				<div className="bg-blue-600 dark:bg-blue-900 h-[60px] flex items-center justify-center">
-					<div className="text-white dark:text-[#054877] text-sm font-medium">
+			{/* Main Container */}
+			<motion.div
+				initial={{ y: 20, opacity: 0 }}
+				animate={{ y: 0, opacity: 1 }}
+				className="w-full bg-gradient-to-b from-gray-50 to-white rounded-2xl shadow-lg overflow-hidden border border-gray-200"
+			>
+				{/* Header */}
+				<div className="text-center pt-8 pb-6 px-6 bg-white">
+					<motion.h3
+						initial={{ scale: 0.9 }}
+						animate={{ scale: 1 }}
+						className="text-xl font-semibold text-gray-800 mb-2"
+					>
 						กรุณากรอกรหัสผ่าน
+					</motion.h3>
+					<p id="pin-instructions" className="text-sm text-gray-500">
+						ป้อนรหัส PIN 6 หลักเพื่อดำเนินการต่อ
+					</p>
+				</div>
+
+				{/* OTP Input Slots with Separator */}
+				<div className="flex justify-center items-center gap-1 px-6 pb-8 bg-white">
+					{/* First group */}
+					<div className="flex gap-2">
+						{[0, 1, 2].map((index) => (
+							<OTPSlot
+								key={index}
+								value={value[index] || ""}
+								isActive={index === activeIndex}
+								index={index}
+								onClick={() => handleSlotClick(index)}
+								hasError={hasError}
+							/>
+						))}
+					</div>
+
+					<OTPSeparator />
+
+					{/* Second group */}
+					<div className="flex gap-2">
+						{[3, 4, 5].map((index) => (
+							<OTPSlot
+								key={index}
+								value={value[index] || ""}
+								isActive={index === activeIndex}
+								index={index}
+								onClick={() => handleSlotClick(index)}
+								hasError={hasError}
+							/>
+						))}
 					</div>
 				</div>
 
-				{/* PIN input display using InputOTP - ลด padding */}
-				<div className="bg-gray-50 dark:bg-gray-800 px-4 py-3">
-					<div className="flex justify-center">
-						<InputOTP
-							maxLength={maxLength}
-							value={value}
-							onChange={(newValue) => setValue(newValue)}
-							disabled={disabled}
-						>
-							<InputOTPGroup>
-								<InputOTPSlot index={0} />
-								<InputOTPSlot index={1} />
-								<InputOTPSlot index={2} />
-								<InputOTPSlot index={3} />
-								<InputOTPSlot index={4} />
-								<InputOTPSlot index={5} />
-							</InputOTPGroup>
-						</InputOTP>
-					</div>
-				</div>
+				{/* Error message */}
+				{hasError && (
+					<motion.div
+						initial={{ height: 0, opacity: 0 }}
+						animate={{ height: "auto", opacity: 1 }}
+						className="px-6 pb-4 bg-white"
+					>
+						<p className="text-center text-sm text-red-500">
+							กรุณากรอกรหัส PIN ให้ครบ 6 หลัก
+						</p>
+					</motion.div>
+				)}
 
-				{/* Number pad - ลด padding และ gap */}
-				<div className="p-3 bg-gray-50 dark:bg-gray-800">
-					<div className="grid grid-cols-3 gap-0.5">
-						{numbers.flat().map((item, index) => {
-							if (item === "") {
-								return <div key={index} />; // Empty space
+				{/* Number Pad */}
+				<div className="bg-gray-50 px-4 pb-6 pt-2">
+					<div className="grid grid-cols-3 gap-2">
+						{numberPadLayout.flat().map((item, index) => {
+							if (item === "empty") {
+								return <NumberPadButton key={index} variant="empty" value="" />;
 							}
 
 							if (item === "backspace") {
 								return (
-									<motion.button
+									<NumberPadButton
 										key={index}
-										whileTap={{ scale: 0.95 }}
+										variant="backspace"
+										value=""
 										onClick={handleBackspace}
-										disabled={disabled || value.length === 0}
-										className="aspect-4/3 flex items-center justify-center bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-200"
-									>
-										<svg
-											className="w-5 h-5"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth={2}
-												d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"
-											/>
-										</svg>
-									</motion.button>
+										disabled={disabled || answered || value.length === 0}
+									/>
 								);
 							}
 
 							return (
-								<motion.button
+								<NumberPadButton
 									key={index}
-									whileTap={{ scale: 0.95 }}
+									value={item}
 									onClick={() => handleNumberPress(item)}
-									disabled={disabled}
-									className="aspect-4/3 flex items-center justify-center bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-200"
-								>
-									{item}
-								</motion.button>
+									disabled={disabled || answered || value.length >= maxLength}
+								/>
 							);
 						})}
 					</div>
 				</div>
-			</div>
+			</motion.div>
 
-			{/* Action buttons - ใช้ Button component เหมือนข้ออื่น */}
-			<div className="flex gap-3 sm:gap-4 md:gap-6 mt-4 px-4">
-				<Button
-					variant="quiz"
-					size="lg"
+			{/* Action Buttons */}
+			<motion.div
+				initial={{ y: 20, opacity: 0 }}
+				animate={{ y: 0, opacity: 1 }}
+				transition={{ delay: 0.1 }}
+				className="flex gap-3 mt-6"
+			>
+				<motion.button
+					whileHover={{ scale: 1.02 }}
+					whileTap={{ scale: 0.98 }}
 					onClick={handleCancel}
-					disabled={disabled}
-					className="flex-1 h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px] bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
+					disabled={disabled || answered}
+					className="
+            flex-1 h-12 text-base
+            bg-white text-gray-700 
+            border-2 border-gray-300 rounded-xl
+            hover:bg-gray-50 hover:border-gray-400
+            active:bg-gray-100
+            font-medium
+            transition-all duration-150
+            shadow-sm hover:shadow
+            disabled:opacity-50 disabled:cursor-not-allowed
+          "
 				>
 					ยกเลิก
-				</Button>
-				<Button
-					variant="quiz"
-					size="lg"
+				</motion.button>
+				<motion.button
+					whileHover={{ scale: 1.02 }}
+					whileTap={{ scale: 0.98 }}
 					onClick={handleConfirm}
-					disabled={disabled}
-					className="flex-1 h-auto text-sm sm:text-base py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 min-h-[44px] bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
+					disabled={disabled || answered}
+					className={`
+            flex-1 h-12 text-base
+            bg-gradient-to-r from-gray-800 to-gray-700 text-white 
+            border-2 border-gray-800 rounded-xl
+            hover:from-gray-700 hover:to-gray-600
+            active:from-gray-900 active:to-gray-800
+            font-medium
+            transition-all duration-150
+            shadow-md hover:shadow-lg
+            disabled:opacity-50 disabled:cursor-not-allowed
+            ${
+							value.length === maxLength
+								? "ring-2 ring-blue-400 ring-opacity-50"
+								: ""
+						}
+          `}
 				>
 					ยืนยัน
-				</Button>
+				</motion.button>
+			</motion.div>
+
+			{/* Progress indicator */}
+			<div className="mt-4 px-4">
+				<div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+					<motion.div
+						initial={{ width: 0 }}
+						animate={{ width: `${(value.length / maxLength) * 100}%` }}
+						className="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full"
+						transition={{ type: "spring", stiffness: 300, damping: 30 }}
+					/>
+				</div>
 			</div>
+
+			<style jsx>{`
+				@keyframes blink {
+					0%,
+					50% {
+						opacity: 1;
+					}
+					51%,
+					100% {
+						opacity: 0;
+					}
+				}
+
+				.animate-blink {
+					animation: blink 1s infinite;
+				}
+			`}</style>
 		</div>
 	);
-};
+}

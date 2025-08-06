@@ -17,7 +17,7 @@ import { useEffect } from "react";
 export default function ResultPage() {
 	const router = useRouter();
 	const { getSummary, resetQuiz, saveQuizSummaryToApi } = useQuizResultStore();
-	const { score, total, percentage } = getSummary();
+	const { score, total } = getSummary();
 
 	// 📞 Save summary to API when page loads
 	useEffect(() => {
@@ -169,45 +169,6 @@ export default function ResultPage() {
 									</motion.li>
 								))}
 							</ul>
-						</CardContent>
-					</Card>
-				</motion.div>
-
-				{/* 📊 Score Breakdown */}
-				<motion.div variants={itemVariants}>
-					<Card className="mb-8 shadow-lg">
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								📊 สรุปผลคะแนน
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="space-y-4">
-								<div className="flex justify-between items-center">
-									<span className="text-gray-600">คะแนนที่ได้</span>
-									<span className="font-bold text-lg">{score} คะแนน</span>
-								</div>
-								<div className="flex justify-between items-center">
-									<span className="text-gray-600">คะแนนเต็ม</span>
-									<span className="font-bold text-lg">{total} คะแนน</span>
-								</div>
-								<div className="flex justify-between items-center">
-									<span className="text-gray-600">เปอร์เซ็นต์</span>
-									<span className="font-bold text-lg text-blue-600">
-										{percentage}%
-									</span>
-								</div>
-
-								{/* Progress Bar */}
-								<div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-									<motion.div
-										className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-										initial={{ width: 0 }}
-										animate={{ width: `${percentage}%` }}
-										transition={{ delay: 1.5, duration: 1.5, ease: "easeOut" }}
-									/>
-								</div>
-							</div>
 						</CardContent>
 					</Card>
 				</motion.div>
