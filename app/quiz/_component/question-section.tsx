@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useQuizAnimations } from "@/hooks/useQuizAnimations";
+import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface QuestionSectionProps {
 	question: string;
@@ -12,20 +12,28 @@ export const QuestionSection = ({
 	question,
 	showResult,
 }: QuestionSectionProps) => {
-	// 🎨 Animation Logic - React Compiler Optimized
-	const { getQuestionExitAnimation } = useQuizAnimations(showResult);
+	// 🎨 Responsive animation values
+	const isMobile = useIsMobile();
+	const yMove = isMobile ? -20 : -30;
+	
 	return (
 		<div className="w-full mb-2 sm:mb-3 md:mb-4 flex items-center justify-center min-h-[60px] sm:min-h-[70px] md:min-h-[80px]">
-			<AnimatePresence>
-				{!showResult && (
-					<motion.h2
-						className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-[#054877] text-center leading-tight px-2 sm:px-3 md:px-4 max-w-[300px] sm:max-w-md md:max-w-lg line-clamp-2"
-						{...getQuestionExitAnimation()}
-					>
-						{question}
-					</motion.h2>
-				)}
-			</AnimatePresence>
+			<motion.h2
+				className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-[#054877] text-center leading-tight px-2 sm:px-3 md:px-4 max-w-[300px] sm:max-w-md md:max-w-lg line-clamp-2"
+				initial={{ opacity: 0, y: 20 }}
+				animate={
+					showResult
+						? { opacity: 0, y: yMove }
+						: { opacity: 1, y: 0 }
+				}
+				transition={{
+					duration: 0.4,
+					ease: "easeInOut",
+					delay: showResult ? 0 : 0.2,
+				}}
+			>
+				{question}
+			</motion.h2>
 		</div>
 	);
 };
