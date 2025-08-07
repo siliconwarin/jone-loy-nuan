@@ -217,18 +217,19 @@ export const useQuizAnimations = (showResult: boolean) => {
 	const getQuestionExitAnimation = useCallback(() => {
 		return {
 			initial: { opacity: 0, y: 20 },
-			animate: isInitialized ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
-			exit: {
-				opacity: 0,
-				y: responsiveValues.questionExitY,
-			},
+			animate: isInitialized 
+				? { 
+					opacity: 1, 
+					y: showResult ? responsiveValues.questionExitY : 0 
+				} 
+				: { opacity: 0, y: 20 },
 			transition: {
 				duration: 0.4,
 				ease: "easeInOut" as const,
 				delay: isInitialized ? 0.2 : 0,
 			},
 		};
-	}, [responsiveValues.questionExitY, isInitialized]);
+	}, [responsiveValues.questionExitY, isInitialized, showResult]);
 
 	const getBackgroundAnimation = useCallback(
 		(theme: "light" | "dark" = "light") => {
