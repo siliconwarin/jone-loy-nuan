@@ -213,7 +213,8 @@ export function QuizClient({
 					className="h-[100dvh] relative flex flex-col p-4 md:p-8"
 					animate={{
 						scale: showResult ? 0.95 : 1,
-						opacity: showResult ? 0.7 : 1,
+						opacity: showResult ? 0.8 : 1,
+						y: showResult ? -50 : 0,
 					}}
 					transition={{ duration: 1.2, ease: "easeInOut" }}
 				>
