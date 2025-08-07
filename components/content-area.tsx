@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import PinScenario from "@/app/quiz/_component/pin-scenario";
+import { useQuizAnimations } from "@/hooks/useQuizAnimations";
 import type { QuestionWithAnswers } from "@/lib/types";
 
 interface ContentAreaProps {
@@ -18,6 +19,7 @@ export function ContentArea({
 	variant = "fullscreen",
 	onPinScenarioAnswer,
 }: ContentAreaProps) {
+	const { getContentMotionProps } = useQuizAnimations(showResult);
 	// สำหรับข้อแรก (PIN Scenario)
 	if (questionData.order_index === 1) {
 		return (
@@ -45,9 +47,7 @@ export function ContentArea({
 		<div className="w-full h-full flex items-center justify-center">
 			<motion.div
 				className="relative w-full max-w-md aspect-square"
-				initial={{ scale: 0.9, opacity: 0 }}
-				animate={{ scale: 1, opacity: 1 }}
-				transition={{ duration: 0.5 }}
+				{...getContentMotionProps()}
 			>
 				{/* Normal Image */}
 				{normalImageUrl && (
