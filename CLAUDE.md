@@ -116,3 +116,48 @@ Required environment variables:
 
 ## Data Migration
 Use `npm run migrate` to run the quiz data migration script which handles question imports and database seeding.
+
+## Important Code Architecture Details
+
+### Quiz Flow Architecture
+The quiz system follows a specific flow pattern:
+1. Questions are fetched via Supabase functions (`get_questions_with_answers`)
+2. State is managed through `useQuizResultStore` with session tracking
+3. Each question supports different content types via the `QuizContent` interface
+4. Responses are stored locally and batch-saved via API routes
+
+### Scam Category System
+The application categorizes scams into 10 specific types defined in `lib/types.ts`:
+- SMS_SCAM, LOAN_APP_SCAM, JOB_SCAM, INVESTMENT_SCAM, ROMANCE_SCAM
+- GROUP_SCAM, PIN_SCAM, POLICE_AD_SCAM, POLICE_CALL_SCAM, MULE_ACCOUNT_SCAM
+
+### Content Type System
+Quiz questions support four content types in the `QuizContent` interface:
+- `"image"` - Regular images with alt text
+- `"text"` - Plain text content  
+- `"svg"` - SVG graphics stored in public directory
+- `"component"` - React components for interactive scenarios
+
+### Database Integration
+- Uses Supabase with TypeScript types generated in `database.types.ts`
+- Server actions in `lib/actions/` handle all database mutations
+- Quiz responses saved to `/api/quiz-reponse` endpoint for analytics
+- Real-time features available for admin panel updates
+
+### Animation System
+Centralized animation configuration through `useQuizAnimations` hook provides:
+- Consistent timing and easing across components
+- Stair transition effects for page changes
+- Interactive element animations via Framer Motion
+
+### Admin Panel Architecture
+- Separate admin routes under `/app/admin/`
+- CRUD operations for questions with image upload capability
+- Uses React Hook Form + Zod for form validation
+- Drag-and-drop reordering with @dnd-kit library
+
+### Build and Development Notes
+- Uses TypeScript strict mode with custom ESLint rules
+- Two disabled rules: `react/no-unescaped-entities` and `@next/next/no-page-custom-font`
+- Tailwind CSS v4 with CSS variables for theming
+- Font loading: Inter (primary) + Prompt (Thai) with display swap optimization

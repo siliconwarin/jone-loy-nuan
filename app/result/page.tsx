@@ -2,17 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardHeader,
-	CardTitle,
-	CardDescription,
-	CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useQuizResultStore } from "@/store/quiz-store";
-import { CheckCircle, RotateCcw, Home } from "lucide-react";
-import { useEffect } from "react";
+import { RotateCcw, Home } from "lucide-react";
+import { useEffect, useMemo } from "react";
 
 export default function ResultPage() {
 	const router = useRouter();
@@ -25,54 +20,53 @@ export default function ResultPage() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// 🎯 Score Analysis
-	const getScoreAnalysis = (score: number) => {
-		if (score >= 6) {
-			return {
-				level: "ยอดเยี่ยม!",
-				color: "text-green-600",
-				bgColor: "bg-green-50",
-				borderColor: "border-green-200",
-				emoji: "🏆",
-				message: "คุณมีความรู้ในการป้องกันการหลอกลวงออนไลน์อย่างดีเยี่ยม!",
-				tips: [
-					"คุณสามารถระบุ Red Flags ได้แม่นยำ",
-					"ความรู้ของคุณช่วยป้องกันตัวเองได้ดี",
-					"แบ่งปันความรู้ให้คนรอบข้างด้วย",
-				],
-			};
-		} else if (score >= 4) {
-			return {
-				level: "ดีมาก!",
-				color: "text-blue-600",
-				bgColor: "bg-blue-50",
-				borderColor: "border-blue-200",
-				emoji: "🎯",
-				message: "คุณมีความรู้พื้นฐานที่ดี แต่ยังสามารถเรียนรู้เพิ่มเติมได้",
-				tips: [
-					"ศึกษา Red Flags เพิ่มเติม",
-					"ระมัดระวังการแชร์ข้อมูลส่วนตัว",
-					"ตรวจสอบความน่าเชื่อถือก่อนตัดสินใจ",
-				],
-			};
-		} else {
-			return {
-				level: "ควรระวัง",
-				color: "text-orange-600",
-				bgColor: "bg-orange-50",
-				borderColor: "border-orange-200",
-				emoji: "⚠️",
-				message: "คุณควรเรียนรู้เพิ่มเติมเพื่อป้องกันการถูกหลอกลวง",
-				tips: [
-					"ศึกษารูปแบบการหลอกลวงออนไลน์",
-					"ไม่เชื่อข้อเสนอที่ดีเกินจริง",
-					"ปรึกษาคนรอบข้างก่อนตัดสินใจ",
-				],
-			};
-		}
-	};
+	// 🎯 Result design mapping (ตามดีไซน์ใหม่)
+	const resultDesign = useMemo(() => {
+		const scoreOutOfTen = total > 0 ? Math.round((score / total) * 10) : 0;
 
-	const analysis = getScoreAnalysis(score);
+		if (scoreOutOfTen <= 3) {
+			return {
+				scoreLabel: `${scoreOutOfTen}/10`,
+				title: "คุณเสี่ยงตกเป็นเหยื่อมิจฉาชีพ",
+				imageSrc: "/images/results/risk-high.svg",
+				imageAlt: "ผลลัพธ์ความเสี่ยงสูง (3/10)",
+				tips: [
+					"อย่าหลงเชื่อเมื่อมีคนเสนอเงินหรือขู่บังคับ",
+					"ปรึกษาคนรอบข้าง และค้นหาข้อมูลก่อน",
+					"ห้ามโอนเงิน หากเผลอโอนแล้วอย่าโอนเพิ่ม",
+					"ถ้าถูกหลอก ติดต่อสายด่วน 1441 เท่านั้น",
+				],
+			} as const;
+		}
+
+		if (scoreOutOfTen < 9) {
+			return {
+				scoreLabel: `${scoreOutOfTen}/10`,
+				title: "คุณพอจับพิรุธมิจฉาชีพได้",
+				imageSrc: "/images/results/risk-medium.svg",
+				imageAlt: "ผลลัพธ์ระดับกลาง (7/10)",
+				tips: [
+					"อย่าเชื่อข้อเสนอที่ดีเกินจริง แม้ดูน่าเชื่อถือ",
+					"ตรวจสอบชื่อบัญชี เบอร์โทร และเว็บไซต์ทุกครั้ง",
+					"ไม่โอนเงินให้ และหยุดทันทีหากถูกจูงใจเพิ่ม",
+					"หากสงสัยว่าจะถูกโกง ติดต่อสายด่วน 1441",
+				],
+			} as const;
+		}
+
+		return {
+			scoreLabel: `${scoreOutOfTen}/10`,
+			title: "คุณรู้เท่าทันมิจฉาชีพ",
+			imageSrc: "/images/results/risk-low.svg",
+			imageAlt: "ผลลัพธ์ดีมาก (10/10)",
+			tips: [
+				"แยกแยะข้อเสนอหลอกลวงและรู้ทันกลโกงได้",
+				"มีทักษะด้านความปลอดภัยไซเบอร์",
+				"ย้ำเตือนคนรอบข้าง ไม่ให้แชร์หรือโอนเงิน",
+				"หากพบคนถูกหลอก ส่งต่อข้อมูลให้โทร 1441",
+			],
+		} as const;
+	}, [score, total]);
 
 	// 🎨 Animation Variants
 	const containerVariants = {
@@ -108,100 +102,74 @@ export default function ResultPage() {
 
 	return (
 		<motion.div
-			className="h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 py-8 px-4 overflow-y-auto"
+			className="min-h-[100svh] bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 flex items-center justify-center py-4 px-4 md:py-8 overflow-y-auto"
 			variants={containerVariants}
 			initial="hidden"
 			animate="visible"
 		>
-			<div className="max-w-2xl mx-auto">
-				{/* 🏆 Main Result Card */}
+			<div className="w-full max-w-3xl">
+				{/* 🎴 Main Card (Vertical layout) */}
 				<motion.div variants={itemVariants}>
-					<Card
-						className={`mb-8 border-2 ${analysis.borderColor} ${analysis.bgColor} shadow-xl`}
-					>
-						<CardHeader className="text-center">
-							<motion.div
-								className="text-6xl mb-4"
-								initial={{ scale: 0 }}
-								animate={{ scale: 1 }}
-								transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-							>
-								{analysis.emoji}
-							</motion.div>
-							<CardTitle className={`text-3xl font-bold ${analysis.color}`}>
-								{analysis.level}
-							</CardTitle>
-							<CardDescription className="text-lg text-gray-700 mt-2">
-								คะแนนของคุณ:{" "}
-								<span className="font-bold text-2xl">
-									{score}/{total}
+					<Card className="mb-6 md:mb-8 border-2 border-slate-200 bg-white shadow-xl">
+						<CardHeader className="pb-4 md:pb-6">
+							<div className="flex flex-col items-center text-center gap-2 md:gap-3">
+								<span className="text-3xl md:text-4xl font-extrabold tracking-tight text-indigo-900">
+									{resultDesign.scoreLabel}
 								</span>
-							</CardDescription>
+								{"imageSrc" in resultDesign && (
+									<Image
+										src={(resultDesign as any).imageSrc}
+										alt={(resultDesign as any).imageAlt}
+										width={180}
+										height={180}
+										className="w-44 h-44 md:w-52 md:h-52 rounded-xl object-contain"
+										priority={false}
+									/>
+								)}
+								<CardTitle className="mt-1 md:mt-2 text-xl md:text-2xl font-bold text-rose-600">
+									{resultDesign.title}
+								</CardTitle>
+							</div>
 						</CardHeader>
-						<CardContent className="text-center">
-							<p className="text-gray-700 text-lg leading-relaxed">
-								{analysis.message}
-							</p>
+						<CardContent className="pt-0">
+							<div className="rounded-2xl border bg-blue-50 border-blue-200 p-4 md:p-5">
+								<ul className="list-disc marker:text-blue-900 pl-5 space-y-2 md:space-y-3 text-slate-800">
+									{resultDesign.tips.map((tip, index) => (
+										<motion.li
+											key={index}
+											initial={{ opacity: 0, x: -20 }}
+											animate={{ opacity: 1, x: 0 }}
+											transition={{ delay: 0.4 + index * 0.12 }}
+											className="text-sm md:text-base"
+										>
+											{tip}
+										</motion.li>
+									))}
+								</ul>
+							</div>
 						</CardContent>
 					</Card>
 				</motion.div>
 
-				{/* 💡 Tips & Recommendations */}
-				<motion.div variants={itemVariants}>
-					<Card className="mb-8 shadow-lg">
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								💡 คำแนะนำสำหรับคุณ
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<ul className="space-y-3">
-								{analysis.tips.map((tip, index) => (
-									<motion.li
-										key={index}
-										className="flex items-start gap-3"
-										initial={{ opacity: 0, x: -20 }}
-										animate={{ opacity: 1, x: 0 }}
-										transition={{ delay: 1 + index * 0.2 }}
-									>
-										<CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-										<span className="text-gray-700">{tip}</span>
-									</motion.li>
-								))}
-							</ul>
-						</CardContent>
-					</Card>
-				</motion.div>
-
-				{/* 🎮 Action Buttons */}
-				<motion.div variants={itemVariants} className="flex gap-4">
+				{/* 🎮 Actions */}
+				<motion.div
+					variants={itemVariants}
+					className="flex flex-col sm:flex-row gap-3 md:gap-4"
+				>
 					<Button
 						onClick={handlePlayAgain}
-						className="flex-1 h-12 text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all duration-200"
+						className="flex-1 h-11 md:h-12 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
 					>
-						<RotateCcw className="mr-2 h-5 w-5" />
+						<RotateCcw className="mr-2 h-4 w-4 md:h-5 md:w-5" />
 						เล่นใหม่
 					</Button>
 					<Button
 						onClick={handleGoHome}
-						variant="outline"
-						className="flex-1 h-12 text-lg font-semibold border-2 hover:bg-gray-50 transition-all duration-200"
+						className="flex-1 h-11 md:h-12 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
 					>
-						<Home className="mr-2 h-5 w-5" />
+						<Home className="mr-2 h-4 w-4 md:h-5 md:w-5" />
 						กลับหน้าแรก
 					</Button>
-				</motion.div>
-
-				{/* 🙏 Thank You Message */}
-				<motion.div
-					variants={itemVariants}
-					className="text-center mt-8 p-6 bg-white/50 backdrop-blur-sm rounded-xl"
-				>
-					<p className="text-gray-600">
-						ขอบคุณที่ใช้เวลาทำแบบทดสอบและแบบสอบถาม 🙏
-						<br />
-						ข้อมูลของคุณจะช่วยให้เราปรับปรุงระบบให้ดีขึ้น
-					</p>
 				</motion.div>
 			</div>
 		</motion.div>

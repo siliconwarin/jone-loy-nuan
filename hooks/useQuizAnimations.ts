@@ -101,7 +101,7 @@ export const useQuizAnimations = (showResult: boolean) => {
 
 		return {
 			yMove: isMobile ? -120 : isTablet ? -75 : -75,
-			scaleDown: isMobile ? 0.95 : isTablet ? 0.92 : 0.9,
+			scaleDown: 0.95,
 			answerPanelMove: isMobile ? -10 : isTablet ? -15 : -20,
 			questionExitY: isMobile ? -20 : isTablet ? -25 : -30,
 			bubbleY: isMobile ? 15 : 20,
