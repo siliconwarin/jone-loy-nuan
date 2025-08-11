@@ -107,10 +107,10 @@ export default function ResultPage() {
 			initial="hidden"
 			animate="visible"
 		>
-			<div className="w-full max-w-3xl">
+			<div className="w-full h-max max-w-3xl">
 				{/* 🎴 Main Card (Vertical layout) */}
-				<motion.div variants={itemVariants}>
-					<Card className="mb-6 md:mb-8 border-2 border-slate-200 bg-white shadow-xl">
+				<motion.div variants={itemVariants} className="my-[10vh]">
+					<Card className="border-2 border-slate-200 bg-white shadow-xl">
 						<CardHeader className="pb-4 md:pb-6">
 							<div className="flex flex-col items-center text-center gap-2 md:gap-3">
 								<span className="text-3xl md:text-4xl font-extrabold tracking-tight text-indigo-900">
@@ -120,9 +120,9 @@ export default function ResultPage() {
 									<Image
 										src={(resultDesign as any).imageSrc}
 										alt={(resultDesign as any).imageAlt}
-										width={180}
-										height={180}
-										className="w-44 h-44 md:w-52 md:h-52 rounded-xl object-contain"
+										width={240}
+										height={240}
+										className="w-56 h-56 md:w-72 md:h-72 rounded-xl object-contain"
 										priority={false}
 									/>
 								)}
