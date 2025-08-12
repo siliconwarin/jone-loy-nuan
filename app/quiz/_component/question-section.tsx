@@ -19,7 +19,7 @@ export const QuestionSection = ({
 			<AnimatePresence>
 				{!showResult && (
 					<motion.h2
-						className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-[#054877] text-center leading-tight px-2 sm:px-3 md:px-4 max-w-[300px] sm:max-w-md md:max-w-lg line-clamp-2"
+						className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-[#054877] text-center leading-tight px-2 sm:px-3 md:px-4 max-w-[calc(100vw-2rem)] sm:max-w-md md:max-w-lg line-clamp-2"
 						{...getQuestionExitAnimation()}
 					>
 						{question}

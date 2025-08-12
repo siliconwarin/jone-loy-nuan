@@ -221,7 +221,7 @@ export function QuizClient({
 					<div className="relative w-full h-full flex flex-col">
 						{/* Question Section */}
 						<div className="flex justify-end items-end basis-[15%] sm:basis-[18%] md:basis-[20%] pt-2 sm:pt-4 md:pt-5 pb-2 sm:pb-3 md:pb-4">
-							<div className="w-full max-w-[340px] sm:max-w-md md:max-w-lg mx-auto">
+							<div className="w-full max-w-[95%] sm:max-w-md md:max-w-lg mx-auto">
 								<QuestionSection
 									question={currentQuestion?.question_text ?? ""}
 									showResult={showResult}
