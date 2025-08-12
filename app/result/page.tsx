@@ -102,45 +102,45 @@ export default function ResultPage() {
 
 	return (
 		<motion.div
-			className="min-h-[100svh] bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 flex items-center justify-center py-4 px-4 md:py-8 overflow-y-auto"
+			className="min-h-[100dvh] bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 flex flex-col justify-center py-6 px-4 sm:py-8 md:py-12"
 			variants={containerVariants}
 			initial="hidden"
 			animate="visible"
 		>
-			<div className="w-full h-max max-w-3xl">
-				{/* 🎴 Main Card (Vertical layout) */}
-				<motion.div variants={itemVariants} className="my-[10vh]">
+			<div className="w-full max-w-md mx-auto flex flex-col justify-center min-h-0">
+				{/* 🎴 Main Card (Optimized spacing) */}
+				<motion.div variants={itemVariants} className="mb-6 sm:mb-8">
 					<Card className="border-2 border-slate-200 bg-white shadow-xl">
-						<CardHeader className="pb-4 md:pb-6">
-							<div className="flex flex-col items-center text-center gap-2 md:gap-3">
-								<span className="text-3xl md:text-4xl font-extrabold tracking-tight text-indigo-900">
+						<CardHeader className="pb-3 sm:pb-4 pt-6 sm:pt-8">
+							<div className="flex flex-col items-center text-center gap-2 sm:gap-3">
+								<span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-indigo-900">
 									{resultDesign.scoreLabel}
 								</span>
 								{"imageSrc" in resultDesign && (
 									<Image
 										src={(resultDesign as any).imageSrc}
 										alt={(resultDesign as any).imageAlt}
-										width={240}
-										height={240}
-										className="w-56 h-56 md:w-72 md:h-72 rounded-xl object-contain"
+										width={200}
+										height={200}
+										className="w-48 h-48 sm:w-56 sm:h-56 rounded-xl object-contain"
 										priority={false}
 									/>
 								)}
-								<CardTitle className="mt-1 md:mt-2 text-xl md:text-2xl font-bold text-rose-600">
+								<CardTitle className="mt-1 sm:mt-2 text-lg sm:text-xl font-bold text-rose-600 px-2">
 									{resultDesign.title}
 								</CardTitle>
 							</div>
 						</CardHeader>
-						<CardContent className="pt-0">
-							<div className="rounded-2xl border bg-blue-50 border-blue-200 p-4 md:p-5">
-								<ul className="list-disc marker:text-blue-900 pl-5 space-y-2 md:space-y-3 text-slate-800">
+						<CardContent className="pt-0 pb-6 sm:pb-8">
+							<div className="rounded-2xl border bg-blue-50 border-blue-200 p-4 sm:p-5">
+								<ul className="list-disc marker:text-blue-900 pl-4 sm:pl-5 space-y-2 sm:space-y-2.5 text-slate-800">
 									{resultDesign.tips.map((tip, index) => (
 										<motion.li
 											key={index}
 											initial={{ opacity: 0, x: -20 }}
 											animate={{ opacity: 1, x: 0 }}
 											transition={{ delay: 0.4 + index * 0.12 }}
-											className="text-sm md:text-base"
+											className="text-sm sm:text-base leading-relaxed"
 										>
 											{tip}
 										</motion.li>
@@ -151,23 +151,23 @@ export default function ResultPage() {
 					</Card>
 				</motion.div>
 
-				{/* 🎮 Actions */}
+				{/* 🎮 Actions (Fixed positioning) */}
 				<motion.div
 					variants={itemVariants}
-					className="flex flex-col sm:flex-row gap-3 md:gap-4"
+					className="flex flex-col gap-3 sm:gap-4 mt-auto"
 				>
 					<Button
 						onClick={handlePlayAgain}
-						className="flex-1 h-11 md:h-12 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
+						className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
 					>
-						<RotateCcw className="mr-2 h-4 w-4 md:h-5 md:w-5" />
+						<RotateCcw className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
 						เล่นใหม่
 					</Button>
 					<Button
 						onClick={handleGoHome}
-						className="flex-1 h-11 md:h-12 text-base md:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
+						className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
 					>
-						<Home className="mr-2 h-4 w-4 md:h-5 md:w-5" />
+						<Home className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
 						กลับหน้าแรก
 					</Button>
 				</motion.div>

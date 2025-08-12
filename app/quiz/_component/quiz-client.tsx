@@ -248,12 +248,14 @@ export function QuizClient({
 						<div className="basis-[25%] pb-4 sm:pb-6 md:pb-8">
 							{/* ข้อแรกไม่ต้องแสดง AnswerPanel */}
 							{currentQuestion.order_index !== 1 && (
-								<AnswerPanel
-									answers={answers}
-									selectedAnswer={selectedAnswer}
-									showResult={showResult}
-									onAnswerSelect={handleAnswerSelect}
-								/>
+								<div className="w-full max-w-[95%] sm:max-w-md md:max-w-lg mx-auto">
+									<AnswerPanel
+										answers={answers}
+										selectedAnswer={selectedAnswer}
+										showResult={showResult}
+										onAnswerSelect={handleAnswerSelect}
+									/>
+								</div>
 							)}
 						</div>
 					</div>
