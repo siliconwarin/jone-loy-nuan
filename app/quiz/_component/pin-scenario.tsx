@@ -333,7 +333,7 @@ export default function IntegratedPinScenario({
             disabled:opacity-50 disabled:cursor-not-allowed
           "
 				>
-					ยกเลิก
+					ไม่กรอกรหัส
 				</motion.button>
 				<motion.button
 					whileHover={{ scale: 1.02 }}
