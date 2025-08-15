@@ -250,6 +250,56 @@ export default function IntegratedPinScenario({
 			>
 				{/* Header */}
 				<div className="text-center pt-4 sm:pt-6 md:pt-8 pb-4 sm:pb-6 px-4 sm:px-6 bg-white">
+					{/* Red Flag Pin Icon and Note Card - Show only when answered */}
+					{answered && (
+						<>
+							<motion.div
+								initial={{ scale: 0, rotate: -10, opacity: 0 }}
+								animate={{ scale: 1, rotate: 0, opacity: 1 }}
+								transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+								className="absolute top-[35%] left-1/2 transform -translate-x-1/2 z-30 mb-4"
+							>
+								<img
+									src="/images/scenarios/question-1/redflag-pin.svg"
+									alt="Red flag pin warning"
+									className="w-64 h-auto transform scale-200 sm:scale-100 md:scale-200"
+								/>
+							</motion.div>
+
+							{/* Note Card */}
+							<motion.div
+								initial={{ y: 20, opacity: 0 }}
+								animate={{ y: 0, opacity: 1 }}
+								transition={{ delay: 0.4 }}
+								className="absolute top-[75%] left-1/2 transform -translate-x-1/2 z-30 w-[90%] max-w-sm p-3 bg-blue-100 border-2 border-blue-300 rounded-xl shadow-xl backdrop-blur-sm"
+							>
+								<div className="flex items-start gap-2">
+									<div className="flex-shrink-0 mt-0.5">
+										<svg
+											className="w-4 h-4 text-blue-600"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path
+												fillRule="evenodd"
+												d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+												clipRule="evenodd"
+											/>
+										</svg>
+									</div>
+									<div>
+										<p className="text-sm font-medium text-blue-800 mb-1">
+											หมายเหตุ
+										</p>
+										<p className="text-xs sm:text-sm text-blue-700 leading-relaxed">
+											แบบทดสอบนี้ไม่มีการจัดเก็บรหัสผ่านของผู้ใช้
+										</p>
+									</div>
+								</div>
+							</motion.div>
+						</>
+					)}
+
 					<motion.h3
 						initial={{ scale: 0.9 }}
 						animate={{ scale: 1 }}
