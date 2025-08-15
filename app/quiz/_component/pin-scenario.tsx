@@ -257,7 +257,7 @@ export default function IntegratedPinScenario({
 								initial={{ scale: 0, rotate: -10, opacity: 0 }}
 								animate={{ scale: 1, rotate: 0, opacity: 1 }}
 								transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-								className="absolute top-[35%] left-1/2 transform -translate-x-1/2 z-30 mb-4"
+								className="absolute -top-[20%] left-1/2 transform -translate-x-1/2 z-30 mb-4"
 							>
 								<img
 									src="/images/scenarios/question-1/redflag-pin.svg"
@@ -269,10 +269,10 @@ export default function IntegratedPinScenario({
 								initial={{ opacity: 0, y: 10 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: 0.4 }}
-								className="absolute top-[40%] left-0 right-0 z-30 px-4"
+								className="absolute -top-[10%] left-0 right-0 z-30 px-4"
 							>
-								<p className="w-full text-sm font-medium text-white mb-1 text-center rounded-lg px-3 py-2">
-									หมายเหตุ: แบบทดสอบนี้ไม่มีการจัดเก็บรหัสผ่านของผู้ใช้
+								<p className="w-full text-sm text-white mb-1 text-center rounded-lg px-3 py-2">
+									*แบบทดสอบนี้ไม่มีการจัดเก็บรหัสผ่านของผู้ใช้
 								</p>
 							</motion.div>
 						</>
